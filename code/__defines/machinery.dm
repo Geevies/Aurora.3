@@ -113,3 +113,10 @@ var/list/restricted_camera_networks = list(NETWORK_ERT,NETWORK_MERCENARY,"Secret
 // Assuming 100% efficency, use this equation to figure out power output.
 //      power_generated = (fuel**2) * AM_POWER_FACTOR
 #define AM_POWER_FACTOR 50000
+
+// Defines for the fabricator
+#define FABRICATOR_EXTRA_COST_FACTOR 1.25
+#define FAB_HACKED   1
+#define FAB_DISABLED 2
+#define FAB_SHOCKED  4
+#define FAB_BUSY     8
