@@ -200,15 +200,42 @@
 
 	suit = /obj/item/clothing/suit/storage/toggle/labcoat
 
-/datum/job/officer
-	title = "Security Officer"
-	flag = OFFICER
+/datum/job/intern_sec
+	title = "Security Cadet"
+	flag = INTERN_SEC
+	department_flag = ENGSEC
+	faction = "Station"
+	total_positions = 2
+	spawn_positions = 2
+	supervisors = "the Head of Security"
+	selection_color = "#ffeeee"
+	access = list(access_security, access_sec_doors, access_maint_tunnels)
+	minimal_access = list(access_security, access_sec_doors, access_maint_tunnels)
+	outfit = /datum/outfit/job/intern_sec
+
+/datum/outfit/job/intern_sec
+	name = "Security Cadet"
+	jobtype = /datum/job/intern_sec
+
+	uniform = /obj/item/clothing/under/rank/security2
+	head = /obj/item/clothing/head/beret/sec
+	shoes = /obj/item/clothing/shoes/jackboots
+	l_ear = /obj/item/device/radio/headset/headset_sec
+
+	backpack = /obj/item/weapon/storage/backpack/security
+	satchel = /obj/item/weapon/storage/backpack/satchel_sec
+	dufflebag = /obj/item/weapon/storage/backpack/duffel/sec
+	messengerbag = /obj/item/weapon/storage/backpack/messenger/sec
+
+/datum/job/brigofficer
+	title = "General Officer"
+	flag = BRIGSEC
 	department = "Security"
 	department_flag = ENGSEC
 	faction = "Station"
-	total_positions = 4
-	spawn_positions = 4
-	supervisors = "the head of security"
+	total_positions = 1
+	spawn_positions = 1
+	supervisors = "the warden and head of security"
 	selection_color = "#FFA4A4"
 	economic_modifier = 4
 
@@ -217,11 +244,11 @@
 	access = list(access_security, access_eva, access_sec_doors, access_brig, access_maint_tunnels, access_morgue, access_external_airlocks, access_weapons)
 	minimal_access = list(access_security, access_eva, access_sec_doors, access_brig, access_maint_tunnels, access_external_airlocks, access_weapons)
 	minimal_player_age = 7
-	outfit = /datum/outfit/job/officer
+	outfit = /datum/outfit/job/brigofficer
 
-/datum/outfit/job/officer
-	name = "Security Officer"
-	jobtype = /datum/job/officer
+/datum/outfit/job/brigofficer
+	name = "General Officer"
+	jobtype = /datum/job/brigofficer
 
 	uniform = /obj/item/clothing/under/rank/security
 	shoes = /obj/item/clothing/shoes/jackboots
@@ -235,10 +262,11 @@
 	messengerbag = /obj/item/weapon/storage/backpack/messenger/sec
 
 	backpack_contents = list(
-		/obj/item/weapon/handcuffs = 1
+		/obj/item/weapon/handcuffs = 1,
+		/obj/item/clothing/accessory/armband = 1
 	)
 
-/datum/outfit/job/officer/post_equip(mob/living/carbon/human/H, visualsOnly = FALSE)
+/datum/outfit/job/brigofficer/post_equip(mob/living/carbon/human/H, visualsOnly = FALSE)
 	. = ..()
 	if(istajara(H))
 		H.equip_to_slot_or_del(new /obj/item/clothing/gloves/black/tajara(H), slot_gloves)
@@ -246,31 +274,3 @@
 		H.equip_to_slot_or_del(new /obj/item/clothing/gloves/black/unathi(H), slot_gloves)
 	else
 		H.equip_to_slot_or_del(new /obj/item/clothing/gloves/black(H), slot_gloves)
-
-/datum/job/intern_sec
-	title = "Security Cadet"
-	flag = INTERN_SEC
-	department_flag = ENGSEC
-	faction = "Station"
-	total_positions = 2
-	spawn_positions = 2
-	supervisors = "the Head of Security"
-	selection_color = "#FFA4A4"
-	access = list(access_security, access_sec_doors, access_maint_tunnels)
-	minimal_access = list(access_security, access_sec_doors, access_maint_tunnels)
-	outfit = /datum/outfit/job/intern_sec
-
-/datum/outfit/job/intern_sec
-	name = "Security Cadet"
-	jobtype = /datum/job/intern_sec
-
-	uniform = /obj/item/clothing/under/rank/cadet
-	suit = /obj/item/clothing/suit/storage/vest/cadet
-	head = /obj/item/clothing/head/beret/sec/cadet
-	shoes = /obj/item/clothing/shoes/jackboots
-	l_ear = /obj/item/device/radio/headset/headset_sec
-
-	backpack = /obj/item/weapon/storage/backpack/security
-	satchel = /obj/item/weapon/storage/backpack/satchel_sec
-	dufflebag = /obj/item/weapon/storage/backpack/duffel/sec
-	messengerbag = /obj/item/weapon/storage/backpack/messenger/sec
