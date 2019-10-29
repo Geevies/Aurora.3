@@ -202,74 +202,76 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 		out += "Limbs: <a href='?src=\ref[src];limbs=1'>Adjust</a><br>"
 		out += "Internal Organs: <a href='?src=\ref[src];organs=1'>Adjust</a><br>"
 		out += "Prosthesis/Amputations: <a href='?src=\ref[src];reset_organs=1'>Reset</a><br>"
+	else if(istype(mob_species, /datum/species/machine/shell))
+		out += "Limbs: <a href='?src=\ref[src];limbs=1'>Adjust</a><br>"
+		out += "Prosthesis/Amputations: <a href='?src=\ref[src];reset_organs=1'>Reset</a><br>"
 
 	//display limbs below
 	var/ind = 0
-	if(mob_species.name != "Shell Frame")
-		for(var/name in pref.organ_data)
-			var/status = pref.organ_data[name]
-			var/organ_name = null
-			switch(name)
-				if("l_arm")
-					organ_name = "left arm"
-				if("r_arm")
-					organ_name = "right arm"
-				if("l_leg")
-					organ_name = "left leg"
-				if("r_leg")
-					organ_name = "right leg"
-				if("l_foot")
-					organ_name = "left foot"
-				if("r_foot")
-					organ_name = "right foot"
-				if("l_hand")
-					organ_name = "left hand"
-				if("r_hand")
-					organ_name = "right hand"
-				if("groin")
-					organ_name = "lower body"
-				if("chest")
-					organ_name = "upper body"
-				if("head")
-					organ_name = "head"
-				if("heart")
-					organ_name = "heart"
-				if("eyes")
-					organ_name = "eyes"
+	for(var/name in pref.organ_data)
+		var/status = pref.organ_data[name]
+		var/organ_name = null
+		switch(name)
+			if("l_arm")
+				organ_name = "left arm"
+			if("r_arm")
+				organ_name = "right arm"
+			if("l_leg")
+				organ_name = "left leg"
+			if("r_leg")
+				organ_name = "right leg"
+			if("l_foot")
+				organ_name = "left foot"
+			if("r_foot")
+				organ_name = "right foot"
+			if("l_hand")
+				organ_name = "left hand"
+			if("r_hand")
+				organ_name = "right hand"
+			if("groin")
+				organ_name = "lower body"
+			if("chest")
+				organ_name = "upper body"
+			if("head")
+				organ_name = "head"
+			if("heart")
+				organ_name = "heart"
+			if("eyes")
+				organ_name = "eyes"
 
-			if(status == "cyborg")
-				++ind
-				if(ind > 1)
-					out += ", "
-				var/datum/robolimb/R
-				if(pref.rlimb_data[name] && all_robolimbs[pref.rlimb_data[name]])
-					R = all_robolimbs[pref.rlimb_data[name]]
+		if(status == "cyborg")
+			++ind
+			if(ind > 1)
+				out += ", "
+			var/datum/robolimb/R
+			if(pref.rlimb_data[name] && all_robolimbs[pref.rlimb_data[name]])
+				R = all_robolimbs[pref.rlimb_data[name]]
+			else
+				R = basic_robolimb
+			out += "\t[R.company] [organ_name] prosthesis"
+		else if(status == "amputated")
+			++ind
+			if(ind > 1)
+				out += ", "
+			out += "\tAmputated [organ_name]"
+		else if(status == "mechanical")
+			++ind
+			if(ind > 1)
+				out += ", "
+			out += "\tMechanical [organ_name]"
+		else if(status == "assisted")
+			++ind
+			if(ind > 1)
+				out += ", "
+			switch(organ_name)
+				if("heart")
+					out += "\tPacemaker-assisted [organ_name]"
+				if("voicebox") //on adding voiceboxes for speaking skrell/similar replacements
+					out += "\tSurgically altered [organ_name]"
+				if("eyes")
+					out += "\tRetinal overlayed [organ_name]"
 				else
-					R = basic_robolimb
-				out += "\t[R.company] [organ_name] prosthesis"
-			else if(status == "amputated")
-				++ind
-				if(ind > 1)
-					out += ", "
-				out += "\tAmputated [organ_name]"
-			else if(status == "mechanical")
-				++ind
-				if(ind > 1)
-					out += ", "
-				out += "\tMechanical [organ_name]"
-			else if(status == "assisted")
-				++ind
-				if(ind > 1)
-					out += ", "
-				switch(organ_name)
-					if("heart")
-						out += "\tPacemaker-assisted [organ_name]"
-					if("voicebox") //on adding voiceboxes for speaking skrell/similar replacements
-						out += "\tSurgically altered [organ_name]"
-					if("eyes")
-						out += "\tRetinal overlayed [organ_name]"
-					else
-						out += "\tMechanically assisted [organ_name]"
+					out += "\tMechanically assisted [organ_name]"
 	if(!ind)
 		out += "\[...\]<br><br>"
 	else

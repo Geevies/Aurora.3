@@ -17,6 +17,7 @@ var/global/datum/robolimb/basic_robolimb
 	var/unavailable_at_chargen                           // If set, not available at chargen.
 	var/list/species_can_use = list(
 		"Human",
+		"Shell Frame",
 		"Skrell",
 		"Tajara",
 		"Zhan-Khazan Tajara",
