@@ -5,10 +5,10 @@
 	head = /obj/item/clothing/head/helmet/space/void/kataphract
 	suit = /obj/item/clothing/suit/space/void/kataphract
 	suit_store = /obj/item/tank/oxygen/yellow
-	belt = /obj/item/melee/energy/sword/pirate/generic
+	belt = /obj/item/melee/energy/sword/hegemony
 	shoes = /obj/item/clothing/shoes/caligae/grey
 	accessory = /obj/item/clothing/accessory/holster/thigh
-	accessory_contents = list(/obj/item/gun/energy/pistol = 1)
+	accessory_contents = list(/obj/item/gun/energy/pistol/hegemony = 1)
 	gloves = /obj/item/clothing/gloves/black/unathi
 	id = /obj/item/card/id/distress/kataphract
 	back = /obj/item/storage/backpack/cultpack/adorned
@@ -21,12 +21,14 @@
 
 	backpack_contents = list(
 		/obj/item/handcuffs/ziptie = 2,
-		/obj/item/shield/riot/tact = 1,
+		/obj/item/shield/energy/hegemony = 1,
 		/obj/item/crowbar = 1,
 		/obj/item/storage/box/donkpockets = 1
 	)
 
 /datum/outfit/admin/ert/kataphract/post_equip(mob/living/carbon/human/H, visualsOnly = FALSE)
+	if(H?.w_uniform)
+		H.w_uniform.color = pick("#1f8c3c", "#ab7318", "#1846ba")
 	if(H?.wear_suit)
 		var/obj/item/clothing/accessory/poncho/big/poncho = new(H)
 		var/obj/item/clothing/suit/space/void/kataphract/S = H.wear_suit
@@ -53,13 +55,15 @@
 
 	backpack_contents = list(
 		/obj/item/handcuffs/ziptie = 2,
-		/obj/item/shield/riot/tact = 1,
+		/obj/item/shield/energy/hegemony = 1,
 		/obj/item/storage/box/donkpockets = 1,
 		/obj/item/crowbar = 1,
 		/obj/item/storage/firstaid/adv = 1
 	)
 
 /datum/outfit/admin/ert/kataphract/specialist/post_equip(mob/living/carbon/human/H, visualsOnly = FALSE)
+	if(H?.w_uniform)
+		H.w_uniform.color = pick("#1f8c3c", "#ab7318", "#1846ba")
 	if(H?.wear_suit)
 		var/obj/item/clothing/accessory/poncho/green/big/poncho = new(H)
 		var/obj/item/clothing/suit/space/void/kataphract/S = H.wear_suit
@@ -74,6 +78,8 @@
 	glasses = /obj/item/clothing/glasses/thermal
 
 /datum/outfit/admin/ert/kataphract/leader/post_equip(mob/living/carbon/human/H, visualsOnly = FALSE)
+	if(H?.w_uniform)
+		H.w_uniform.color = pick("#1f8c3c", "#ab7318", "#1846ba")
 	if(H?.wear_suit)
 		var/obj/item/clothing/accessory/poncho/red/big/poncho = new(H)
 		var/obj/item/clothing/suit/space/void/kataphract/S = H.wear_suit
