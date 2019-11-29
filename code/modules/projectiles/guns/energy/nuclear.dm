@@ -155,9 +155,11 @@
 	charge_failure_message = "'s charging socket was removed to make room for a recharger."
 	modifystate = "particlepistol"
 	projectile_type = /obj/item/projectile/beam/stun/skrell
+	fire_sound = 'sound/weapons/Laser2.ogg'
 	secondary_projectile_type = /obj/item/projectile/beam/pulse/skrell
+	secondary_fire_sound = 'sound/weapons/Laser3.ogg'
 
 	firemodes = list(
-		list(mode_name="disable", projectile_type=/obj/item/projectile/beam/stun/skrell, fire_sound='sound/weapons/Taser.ogg'),
-		list(mode_name="lethal", projectile_type=/obj/item/projectile/beam/pulse/skrell, fire_sound='sound/weapons/Laser.ogg')
+		list(mode_name="disable", projectile_type=/obj/item/projectile/beam/stun/skrell, fire_sound='sound/weapons/Laser2.ogg'),
+		list(mode_name="lethal", projectile_type=/obj/item/projectile/beam/pulse/skrell, fire_sound='sound/weapons/Laser3.ogg')
 		)
