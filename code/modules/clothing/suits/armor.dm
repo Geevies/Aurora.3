@@ -538,6 +538,23 @@
 	traditional culture, yet often violent disagreement about the course of the island's political future. A sizable third party of monarchists which advocate the reestablishment of the \
 	Imperial Amohdan dynasty also exists, fragmenting the monarchist factions on the island and further complicating political violence in the area."
 
+//skrell armor
+/obj/item/clothing/suit/armor/skrell
+    name = "jargon federation armor"
+    desc = "A armor set developed and used by the jargon federation for its security forces. It consists of armored polymer and insulating material."
+    icon = 'icons/obj/skrell_items.dmi'
+    icon_state = "peacekeeper_armor"
+    item_state = "peacekeeper_armor"
+    contained_sprite = TRUE
+    item_flags = AIRTIGHT|THICKMATERIAL|BLOCK_GAS_SMOKE_EFFECT
+    body_parts_covered = UPPER_TORSO|LOWER_TORSO|LEGS|ARMS
+    species_restricted = list("Skrell")
+    armor = list(melee = 60, bullet = 40, laser = 60, energy = 40, bomb = 40, bio = 0, rad = 0)
+    siemens_coefficient = 0.3
+    pocket_slots = 4
+
+    allowed = list(/obj/item/gun,/obj/item/reagent_containers/spray/pepper,/obj/item/gun/projectile,/obj/item/ammo_magazine,/obj/item/ammo_casing,/obj/item/melee/baton,/obj/item/handcuffs,/obj/item/device/flashlight,/obj/item/tank/emergency_oxygen)
+
 
 //tau ceti foreign legion armor
 

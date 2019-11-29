@@ -395,3 +395,25 @@
 	muzzle_type = /obj/effect/projectile/muzzle/tachyon
 	tracer_type = /obj/effect/projectile/tracer/tachyon
 	impact_type = /obj/effect/projectile/impact/tachyon
+
+/obj/item/projectile/beam/stun/skrell
+	name = "particle stun beam"
+	icon_state = "beam_omni"
+	nodamage = 1
+	taser_effect = 1
+	agony = 50
+	damage_type = HALLOSS
+
+	muzzle_type = /obj/effect/projectile/muzzle/disabler
+	tracer_type = /obj/effect/projectile/tracer/disabler
+	impact_type = /obj/effect/projectile/impact/disabler
+
+/obj/item/projectile/beam/pulse/skrell
+	name = "particle lethal beam"
+	icon_state = "u_laser"
+	damage = 50
+	armor_penetration = 50
+
+	muzzle_type = /obj/effect/projectile/muzzle/pulse
+	tracer_type = /obj/effect/projectile/tracer/pulse
+	impact_type = /obj/effect/projectile/impact/pulse

@@ -142,3 +142,22 @@
 		list(mode_name="stun", projectile_type=/obj/item/projectile/beam/stun, modifystate="epistolstun", fire_sound='sound/weapons/Taser.ogg'),
 		list(mode_name="lethal", projectile_type=/obj/item/projectile/beam/pistol, modifystate="epistolkill", fire_sound='sound/weapons/Laser.ogg')
 		)
+
+/obj/item/gun/energy/gun/skrell/pistol
+	name = "jargon particle pistol"
+	desc = "A Jargon Federation particle-beam pistol with two settings: Disable and Lethal."
+	icon_state = "particlepistol"
+	item_state = "particlepistol"
+	slot_flags = SLOT_BELT|SLOT_HOLSTER
+	force = 5
+	self_recharge = 1
+	modifystate = null
+	charge_failure_message = "'s charging socket was removed to make room for a recharger."
+	modifystate = "particlepistol"
+	projectile_type = /obj/item/projectile/beam/stun/skrell
+	secondary_projectile_type = /obj/item/projectile/beam/pulse/skrell
+
+	firemodes = list(
+		list(mode_name="disable", projectile_type=/obj/item/projectile/beam/stun/skrell, fire_sound='sound/weapons/Taser.ogg'),
+		list(mode_name="lethal", projectile_type=/obj/item/projectile/beam/pulse/skrell, fire_sound='sound/weapons/Laser.ogg')
+		)
