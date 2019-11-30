@@ -418,8 +418,8 @@
 		mounted.switch_firemodes()
 
 /obj/item/clothing/gloves/skrell/stun
-	name = "federation stun gloves"
-	desc = "A pair of armored gloves with circuits laid within, permitting the user to knock out targets with amplified strikes using electricity."
+	name = "federation shock gloves"
+	desc = "A pair of armored gloves with circuits laid within, permitting the user to knock out targets with shocked strikes."
 	icon = 'icons/obj/skrell_items.dmi'
 	icon_state = "peacekeeper_gloves"
 	item_state = "peacekeeper_gloves"
