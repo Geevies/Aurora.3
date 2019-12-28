@@ -153,3 +153,107 @@
 
 		if(hologram_message)
 			visible_message("<span class='notice'>[hologram_message]</span>")
+
+/obj/item/skrell_puzzle_box
+	name = "puzzle box"
+	desc = "A puzzle box of seeming Skrellian design. It appears to have a microphone near the locked opening latch."
+	description_info = "Click and drag the box' sprite to transfer it to your hands, if one of them are empty. Use this box while in it's in your active hand to activate the open prompt. When it's unlocked and open, you can use it in-hand again to lock it again, or attack it with a different empty hand to pull out the item contained within. When the box is open and empty, you can click it with an item of a small size to store it within."
+	icon = 'icons/obj/skrell_items.dmi'
+	icon_state = "lockbox"
+	contained_sprite = TRUE
+	var/obj/item/contained_item = /obj/item/toy/crossbow
+	var/opening_message = "Qu&#39;Pluux"
+	var/state = 0 // 0 is locked, 1 is unlocked, 2 is empty
+
+/obj/item/skrell_puzzle_box/Initialize()
+	..()
+	contained_item = new contained_item(src)
+
+/obj/item/skrell_puzzle_box/attack_self(var/mob/user)
+	if(state == 0)
+		if(!ishuman(user))
+			to_chat(user, span("notice", "You don't know how to operate this!"))
+			return
+		var/mob/living/carbon/human/H = user
+		var/message = sanitize(input(H, "Whisper into the puzzlebox' microphone.") as text|null)
+		if(!message)
+			return
+
+		H.whisper_say(message)
+
+		if(findtext(message, opening_message))
+			visible_message(span("warning", "The box chimes and springs open!"))
+			if(contained_item)
+				to_chat(user, span("notice", "You think you can use your other hand to pull the contained item out now."))
+				update_state(1)
+			else
+				to_chat(user, span("notice", "You notice the puzzle box is empty!"))
+				update_state(2)
+		else
+			visible_message(span("warning", "The box buzzes, rejecting the answer."))
+	else
+		visible_message(span("notice", "The puzzlebox locks shut."))
+		update_state(0)
+
+/obj/item/skrell_puzzle_box/attack_hand(var/mob/user)
+	switch(state)
+		if(0)
+			attack_self(user)
+		if(1)
+			to_chat(user, span("notice", "You reach in and pull out the item contained within."))
+			update_state(2)
+			user.put_in_hands(contained_item)
+			contained_item = null
+		if(2)
+			to_chat(user, span("notice", "You reach into the open puzzlebox and find it woefully empty."))
+
+/obj/item/skrell_puzzle_box/attackby(var/obj/item/C, var/mob/user)
+	switch(state)
+		if(0)
+			to_chat(user, span("notice", "The box is locked, the [C.name] has no effect."))
+		if(1)
+			to_chat(user, span("notice", "There's something in the box already!"))
+		if(2)
+			if(C.w_class >= ITEMSIZE_NORMAL)
+				to_chat(user, span("notice", "The [C.name] is too big for the [src]!"))
+			else
+				to_chat(user, span("notice", "You put the [C.name] into the [src]."))
+				contained_item = C
+				user.drop_from_inventory(C, src)
+				update_state(1)
+
+// Extreme shitcode copied from surgery trays. We should really standardize this with a proc.
+/obj/item/skrell_puzzle_box/MouseDrop(var/mob/user)
+	if((user && (!use_check(user))) && (user.contents.Find(src) || in_range(src, user)))
+		if(ishuman(user) && !user.get_active_hand())
+			var/mob/living/carbon/human/H = user
+			var/obj/item/organ/external/temp = H.organs_by_name[BP_R_HAND]
+
+			if(H.hand)
+				temp = H.organs_by_name[BP_L_HAND]
+			if(temp && !temp.is_usable())
+				to_chat(user, span("notice", "You try to move your [temp.name], but cannot!"))
+				return
+
+			to_chat(user, span("notice", "You pick up the [src]."))
+			pixel_x = 0
+			pixel_y = 0
+			forceMove(get_turf(user))
+			user.put_in_hands(src)
+
+	return
+
+/obj/item/skrell_puzzle_box/proc/update_state(var/newstate)
+	switch(newstate)
+		if(0)
+			state = 0
+			icon_state = "lockbox"
+			desc = "A puzzle box of seeming Skrellian design. It appears to have a microphone near the locked opening latch."
+		if(1)
+			state = 1
+			icon_state = "unlockbox"
+			desc = "A puzzle box of seeming Skrellian design. It appears to have a microphone near the opening latch. It is open."
+		if(2)
+			state = 2
+			icon_state = "unlockbox_empty"
+			desc = "A puzzle box of seeming Skrellian design. It appears to have a microphone near the opening latch. It is open and the lights are off."
