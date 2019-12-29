@@ -161,8 +161,8 @@
 	icon = 'icons/obj/skrell_items.dmi'
 	icon_state = "lockbox"
 	contained_sprite = TRUE
-	var/obj/item/contained_item = /obj/item/toy/crossbow
-	var/opening_message = "Qu&#39;Pluux"
+	var/obj/item/contained_item = /obj/item/toy/crossbow // generic item until something cool can be put in
+	var/opening_message = "OpenSaysMe"
 	var/state = 0 // 0 is locked, 1 is unlocked, 2 is empty
 
 /obj/item/skrell_puzzle_box/Initialize()
@@ -210,14 +210,14 @@
 /obj/item/skrell_puzzle_box/attackby(var/obj/item/C, var/mob/user)
 	switch(state)
 		if(0)
-			to_chat(user, span("notice", "The box is locked, the [C.name] has no effect."))
+			to_chat(user, span("notice", "The box is locked, \the [C.name] has no effect."))
 		if(1)
 			to_chat(user, span("notice", "There's something in the box already!"))
 		if(2)
 			if(C.w_class >= ITEMSIZE_NORMAL)
-				to_chat(user, span("notice", "The [C.name] is too big for the [src]!"))
+				to_chat(user, span("notice", "\The [C.name] is too big for \the [src]!"))
 			else
-				to_chat(user, span("notice", "You put the [C.name] into the [src]."))
+				to_chat(user, span("notice", "You put \the [C.name] into \the [src]."))
 				contained_item = C
 				user.drop_from_inventory(C, src)
 				update_state(1)
@@ -235,7 +235,7 @@
 				to_chat(user, span("notice", "You try to move your [temp.name], but cannot!"))
 				return
 
-			to_chat(user, span("notice", "You pick up the [src]."))
+			to_chat(user, span("notice", "You pick up \the [src]."))
 			pixel_x = 0
 			pixel_y = 0
 			forceMove(get_turf(user))
@@ -257,3 +257,13 @@
 			state = 2
 			icon_state = "unlockbox_empty"
 			desc = "A puzzle box of seeming Skrellian design. It appears to have a microphone near the opening latch. It is open and the lights are off."
+
+/obj/item/skrell_puzzle_box/special
+	contained_item = /obj/item/paper
+	opening_message = "Qu&#39;Pluux"
+
+/obj/item/skrell_puzzle_box/Initialize()
+	..()
+	if(istype(contained_item, /obj/item/paper))
+		var/obj/item/paper/paper = contained_item
+		paper.set_content("secret message", "\[hr\]\[center\]You see an encoded image printed on this piece of paper.\[/center\]\[center\]https://i.imgur.com/HYvWgty.png\[/center\]\[hr\]")
