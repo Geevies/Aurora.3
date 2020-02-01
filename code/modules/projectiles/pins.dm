@@ -218,3 +218,18 @@ Pins Below.
 		return 0
 	else
 		return 1
+
+// Exploration pin, only works when not on-station.
+/obj/item/device/firing_pin/exploration
+	name = "exploration firing pin"
+	desc = "This safety firing pin allows weapons to be fired when not on station levels."
+	fail_message = "<span class='warning'>USER STILL ON-STATION.</span>"
+	pin_replaceable = TRUE
+	durable = TRUE
+
+/obj/item/device/firing_pin/exploration/pin_auth(mob/living/user)
+	var/turf/T = get_turf(src)
+	if(isNotStationLevel(T))
+		return TRUE
+	else
+		return FALSE

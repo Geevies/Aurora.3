@@ -94,6 +94,24 @@
 		item_state = "[icon_state]"
 	update_held_icon()
 
+/obj/item/gun/projectile/shotgun/pump/exploration
+	name = "exploration shotgun"
+	desc = "A shotgun with a sleek NanoTrasen white sheen."
+	icon = 'icons/obj/guns/eshotgun.dmi'
+	icon_state = "eshotgun"
+	item_state = "eshotgun"
+	pin = /obj/item/device/firing_pin/exploration
+	ammo_type = /obj/item/ammo_casing/shotgun/pellet
+	fire_sound = 'sound/weapons/gunshot/gunshot_shotgun.ogg'
+
+/obj/item/gun/projectile/shotgun/pump/exploration/update_icon()
+	..()
+	if(ammo_magazine?.stored_ammo.len)
+		icon_state = initial(icon_state)
+	else
+		icon_state = "[initial(icon_state)]-empty"
+	update_held_icon()
+
 /obj/item/gun/projectile/shotgun/pump/combat
 	name = "combat shotgun"
 	desc = "Built for close quarters combat, the Hephaestus Industries KS-40 is widely regarded as a weapon of choice for repelling boarders."
