@@ -1,9 +1,10 @@
 /obj/item/device/orbital_dropper
 	name = "laser targeting dropper"
 	desc = "A device used to paint a target, which will then promptly orbitally drop the requested items."
-	icon = 'icons/obj/device.dmi'
-	icon_state = "drillpointer"
-	item_state = "binoculars"
+	icon = 'icons/obj/items/drill_dropper.dmi'
+	icon_state = "drill_dropper"
+	item_state = "drill_dropper"
+	contained_sprite = TRUE
 	slot_flags = SLOT_BELT
 	w_class = ITEMSIZE_SMALL
 	var/has_dropped = 0 // Counter of how many times the targeter has been used
@@ -22,6 +23,16 @@
 	var/announcer_channel = "Supply" // If not emagged, will announce to this channel. If emagged, will always announce on the common channel.
 
 	var/datum/map_template/map
+
+/obj/item/device/orbital_dropper/examine(mob/user)
+	. = ..()
+	var/remaining_uses = drop_amount - has_dropped
+	if(remaining_uses > 1)
+		to_chat(user, span("notice", "It has [remaining_uses] uses left."))
+	else if(remaining_uses == 1)
+		to_chat(user, span("notice", "It has [remaining_uses] use left."))
+	else
+		to_chat(user, span("warning", "It has no uses left."))
 
 /obj/item/device/orbital_dropper/attack_self(mob/user)
 	zoom(user, tileoffset, viewsize)
@@ -57,7 +68,7 @@
 	add_fingerprint(user)
 
 	//laser pointer image
-	icon_state = "drillpointer_on"
+	icon_state = "[initial(icon_state)]_on"
 	var/list/showto = list()
 	for(var/mob/M in viewers(targloc))
 		if(M.client)
@@ -81,9 +92,9 @@
 	addtimer(CALLBACK(src, .proc/orbital_drop, targloc, user), 105)
 
 	flick_overlay(I, showto, 20) //2 seconds of the red dot appearing
-	icon_state = "drillpointer"
 
 /obj/item/device/orbital_dropper/proc/orbital_drop(var/turf/target, var/user)
+	icon_state = initial(icon_state)
 	if(!map)
 		return
 	log_and_message_admins("[key_name_admin(src)] has used a [src] at <A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[target.x];Y=[target.y];Z=[target.z]'>JMP</a>.")
