@@ -651,6 +651,12 @@
 		to_chat(src, "<span class='warning'>It won't budge!</span>")
 		return
 
+	if(istype(AM, /obj/vehicle))
+		var/obj/vehicle/V = AM
+		if(!V.can_pull)
+			to_chat(src, span("warning", "It won't budge!"))
+			return
+
 	var/mob/M = null
 	if(ismob(AM))
 		M = AM

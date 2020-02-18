@@ -15,21 +15,21 @@
 	desc = "A keyring with a small steel key, and a pink fob reading \"Pussy Wagon\"."
 	icon = 'icons/obj/vehicles.dmi'
 	icon_state = "keys"
-	w_class = 1
+	w_class = ITEMSIZE_TINY
 
 /obj/vehicle/train/cargo/engine/pussywagon/Initialize()
 	. = ..()
 	cell = new /obj/item/cell/high(src)
 	key = null
 	update_icon()
-	turn_off()	//so engine verbs are correctly set
+	turn_off() //so engine verbs are correctly set
 
 /obj/vehicle/train/cargo/engine/pussywagon/attackby(obj/item/W as obj, mob/user as mob)
 	if(istype(W, /obj/item/key/janicart))
 		if(!key)
-			user.drop_from_inventory(W,src)
+			user.drop_from_inventory(W, src)
 			key = W
-			verbs += /obj/vehicle/train/cargo/engine/verb/remove_key
+			verbs |= /obj/vehicle/train/cargo/engine/verb/remove_key
 		return
 	..()
 
@@ -40,8 +40,8 @@
 		..()
 		update_stats()
 
-		verbs += /obj/vehicle/train/cargo/engine/pussywagon/verb/toggle_mop
-		verbs += /obj/vehicle/train/cargo/engine/pussywagon/verb/toggle_hoover
+		verbs |= /obj/vehicle/train/cargo/engine/pussywagon/verb/toggle_mop
+		verbs |= /obj/vehicle/train/cargo/engine/pussywagon/verb/toggle_hoover
 
 /obj/vehicle/train/cargo/engine/pussywagon/turn_off()
 	..()
@@ -68,7 +68,7 @@
 		if(istype(tow,/obj/vehicle/train/cargo/trolley/pussywagon))
 			var/obj/vehicle/train/cargo/trolley/pussywagon/PW = tow
 			if(!PW.bucket)
-				to_chat(usr, "<span class='warning'>You must insert a reagent container first!</span>")
+				to_chat(usr, span("warning", "You must insert a reagent container first!"))
 				return
 			PW.mop_toggle()
 
@@ -96,7 +96,7 @@
 		icon_state = "[cart_icon]_off"
 	..()
 
-/obj/vehicle/train/cargo/engine/pussywagon/Move(var/turf/destination)
+/obj/vehicle/train/cargo/engine/pussywagon/Move(turf/destination)
 	switch(dir)
 		if(NORTH)
 			mob_offset_y = 7
@@ -129,23 +129,23 @@
 	var/obj/item/reagent_containers/bucket
 	var/list/hoovered = list()
 	var/vacuum_capacity = 125
-	var/mopping = 0
-	var/hoover = 0
+	var/mopping = FALSE
+	var/hoover = FALSE
 
 
-/obj/vehicle/train/cargo/trolley/pussywagon/attackby(obj/item/W as obj, mob/user as mob)
+/obj/vehicle/train/cargo/trolley/pussywagon/attackby(obj/item/W, mob/user)
 	if(istype(W, /obj/item/reagent_containers) && open)
 		if(!bucket)
 			user.drop_from_inventory(W,src)
 			bucket = W
-			to_chat(user, "<span class='notice'>You replace \the [src]'s reagent reservoir.</span>")
+			to_chat(user, span("notice", "You replace \the [src]'s reagent reservoir."))
 			return
 
 	if(W.iswrench() && open)
 		if(bucket)
 			bucket.forceMove(user.loc)
 			bucket = null
-			to_chat(user, "<span class='notice'>You remove \the [src]'s reagent reservoir.</span>")
+			to_chat(user, span("notice", "You remove \the [src]'s reagent reservoir."))
 			return
 
 	if(W.iscrowbar() && !open)
@@ -154,13 +154,13 @@
 				I.forceMove(user.loc)
 				hoovered -= I
 			vacuum_capacity = 125
-			to_chat(user, "<span class='notice'>You empty \the [src]'s vacuum cleaner.</span>")
+			to_chat(user, span("notice", "You empty \the [src]'s vacuum cleaner."))
 			return
 	..()
 
 /obj/vehicle/train/cargo/trolley/pussywagon/Move(var/turf/destination)
 	if(lead)
-		var/turf/tile = loc
+		var/turf/tile = get_turf(src)
 		if(mopping && bucket)
 			if(isturf(tile))
 				if(bucket.reagents.total_volume > 1)
@@ -184,27 +184,26 @@
 
 /obj/vehicle/train/cargo/trolley/pussywagon/proc/mop_toggle()
 	if(!mopping)
-		mopping = 1
-		src.visible_message("\The [src]'s mop-o-matic rumbles to life.", "You hear something rumble deeply.")
+		mopping = TRUE
+		visible_message(span("notice", "\The [src]'s mop-o-matic rumbles to life."), span("notice", "You hear something rumble deeply."))
 		playsound(src, 'sound/machines/hydraulic_long.ogg', 100, 1)
 	else
-		mopping = 0
-		src.visible_message("\The [src]'s mop-o-matic putters before turning off.", "You hear something putter slowly.")
+		mopping = FALSE
+		visible_message(span("notice", "\The [src]'s mop-o-matic putters before turning off."), span("notice", "You hear something putter slowly."))
 	update_icon()
 
 
 /obj/vehicle/train/cargo/trolley/pussywagon/proc/hoover_toggle()
 	if(!hoover)
-		hoover = 1
-		src.visible_message("\The [src]'s space hoover rumbles to life.", "You hear something rumble deeply.")
+		hoover = TRUE
+		visible_message(span("notice", "\The [src]'s space hoover rumbles to life."), span("notice", "You hear something rumble deeply."))
 		playsound(src, 'sound/machines/hydraulic_long.ogg', 100, 1)
 	else
-		hoover = 0
-		src.visible_message("\The [src]'s space hoover putters before turning off.", "You hear something putter slowly.")
+		hoover = FALSE
+		visible_message(span("notice", "\The [src]'s space hoover putters before turning off."), span("notice", "You hear something putter slowly."))
 	update_icon()
 
 /obj/vehicle/train/cargo/trolley/pussywagon/update_icon()
 	cut_overlays()
-
 	if(mopping)
 		add_overlay(image('icons/obj/vehicles.dmi', "[icon_state]_mop_overlay", MOB_LAYER + 1))

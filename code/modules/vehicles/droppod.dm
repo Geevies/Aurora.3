@@ -10,7 +10,9 @@
 	dir = SOUTH
 	layer = MOB_LAYER - 0.1
 
-	load_item_visible = 0
+	anchored = TRUE
+
+	load_item_visible = FALSE
 	health = 500 // pretty strong because it can't move or be shot out of
 	maxhealth = 500
 
@@ -39,18 +41,18 @@
 /obj/vehicle/droppod/Move()
 	return
 
-/obj/vehicle/droppod/attackby(obj/item/I as obj, mob/user as mob)
+/obj/vehicle/droppod/attackby(obj/item/I, mob/user)
 	if(I.iswelder() && status == USED && !humanload && !passenger)
 		var/obj/item/weldingtool/W = I
 		if(W.welding)
-			src.visible_message(span("notice","[user] starts cutting \the [src] apart."))
+			src.visible_message(span("notice","\The [user] starts cutting \the [src] apart."))
 			if(do_after(user, 200))
-				src.visible_message(span("danger","\The [src] is cut apart by [user]!"))
-				playsound(src, 'sound/items/Welder.ogg', 100, 1)
-				new /obj/item/stack/material/titanium(src.loc, 10)
-				new /obj/item/stack/material/plasteel(src.loc, 10)
-				var/obj/item/stack/cable_coil/C = new /obj/item/stack/cable_coil(src.loc)
-				C.amount = rand(5,15)
+				src.visible_message(span("danger","\The [src] is cut apart by \the [user]!"))
+				playsound(src, 'sound/items/Welder.ogg', 100, TRUE)
+				new /obj/item/stack/material/titanium(get_turf(src), 10)
+				new /obj/item/stack/material/plasteel(get_turf(src), 10)
+				var/obj/item/stack/cable_coil/C = new /obj/item/stack/cable_coil(get_turf(src))
+				C.amount = rand(5, 15)
 				qdel(src)
 	else
 		return ..()
@@ -58,7 +60,7 @@
 /obj/vehicle/droppod/verb/launchinterface()
 	set src in oview(1)
 	set category = "Vehicle"
-	set name = "Open launch interface"
+	set name = "Open Launch Interface"
 
 	if(status == READY)
 		ui_interact(usr)
@@ -66,19 +68,19 @@
 /obj/vehicle/droppod/verb/eject()
 	set src in oview(1)
 	set category = "Vehicle"
-	set name = "Eject Pod"
+	set name = "Exit Pod"
 
 	if(!usr.canmove || usr.stat || usr.restrained())
 		return
 	unload(usr)
 
-/obj/vehicle/droppod/load(var/mob/C) // this won't call the parent proc due to the differences and the fact it doesn't use load. Also only mobs can be loaded.
+/obj/vehicle/droppod/load(mob/C) // this won't call the parent proc due to the differences and the fact it doesn't use load. Also only mobs can be loaded.
 	if(!ismob(C))
-		return 0
+		return FALSE
 	if(!isturf(C.loc))
-		return 0
+		return FALSE
 	if((humanload && passenger) || C.anchored)
-		return 0
+		return FALSE
 	if(humanload)
 		passenger = C
 	else
@@ -87,15 +89,15 @@
 	C.forceMove(src)
 
 	C.set_dir(dir)
-	C.anchored = 1
+	C.anchored = TRUE
 
 	user_buckle_mob(C, C)
 	icon_state = initial(icon_state)
-	return 1
+	return TRUE
 
-/obj/vehicle/droppod/unload(var/mob/user, var/direction) // this also won't call the parent proc because it relies on load and doesn't expect a 2nd person
+/obj/vehicle/droppod/unload(mob/user, direction) // this also won't call the parent proc because it relies on load and doesn't expect a 2nd person
 	if(!(humanload || passenger))
-		return 0
+		return FALSE
 
 	var/turf/dest = null
 
@@ -118,14 +120,14 @@
 			dest = get_turf(src)
 
 	if(!isturf(dest))
-		return 0
+		return FALSE
 
 	for(var/a in contents)
 		if(isliving(a))
 			var/mob/living/L = a
 			L.forceMove(dest)
 			L.set_dir(get_dir(loc, dest))
-			L.anchored = 0
+			L.anchored = FALSE
 			L.pixel_x = initial(user.pixel_x)
 			L.pixel_y = initial(user.pixel_y)
 			L.layer = initial(user.layer)
@@ -137,7 +139,7 @@
 	humanload = null
 	passenger = null
 	icon_state = "[initial(icon_state)]_open"
-	return 1
+	return TRUE
 
 /obj/vehicle/droppod/attack_hand(mob/user as mob)
 	..()
@@ -162,7 +164,7 @@
 
 /obj/vehicle/droppod/Topic(href, href_list)
 	if(..())
-		return 1
+		return TRUE
 
 	if(href_list["fire"])
 		var/area/A = null
@@ -267,11 +269,11 @@
 		var/mob/M = humanload
 		shake_camera(M, 5, 1)
 	forceMove(A)
-	A.visible_message(span("danger","\The [src] crashes through the roof!"))
+	A.visible_message(span("danger", "\The [src] crashes through the roof!"))
 
 	var/turf/belowturf = GetBelow(A)
 	if(belowturf)
-		belowturf.visible_message(span("danger","You hear something crash into the ceiling above!"))
+		belowturf.visible_message(span("danger", "You hear something crash into the ceiling above!"))
 
 	status = USED
 
@@ -279,11 +281,11 @@
 	for(var/mob/T in A)
 		if(T.simulated)
 			T.gib()
-			T.visible_message(span("danger","[T] is squished by the drop pod!"))
+			T.visible_message(span("danger", "\The [T] is squished by the drop pod!"))
 	for(var/obj/B in A)
 		if(B.simulated && B.density)
 			qdel(B)
-			B.visible_message(span("danger","[B] is destroyed by the drop pod!"))
+			B.visible_message(span("danger","\The [B] is destroyed by the drop pod!"))
 
 /obj/vehicle/droppod/proc/blastdoor_interact(var/open)
 	var/datum/wifi/sender/door/wifi_sender_blast = new(connected_blastdoor, src)
@@ -291,10 +293,9 @@
 		wifi_sender_blast.activate("open")
 	else
 		wifi_sender_blast.activate("close")
-		var/turf/T = src.loc
+		var/turf/T = get_turf(src)
 		T.ChangeTurf(/turf/space)
 
 #undef READY
 #undef USED
 #undef LAUNCHING
-

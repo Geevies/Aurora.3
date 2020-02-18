@@ -3,15 +3,17 @@
 	desc = "A ridable electric car designed for pulling cargo trolleys."
 	icon = 'icons/obj/vehicles.dmi'
 	icon_state = "cargo_engine"
-	on = 0
-	powered = 1
-	locked = 0
+	on = FALSE
+	powered = TRUE
+	locked = FALSE
 
-	load_item_visible = 1
+	can_pull = TRUE
+
+	load_item_visible = TRUE
 	load_offset_x = 0
 	mob_offset_y = 7
 
-	var/car_limit = 3		//how many cars an engine can pull before performance degrades
+	var/car_limit = 3 //how many cars an engine can pull before performance degrades
 	active_engines = 1
 	var/obj/item/key/cargo_train/key
 
@@ -20,17 +22,18 @@
 	desc = "A keyring with a small steel key, and a yellow fob reading \"Choo Choo!\"."
 	icon = 'icons/obj/vehicles.dmi'
 	icon_state = "train_keys"
-	w_class = 1
+	w_class = ITEMSIZE_TINY
 
 /obj/vehicle/train/cargo/trolley
 	name = "cargo train trolley"
+	desc = "A cargo trolley capable of loading cargo and being attached to other trolleys or cargo tugs."
 	icon = 'icons/obj/vehicles.dmi'
 	icon_state = "cargo_trailer"
-	anchored = 0
-	passenger_allowed = 0
-	locked = 0
+	anchored = FALSE
+	passenger_allowed = FALSE
+	locked = FALSE
 
-	load_item_visible = 1
+	load_item_visible = TRUE
 	load_offset_x = 0
 	load_offset_y = 4
 	mob_offset_y = 8
@@ -44,44 +47,44 @@
 	key = new(src)
 	var/image/I = new(icon = icon, icon_state = "[icon_state]_overlay", layer = src.layer + 0.2) //over mobs
 	add_overlay(I)
-	turn_off()	//so engine verbs are correctly set
+	turn_off() //so engine verbs are correctly set
 
-/obj/vehicle/train/cargo/engine/Move(var/turf/destination)
+/obj/vehicle/train/cargo/engine/Move(turf/destination)
 	if(on && cell.charge < charge_use)
 		turn_off()
 		update_stats()
 		if(load && is_train_head())
-			to_chat(load, "The drive motor briefly whines, then drones to a stop.")
+			to_chat(load, span("notice", "The drive motor briefly whines, then drones to a stop."))
 
 	if(is_train_head() && !on)
-		return 0
+		return FALSE
 
 	//space check ~no flying space trains sorry
 	if(on && istype(destination, /turf/space))
-		return 0
+		return FALSE
 
 	return ..()
 
-/obj/vehicle/train/cargo/trolley/attackby(obj/item/W as obj, mob/user as mob)
+/obj/vehicle/train/cargo/trolley/attackby(obj/item/W, mob/user)
 	if(open && W.iswirecutter())
 		passenger_allowed = !passenger_allowed
-		user.visible_message("<span class='notice'>[user] [passenger_allowed ? "cuts" : "mends"] a cable in [src].</span>","<span class='notice'>You [passenger_allowed ? "cut" : "mend"] the load limiter cable.</span>")
+		user.visible_message(span("notice", "\The [user] [passenger_allowed ? "cuts" : "mends"] a cable in \the [src]."), span("notice", "You [passenger_allowed ? "cut" : "mend"] the load limiter cable."))
 	else
 		..()
 
-/obj/vehicle/train/cargo/engine/attackby(obj/item/W as obj, mob/user as mob)
+/obj/vehicle/train/cargo/engine/attackby(obj/item/W, mob/user)
 	if(istype(W, /obj/item/key/cargo_train))
 		if(!key)
-			user.drop_from_inventory(W,src)
+			user.drop_from_inventory(W, src)
 			key = W
-			verbs += /obj/vehicle/train/cargo/engine/verb/remove_key
+			verbs |= /obj/vehicle/train/cargo/engine/verb/remove_key
 		return
 	..()
 
 // Cargo trains are open topped, so you can shoot at the driver.
 // Or you can shoot at the tug itself, if you're good.
-/obj/vehicle/train/cargo/bullet_act(var/obj/item/projectile/Proj)
-	if (buckled_mob && Proj.original == buckled_mob)
+/obj/vehicle/train/cargo/bullet_act(obj/item/projectile/Proj)
+	if(buckled_mob && Proj.original == buckled_mob)
 		buckled_mob.bullet_act(Proj)
 	else
 		..()
@@ -92,14 +95,14 @@
 	else
 		icon_state = initial(icon_state)
 
-/obj/vehicle/train/cargo/trolley/insert_cell(var/obj/item/cell/C, var/mob/living/carbon/human/H)
+/obj/vehicle/train/cargo/trolley/insert_cell(obj/item/cell/C, mob/living/carbon/human/H)
 	return
 
-/obj/vehicle/train/cargo/engine/insert_cell(var/obj/item/cell/C, var/mob/living/carbon/human/H)
+/obj/vehicle/train/cargo/engine/insert_cell(obj/item/cell/C, mob/living/carbon/human/H)
 	..()
 	update_stats()
 
-/obj/vehicle/train/cargo/engine/remove_cell(var/mob/living/carbon/human/H)
+/obj/vehicle/train/cargo/engine/remove_cell(mob/living/carbon/human/H)
 	..()
 	update_stats()
 
@@ -107,13 +110,17 @@
 	var/obj/machinery/door/D = Obstacle
 	var/mob/living/carbon/human/H = load
 	if(istype(D) && istype(H))
-		H.Collide(D)		//a little hacky, but hey, it works, and respects access rights
-
+		H.Collide(D) //a little hacky, but hey, it works, and respects access rights
 	. = ..()
 
 /obj/vehicle/train/cargo/trolley/Collide(atom/Obstacle)
-	if(!lead)
+	if(!lead || !tow)
 		return //so people can't knock others over by pushing a trolley around
+	. = ..()
+
+/obj/vehicle/train/cargo/trolley/CollidedWith()
+	if(!lead || !tow)
+		return
 	. = ..()
 
 //-------------------------------------------
@@ -130,9 +137,9 @@
 		verbs -= /obj/vehicle/train/cargo/engine/verb/start_engine
 
 		if(on)
-			verbs += /obj/vehicle/train/cargo/engine/verb/stop_engine
+			verbs |= /obj/vehicle/train/cargo/engine/verb/stop_engine
 		else
-			verbs += /obj/vehicle/train/cargo/engine/verb/start_engine
+			verbs |= /obj/vehicle/train/cargo/engine/verb/start_engine
 
 /obj/vehicle/train/cargo/engine/turn_off()
 	..()
@@ -141,11 +148,11 @@
 	verbs -= /obj/vehicle/train/cargo/engine/verb/start_engine
 
 	if(!on)
-		verbs += /obj/vehicle/train/cargo/engine/verb/start_engine
+		verbs |= /obj/vehicle/train/cargo/engine/verb/start_engine
 	else
-		verbs += /obj/vehicle/train/cargo/engine/verb/stop_engine
+		verbs |= /obj/vehicle/train/cargo/engine/verb/stop_engine
 
-/obj/vehicle/train/cargo/RunOver(var/mob/living/carbon/human/H)
+/obj/vehicle/train/cargo/RunOver(mob/living/carbon/human/H)
 	var/list/parts = list(BP_HEAD, BP_CHEST, BP_L_LEG, BP_R_LEG, BP_L_ARM, BP_R_ARM)
 
 	H.apply_effects(5, 5)
@@ -162,8 +169,8 @@
 
 	if(is_train_head() && istype(load, /mob/living/carbon/human))
 		var/mob/living/carbon/human/D = load
-		to_chat(D, "<span class='danger'>You ran over [H]!</span>")
-		visible_message("<span class='danger'>\The [src] ran over [H]!</span>")
+		to_chat(D, span("danger", "You ran over \the [H]!"))
+		visible_message(span("danger", "\The [src] ran over \the [H]!"))
 		attack_log += text("\[[time_stamp()]\] <font color='red'>ran over [H.name] ([H.ckey]), driven by [D.name] ([D.ckey])</font>")
 		msg_admin_attack("[D.name] ([D.ckey]) ran over [H.name] ([H.ckey]). (<A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[src.x];Y=[src.y];Z=[src.z]'>JMP</a>)",ckey=key_name(D),ckey_target=key_name(H))
 	else
@@ -175,32 +182,33 @@
 //-------------------------------------------
 /obj/vehicle/train/cargo/engine/relaymove(mob/user, direction)
 	if(user != load)
-		return 0
-
+		return FALSE
 	if(user.restrained())
-		return 0
+		return FALSE
 
 	if(is_train_head())
 		if(direction == reverse_direction(dir) && tow)
-			return 0
+			return FALSE
 		if(Move(get_step(src, direction)))
-			return 1
-		return 0
+			return TRUE
+		return FALSE
 	else
 		return ..()
 
 /obj/vehicle/train/cargo/engine/examine(mob/user)
-	if(!..(user, 1))
+	if(!..(user, TRUE))
 		return
 
 	if(!istype(usr, /mob/living/carbon/human))
 		return
 
-	to_chat(user, "The power light is [on ? "on" : "off"].\nThere are[key ? "" : " no"] keys in the ignition.")
-	to_chat(user, "The charge meter reads [cell? round(cell.percent(), 0.01) : 0]%")
+	to_chat(user, span("notice", "The power light is [on ? "on" : "off"]."))
+	if(key)
+		to_chat(user, span("notice", "There are keys in the ignition."))
+	to_chat(user, span("notice", "The charge meter reads [cell ? round(cell.percent(), 0.01) : 0]%"))
 
 /obj/vehicle/train/cargo/engine/verb/start_engine()
-	set name = "Start engine"
+	set name = "Start Engine"
 	set category = "Vehicle"
 	set src in view(0)
 
@@ -208,20 +216,20 @@
 		return
 
 	if(on)
-		to_chat(usr, "The engine is already running.")
+		to_chat(usr, span("notice", "The engine is already running."))
 		return
 
 	turn_on()
-	if (on)
-		to_chat(usr, "You start [src]'s engine.")
+	if(on)
+		to_chat(usr, span("notice", "You start [src]'s engine."))
 	else
 		if(cell.charge < charge_use)
-			to_chat(usr, "[src] is out of power.")
+			to_chat(usr, span("notice", "[src] is out of power."))
 		else
-			to_chat(usr, "[src]'s engine won't start.")
+			to_chat(usr, span("notice", "[src]'s engine won't start."))
 
 /obj/vehicle/train/cargo/engine/verb/stop_engine()
-	set name = "Stop engine"
+	set name = "Stop Engine"
 	set category = "Vehicle"
 	set src in view(0)
 
@@ -229,15 +237,15 @@
 		return
 
 	if(!on)
-		to_chat(usr, "The engine is already stopped.")
+		to_chat(usr, span("notice", "The engine is already stopped."))
 		return
 
 	turn_off()
 	if (!on)
-		to_chat(usr, "You stop [src]'s engine.")
+		to_chat(usr, span("notice", "You stop \the [src]'s engine."))
 
 /obj/vehicle/train/cargo/engine/verb/remove_key()
-	set name = "Remove key"
+	set name = "Remove Key"
 	set category = "Vehicle"
 	set src in view(0)
 
@@ -260,11 +268,11 @@
 //-------------------------------------------
 // Loading/unloading procs
 //-------------------------------------------
-/obj/vehicle/train/cargo/trolley/load(var/atom/movable/C)
+/obj/vehicle/train/cargo/trolley/load(atom/movable/C)
 	if(ismob(C) && !passenger_allowed)
-		return 0
-	if(!istype(C,/obj/machinery) && !istype(C,/obj/structure/closet) && !istype(C,/obj/structure/largecrate) && !istype(C,/obj/structure/reagent_dispensers) && !istype(C,/obj/structure/ore_box) && !istype(C, /mob/living/carbon/human))
-		return 0
+		return FALSE
+	if(!istype(C, /obj/machinery) && !istype(C, /obj/structure/closet) && !istype(C, /obj/structure/largecrate) && !istype(C, /obj/structure/reagent_dispensers) && !istype(C, /obj/structure/ore_box) && !istype(C, /mob/living/carbon/human))
+		return FALSE
 
 	//if there are any items you don't want to be able to interact with, add them to this check
 	// ~no more shielded, emitter armed death trains
@@ -274,11 +282,11 @@
 		..()
 
 	if(load)
-		return 1
+		return TRUE
 
-/obj/vehicle/train/cargo/engine/load(var/atom/movable/C)
+/obj/vehicle/train/cargo/engine/load(atom/movable/C)
 	if(!istype(C, /mob/living/carbon/human))
-		return 0
+		return FALSE
 
 	return ..()
 
@@ -286,11 +294,11 @@
 //This prevents the object from being interacted with until it has
 // been unloaded. A dummy object is loaded instead so the loading
 // code knows to handle it correctly.
-/obj/vehicle/train/cargo/trolley/proc/load_object(var/atom/movable/C)
+/obj/vehicle/train/cargo/trolley/proc/load_object(atom/movable/C)
 	if(!isturf(C.loc)) //To prevent loading things from someone's inventory, which wouldn't get handled properly.
-		return 0
+		return FALSE
 	if(load || C.anchored)
-		return 0
+		return FALSE
 
 	var/datum/vehicle_dummy_load/dummy_load = new()
 	load = dummy_load
@@ -308,7 +316,7 @@
 
 		add_overlay(MA)
 
-/obj/vehicle/train/cargo/trolley/unload(var/mob/user, var/direction)
+/obj/vehicle/train/cargo/trolley/unload(mob/user, direction)
 	if(istype(load, /datum/vehicle_dummy_load))
 		var/datum/vehicle_dummy_load/dummy_load = load
 		load = dummy_load.actual_load
@@ -323,18 +331,18 @@
 
 /obj/vehicle/train/cargo/engine/latch(obj/vehicle/train/T, mob/user)
 	if(!istype(T) || !Adjacent(T))
-		return 0
+		return FALSE
 
 	//if we are attaching a trolley to an engine we don't care what direction
 	// it is in and it should probably be attached with the engine in the lead
 	if(istype(T, /obj/vehicle/train/cargo/trolley))
 		T.attach_to(src, user)
 	else
-		var/T_dir = get_dir(src, T)	//figure out where T is wrt src
+		var/T_dir = get_dir(src, T) //figure out where T is wrt src
 
-		if(dir == T_dir) 	//if car is ahead
+		if(dir == T_dir) //if car is ahead
 			src.attach_to(T, user)
-		else if(reverse_direction(dir) == T_dir)	//else if car is behind
+		else if(reverse_direction(dir) == T_dir) //else if car is behind
 			T.attach_to(src, user)
 
 //-------------------------------------------------------
@@ -366,6 +374,6 @@
 	src.active_engines = active_engines
 
 	if(!lead && !tow)
-		anchored = 0
+		can_pull = TRUE
 	else
-		anchored = 1
+		can_pull = FALSE
