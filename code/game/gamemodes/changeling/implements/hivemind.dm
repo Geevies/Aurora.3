@@ -57,7 +57,7 @@
 		to_chat(H, message_process(message))
 
 /mob/abstract/hivemind/proc/message_process(var/message)
-	return "<font color=[COLOR_LING_I_HIVEMIND]>[src] says, \"[message]\"</font>"
+	return "<font color=[COLOR_LING_I_HIVEMIND]><b>[src]</b> says, \"[message]\"</font>"
 
 /mob/abstract/hivemind/emote()
 	to_chat(src, SPAN_WARNING("You cannot emote."))
