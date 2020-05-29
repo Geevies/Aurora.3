@@ -9,6 +9,7 @@
 	book_desc = "A general wizard's spellbook. All its spells are easy to use but hard to master."
 	book_flags = CAN_MAKE_CONTRACTS
 	max_uses = 12
+	wizard_type = "Standard"
 
 	spells = list(/spell/targeted/projectile/magic_missile =					1,
 							/spell/targeted/projectile/dumbfire/fireball =		1,

@@ -1,7 +1,6 @@
 /obj/item/spellbook/battlemage
 	spellbook_type = /datum/spellbook/battlemage
 
-
 /datum/spellbook/battlemage
 	name = "\improper battlemage's bible"
 	feedback = "BM"
@@ -11,6 +10,7 @@
 	title_desc = "Buy spells using your available spell slots. Artefacts may also be bought however their cost is permanent."
 	book_flags = CAN_MAKE_CONTRACTS
 	max_uses = 12
+	wizard_type = "Battlemage"
 
 	spells = list(/spell/targeted/equip_item/shield =				1,
 				/spell/targeted/projectile/dumbfire/fireball =		1,

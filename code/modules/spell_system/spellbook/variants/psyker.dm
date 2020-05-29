@@ -9,6 +9,7 @@
 	book_desc = "Expand your mind, whatever the cost."
 	book_flags = CAN_MAKE_CONTRACTS
 	max_uses = 12
+	wizard_type = "Psyker"
 
 	spells = list(/spell/targeted/projectile/magic_missile =		1,
 				/spell/targeted/projectile/dumbfire/fireball =		1,

@@ -17,6 +17,7 @@
 	title_desc = "Buy spells using your available spell slots. Artefacts may also be bought however their cost is permanent."
 	book_flags = 0
 	max_uses = 8
+	wizard_type = "Wizarding Apprentice"
 
 	spells = list(/spell/targeted/mend =						1,
 				/spell/aoe_turf/knock =							1,

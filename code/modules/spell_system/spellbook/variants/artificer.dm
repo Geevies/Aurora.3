@@ -9,6 +9,7 @@
 	book_desc = "Build your magical arsenal. Deconstruct all that oppose you."
 	book_flags = CAN_MAKE_CONTRACTS
 	max_uses = 12
+	wizard_type = "Artificer"
 
 	spells = list(/spell/targeted/projectile/magic_missile =		1,
 				/spell/targeted/projectile/dumbfire/fireball =		1,

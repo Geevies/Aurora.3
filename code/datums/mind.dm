@@ -42,6 +42,7 @@
 
 	var/assigned_role
 	var/special_role
+	var/wizard_type
 
 	var/role_alt_title
 

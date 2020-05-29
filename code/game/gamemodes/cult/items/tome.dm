@@ -79,6 +79,12 @@
 				</html>
 				"}
 
+	var/list/book_runes = list()
+
+/obj/item/book/tome/Initialize()
+	. = ..()
+	book_runes = rune_types
+
 /obj/item/book/tome/attack(mob/living/M, mob/living/user)
 	if(isobserver(M))
 		var/mob/abstract/observer/D = M
@@ -146,7 +152,7 @@
 
 		var/chosen_rune
 		var/network
-		chosen_rune = input("Choose a rune to scribe.") in rune_types
+		chosen_rune = input("Choose a rune to scribe.") in book_runes
 		if(!chosen_rune)
 			return
 		if(chosen_rune == "None")
@@ -199,3 +205,19 @@
 
 /obj/item/book/tome/cultify()
 	return
+
+/obj/item/book/tome/partial
+	name = "tattered arcane tome"
+	desc = "A tome containing vasts swathes of information regarding the blood god Nar'sie. It seems to have a lot of pages missing..."
+
+/obj/item/book/tome/partial/Initialize()
+	. = ..()
+	book_runes -= "None"
+	book_runes -= "Summon Nar'sie"
+	shuffle(book_runes)
+	for(var/rune in book_runes)
+		if(length(book_runes) <= 15)
+			break
+		if(prob(50))
+			book_runes -= rune
+	book_runes["None"] = /obj/effect/rune

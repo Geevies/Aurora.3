@@ -10,6 +10,7 @@
 	title_desc = "Buy spells using your available spell slots. Artefacts may also be bought however their cost is permanent."
 	book_flags = CAN_MAKE_CONTRACTS
 	max_uses = 10
+	wizard_type = "Spatial"
 
 	spells = list(/spell/targeted/ethereal_jaunt =					1,
 				/spell/aoe_turf/blink =								1,

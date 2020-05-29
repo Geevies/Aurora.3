@@ -10,6 +10,7 @@
 	title_desc = "Buy spells using your available spell slots. Artefacts may also be bought however their cost is permanent."
 	book_flags = CAN_MAKE_CONTRACTS
 	max_uses = 12
+	wizard_type = "Druid"
 
 	spells = list(/spell/targeted/heal_target =						1,
 				/spell/targeted/heal_target/sacrifice =				1,

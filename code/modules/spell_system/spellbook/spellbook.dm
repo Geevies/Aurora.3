@@ -33,13 +33,15 @@ var/list/artefact_feedback = list(/obj/structure/closet/wizard/armor = 		"HS",
 	. = ..()
 	set_spellbook(spellbook_type)
 
-/obj/item/spellbook/proc/set_spellbook(var/type)
+/obj/item/spellbook/proc/set_spellbook(var/type, var/mob/user)
 	if(spellbook)
 		qdel(spellbook)
 	spellbook = new type()
 	uses = spellbook.max_uses
 	name = spellbook.name
 	desc = spellbook.desc
+	if(user)
+		spellbook.on_spellbook_get(user)
 
 /obj/item/spellbook/attack_self(mob/user as mob)
 	if(!user)
@@ -85,7 +87,7 @@ var/list/artefact_feedback = list(/obj/structure/closet/wizard/armor = 		"HS",
 				info = "<font color='#ff33cc'>[initial(S.max_uses)] Spell Slots</font>"
 			else if(ispath(spellbook.spells[i],/obj))
 				var/obj/O = spellbook.spells[i]
-				name = "Artefact: [capitalize(initial(O.name))]" //because 99.99% of objects dont have capitals in them and it makes it look weird.
+				name = "Artefact: [capitalize_first_letters(initial(O.name))]" //because 99.99% of objects dont have capitals in them and it makes it look weird.
 				desc = initial(O.desc)
 			else if(ispath(spellbook.spells[i],/spell))
 				var/spell/S = spellbook.spells[i]
@@ -149,7 +151,7 @@ var/list/artefact_feedback = list(/obj/structure/closet/wizard/armor = 		"HS",
 		uses -= spellbook.spells[path]
 		send_feedback(path) //feedback stuff
 		if(ispath(path,/datum/spellbook))
-			src.set_spellbook(path)
+			src.set_spellbook(path, usr)
 			temp = "You have chosen a new spellbook."
 		else
 			if(href_list["contract"])
@@ -241,10 +243,18 @@ var/list/artefact_feedback = list(/obj/structure/closet/wizard/armor = 		"HS",
 	var/max_uses = 1
 	var/title = "Book of Tomes"
 	var/title_desc = "This tome marks down all the available tomes for use. Choose wisely, there are no refunds."
-	var/list/spells = list(/datum/spellbook/standard = 1,
-				/datum/spellbook/cleric = 1,
-				/datum/spellbook/battlemage = 1,
-				/datum/spellbook/druid = 1,
-				/datum/spellbook/necromancer = 1
-				) //spell's path = cost of spell
+	var/wizard_type // assigns a wizard type to the receiving wizard
+	var/list/spells = list(
+				/datum/spellbook/standard =		1,
+				/datum/spellbook/artificer =	1,
+				/datum/spellbook/cleric =		1,
+				/datum/spellbook/battlemage =	1,
+				/datum/spellbook/druid =		1,
+				/datum/spellbook/necromancer =	1,
+				/datum/spellbook/occultist =	1,
+				/datum/spellbook/psyker =		1
+	) //spell's path = cost of spell
 	var/list/apprentice_spells = list() // extra spells that apprentices get, based on their master's book
+
+/datum/spellbook/proc/on_spellbook_get(var/mob/living/user)
+	user.mind.wizard_type = wizard_type

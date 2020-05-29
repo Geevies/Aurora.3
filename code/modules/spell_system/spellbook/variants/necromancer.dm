@@ -1,7 +1,6 @@
 /obj/item/spellbook/necromancer
 	spellbook_type = /datum/spellbook/necromancer
 
-
 /datum/spellbook/necromancer
 	name = "\improper necromancer's grimoire"
 	feedback = "NG"
@@ -11,6 +10,7 @@
 	title_desc = "Buy spells using your available spell slots. Artefacts may also be bought however their cost is permanent."
 	book_flags = CAN_MAKE_CONTRACTS
 	max_uses = 10
+	wizard_type = "Necromancer"
 
 	spells = list(/spell/targeted/projectile/dumbfire/fireball =	1,
 				/spell/targeted/torment =							1,

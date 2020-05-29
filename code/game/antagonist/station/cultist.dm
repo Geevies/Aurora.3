@@ -1,16 +1,18 @@
 var/datum/antagonist/cultist/cult
 
 /proc/iscultist(var/mob/player)
-	if(!cult || !player.mind)
-		return 0
-	if(player.mind in cult.current_antagonists)
-		return 1
+	if(!player.mind)
+		return FALSE
+	if(player.mind.special_role == "Cultist" || player.mind.wizard_type == "Occultist")
+		return TRUE
+	if(cult && player.mind in cult.current_antagonists)
+		return TRUE
 
 /proc/iscult(var/mob/test)
-	if (test.faction == "cult")
-		return 1
-
-	else return iscultist(test)
+	if(test.faction == "cult")
+		return TRUE
+	else
+		return iscultist(test)
 
 /datum/antagonist/cultist
 	id = MODE_CULTIST
