@@ -285,6 +285,48 @@ var/list/asset_datums = list()
 		"browserOutput_white.css"  = 'code/modules/goonchat/browserassets/css/browserOutput_white.css'
 	)
 
+/datum/asset/simple/accents
+	assets = list(
+		"biesel.svg"               = 'html/svg/accents/biesel.svg',
+		"coalition.svg"            = 'html/svg/accents/coalition.svg',
+		"deep_wastelander.svg"     = 'html/svg/accents/deep_wastelander.svg',
+		"dionae.svg"               = 'html/svg/accents/dionae.svg',
+		"dominia.svg"              = 'html/svg/accents/dominia.svg',
+		"elyra.svg"                = 'html/svg/accents/elyra.svg',
+		"eridani.svg"              = 'html/svg/accents/eridani.svg',
+		"eridani_dreg.svg"         = 'html/svg/accents/eridani_dreg.svg',
+		"gibson.svg"               = 'html/svg/accents/gibson.svg',
+		"hegemon_noble.svg"        = 'html/svg/accents/hegemon_noble.svg',
+		"hegemon_peasant.svg"      = 'html/svg/accents/hegemon_peasant.svg',
+		"himeo.svg"                = 'html/svg/accents/himeo.svg',
+		"jupiter.svg"              = 'html/svg/accents/jupiter.svg',
+		"konyang.svg"              = 'html/svg/accents/konyang.svg',
+		"luna.svg"                 = 'html/svg/accents/luna.svg',
+		"mars.svg"                 = 'html/svg/accents/mars.svg',
+		"new_hai_phong.svg"        = 'html/svg/accents/new_hai_phong.svg',
+		"scarabs.svg"              = 'html/svg/accents/scarabs.svg',
+		"silversun.svg"            = 'html/svg/accents/silversun.svg',
+		"skrell.svg"               = 'html/svg/accents/skrell.svg',
+		"sol.svg"                  = 'html/svg/accents/sol.svg',
+		"tajara.svg"               = 'html/svg/accents/tajara.svg',
+		"tajara_amohda.svg"        = 'html/svg/accents/tajara_amohda.svg',
+		"tajara_crevan.svg"        = 'html/svg/accents/tajara_crevan.svg',
+		"tajara_dasnrra.svg"       = 'html/svg/accents/tajara_dasnrra.svg',
+		"tajara_high_harr.svg"     = 'html/svg/accents/tajara_high_harr.svg',
+		"tajara_low_harr.svg"      = 'html/svg/accents/tajara_low_harr.svg',
+		"tajara_nazira.svg"        = 'html/svg/accents/tajara_nazira.svg',
+		"tajara_nomad.svg"         = 'html/svg/accents/tajara_nomad.svg',
+		"tajara_oldyassa.svg"      = 'html/svg/accents/tajara_oldyassa.svg',
+		"tajara_rural.svg"         = 'html/svg/accents/tajara_rural.svg',
+		"trad_noble.svg"           = 'html/svg/accents/trad_noble.svg',
+		"trad_peasant.svg"         = 'html/svg/accents/trad_peasant.svg',
+		"tts.svg"                  = 'html/svg/accents/tts.svg',
+		"unathi.svg"               = 'html/svg/accents/unathi.svg',
+		"venus.svg"                = 'html/svg/accents/venus.svg',
+		"venus_surfacer.svg"       = 'html/svg/accents/venus_surfacer.svg',
+		"vysoka.svg"               = 'html/svg/accents/vysoka.svg'
+	)
+
 /datum/asset/simple/fontawesome
 	verify = FALSE
 	assets = list(

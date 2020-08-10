@@ -208,12 +208,9 @@
 	return "<span class='say_quote'>\[[worldtime2text()]\]</span>"
 
 /mob/proc/on_hear_radio(part_a, speaker_name, track, part_b, formatted, accent_icon)
-	var/accent_tag
-	if(accent_icon)
-		accent_tag = icon2html(icon('./icons/accent_tags.dmi', accent_icon), world, realsize=TRUE, class="text_tag")
 	to_chat(src, "[part_a][speaker_name][part_b][formatted]")
 	if(vr_mob)
-		to_chat(vr_mob, "[part_a][accent_tag][speaker_name][part_b][formatted]")
+		to_chat(vr_mob, "[part_a][accent_icon][speaker_name][part_b][formatted]")
 
 /mob/abstract/observer/on_hear_radio(part_a, speaker_name, track, part_b, formatted)
 	to_chat(src, "[track][part_a][speaker_name][part_b][formatted]")

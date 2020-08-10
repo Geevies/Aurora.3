@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
+   sodipodi:docname="unathi.svg"
+   id="svg36"
+   version="1.1"
+   height="100"
+   width="320">
+  <metadata
+     id="metadata42">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs40" />
+  <sodipodi:namedview
+     inkscape:current-layer="svg36"
+     inkscape:window-maximized="1"
+     inkscape:window-y="-8"
+     inkscape:window-x="-8"
+     inkscape:cy="50"
+     inkscape:cx="160"
+     inkscape:zoom="3.278125"
+     showgrid="false"
+     id="namedview38"
+     inkscape:window-height="705"
+     inkscape:window-width="1366"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0"
+     guidetolerance="10"
+     gridtolerance="10"
+     objecttolerance="10"
+     borderopacity="1"
+     bordercolor="#666666"
+     pagecolor="#ffffff" />
+  <path
+     id="path4"
+     d="M20 0L20 10L10 10L10 20L0 20L0 80L10 80L10 90L20 90L20 100L300 100L300 90L310 90L310 80L320 80L320 20L310 20L310 10L300 10L300 0L20 0z"
+     style="fill:#071149; stroke:none;" />
+  <path
+     id="path8"
+     d="M180 10L180 20L170 20L170 30L180 30L180 20L190 20L190 10L180 10z"
+     style="fill:#8f7f0d; stroke:none;" />
+  <path
+     id="path10"
+     d="M190 10L190 20L180 20L180 30L170 30L170 50L210 50L210 30L220 30L220 10L190 10z"
+     style="fill:#f6ce48; stroke:none;" />
+  <path
+     id="path12"
+     d="M220 10L220 50L170 50L170 70L180 70L180 80L190 80L190 90L220 90L220 50L310 50L310 30L300 30L300 20L290 20L290 10L220 10z"
+     style="fill:#ba3737; stroke:none;" />
+  <path
+     id="path14"
+     d="M290 10L290 20L300 20L300 10L290 10z"
+     style="fill:#6e2121; stroke:none;" />
+  <path
+     id="path16"
+     d="M30 20L30 30L20 30L20 50L50 50L50 70L20 70L20 80L50 80L50 70L60 70L60 40L30 40L30 30L60 30L60 20L30 20M70 20L70 30L80 30L80 70L70 70L70 80L100 80L100 70L90 70L90 30L100 30L100 20L70 20M110 20L110 80L120 80L120 50L130 50L130 70L140 70L140 80L150 80L150 20L140 20L140 50L130 50L130 30L120 30L120 20L110 20z"
+     style="fill:#f6ce48; stroke:none;" />
+  <path
+     id="path18"
+     d="M300 20L300 30L310 30L310 20L300 20z"
+     style="fill:#6e2121; stroke:none;" />
+  <path
+     id="path20"
+     d="M210 30L210 50L220 50L220 30L210 30M220 50L220 70L230 70L230 50L220 50z"
+     style="fill:#d47123; stroke:none;" />
+  <path
+     id="path22"
+     d="M230 50L230 70L220 70L220 90L290 90L290 80L300 80L300 70L310 70L310 50L230 50z"
+     style="fill:#f6ce48; stroke:none;" />
+  <path
+     id="path24"
+     d="M170 70L170 80L180 80L180 70L170 70z"
+     style="fill:#6e2121; stroke:none;" />
+  <path
+     id="path26"
+     d="M300 70L300 80L310 80L310 70L300 70z"
+     style="fill:#8f7f0d; stroke:none;" />
+  <path
+     id="path30"
+     d="M180 80L180 90L190 90L190 80L180 80z"
+     style="fill:#6e2121; stroke:none;" />
+  <path
+     id="path32"
+     d="M290 80L290 90L300 90L300 80L290 80z"
+     style="fill:#8f7f0d; stroke:none;" />
+</svg>

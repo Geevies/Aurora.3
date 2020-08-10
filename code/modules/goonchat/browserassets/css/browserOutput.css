@@ -265,6 +265,9 @@ em						{font-style: normal;	font-weight: bold;}
 /* LOG */
 .log_message			{color: #386aff;	font-weight: bold;}
 
+/* ACCENT TAGS */
+.accent_tag			{height: 100%; width: 100%;}
+
 /* CHAT TAGS */
 .tag				{color: #fff; border-radius: 15px; font-weight: bold; padding-left: 4px; padding-right: 4px;}
 .ooc_tag			{background-color: #002eb8;}
