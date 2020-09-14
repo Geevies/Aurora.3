@@ -1,13 +1,13 @@
 /obj/item/gun/projectile/heavysniper
 	name = "anti-materiel rifle"
-	desc = "A portable anti-armour rifle fitted with a scope, the PTR-7 is capable of punching through windows and non-reinforced walls with ease. Fires armor piercing 14.5mm shells."
+	desc = "A portable anti-armor rifle fitted with a scope, the PTR-7 is capable of punching through windows and non-reinforced walls with ease. Fires armor piercing 14.5mm shells."
 	desc_info = "This is a ballistic weapon.  To fire the weapon, ensure your intent is *not* set to 'help', have your gun mode set to 'fire', \
 	then click where you want to fire.  The gun's chamber can be opened or closed by using it in your hand.  To reload, open the chamber, add a new bullet \
 	then close it.  To use the scope, use the appropriate verb in the object tab."
 	icon = 'icons/obj/guns/heavysniper.dmi'
 	icon_state = "heavysniper"
 	item_state = "heavysniper"
-	w_class = 4
+	w_class = ITEMSIZE_LARGE
 	force = 10
 	slot_flags = SLOT_BACK
 	origin_tech = list(TECH_COMBAT = 8, TECH_MATERIAL = 2, TECH_ILLEGAL = 8)
@@ -149,7 +149,7 @@
 	icon = 'icons/obj/guns/tranqsniper.dmi'
 	icon_state = "tranqsniper"
 	item_state = "tranqsniper"
-	w_class = 4
+	w_class = ITEMSIZE_LARGE
 	force = 10
 	slot_flags = SLOT_BACK
 	origin_tech = list(TECH_COMBAT = 6, TECH_MATERIAL = 2)
@@ -184,7 +184,7 @@
 	icon = 'icons/obj/guns/dragunov.dmi'
 	icon_state = "dragunov"
 	item_state = "dragunov"
-	w_class = 4
+	w_class = ITEMSIZE_LARGE
 	force = 10
 	slot_flags = SLOT_BACK
 	origin_tech = list(TECH_COMBAT = 8, TECH_MATERIAL = 3, TECH_MAGNET = 2, TECH_ILLEGAL = 5)
@@ -241,7 +241,7 @@
 	icon = 'icons/obj/guns/w556.dmi'
 	icon_state = "w556rifle"
 	item_state = "w556rifle"
-	w_class = 4
+	w_class = ITEMSIZE_LARGE
 	force = 10
 	slot_flags = SLOT_BACK
 	origin_tech = list(TECH_COMBAT = 5, TECH_MATERIAL = 3)

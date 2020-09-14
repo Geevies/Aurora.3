@@ -15,7 +15,7 @@ BREATH ANALYZER
 	flags = CONDUCT
 	slot_flags = SLOT_BELT
 	throwforce = 3
-	w_class = 2.0
+	w_class = ITEMSIZE_SMALL
 	throw_speed = 5
 	throw_range = 10
 	matter = list(DEFAULT_WALL_MATERIAL = 200)
@@ -248,7 +248,7 @@ BREATH ANALYZER
 			var/datum/reagent/R = A
 			if(R.scannable)
 				print_reagent_default_message = FALSE
-				reagentdata["[R.id]"] = "<span class='notice'>    [round(H.reagents.get_reagent_amount(R.id), 1)]u [R.name]</span>"
+				reagentdata["[R.type]"] = "<span class='notice'>    [round(H.reagents.get_reagent_amount(R.type), 1)]u [R.name]</span>"
 			else
 				unknown++
 		if(reagentdata.len)
@@ -302,7 +302,7 @@ BREATH ANALYZER
 	desc = "A hand-held environmental scanner which reports current gas levels."
 	icon_state = "atmos"
 	item_state = "analyzer"
-	w_class = 2.0
+	w_class = ITEMSIZE_SMALL
 	flags = CONDUCT
 	slot_flags = SLOT_BELT
 	throwforce = 5
@@ -336,7 +336,7 @@ BREATH ANALYZER
 	desc = "A hand-held mass spectrometer which identifies trace chemicals in a blood sample."
 	icon_state = "spectrometer"
 	item_state = "analyzer"
-	w_class = 2.0
+	w_class = ITEMSIZE_SMALL
 	flags = CONDUCT | OPENCONTAINER
 	slot_flags = SLOT_BELT
 	throwforce = 5
@@ -370,7 +370,7 @@ BREATH ANALYZER
 	if(reagents.total_volume)
 		var/list/blood_traces = list()
 		for(var/datum/reagent/R in reagents.reagent_list)
-			if(R.id != "blood")
+			if(R.type != /datum/reagent/blood)
 				reagents.clear_reagents()
 				to_chat(user, "<span class='warning'>The sample was contaminated! Please insert another sample</span>")
 				return
@@ -379,10 +379,11 @@ BREATH ANALYZER
 				break
 		var/dat = "Trace Chemicals Found: "
 		for(var/R in blood_traces)
+			var/datum/reagent/C = new R()
 			if(details)
-				dat += "[R] ([blood_traces[R]] units) "
+				dat += "[C] ([blood_traces[R]] units) "
 			else
-				dat += "[R] "
+				dat += "[C] "
 		to_chat(user, "[dat]")
 		reagents.clear_reagents()
 	return
@@ -398,7 +399,7 @@ BREATH ANALYZER
 	desc = "A hand-held reagent scanner which identifies chemical agents."
 	icon_state = "spectrometer"
 	item_state = "analyzer"
-	w_class = 2.0
+	w_class = ITEMSIZE_SMALL
 	flags = CONDUCT
 	slot_flags = SLOT_BELT
 	throwforce = 5
@@ -447,7 +448,7 @@ BREATH ANALYZER
 	icon_state = "adv_spectrometer"
 	item_state = "analyzer"
 	origin_tech = list(TECH_BIO = 1)
-	w_class = 2.0
+	w_class = ITEMSIZE_SMALL
 	flags = CONDUCT
 	throwforce = 0
 	throw_speed = 3
@@ -456,27 +457,27 @@ BREATH ANALYZER
 
 /obj/item/device/slime_scanner/attack(mob/living/M, mob/living/user)
 	if(!isslime(M))
-		to_chat(user, span("warning", "This device can only scan slimes!"))
+		to_chat(user, SPAN_WARNING("This device can only scan slimes!"))
 		return
 	var/mob/living/carbon/slime/T = M
-	to_chat(user, span("notice", "**************************"))
-	to_chat(user, span("notice", "Slime scan results:"))
-	to_chat(user, span("notice", capitalize_first_letters("[T.colour] [T.is_adult ? "adult" : "baby"] slime")))
-	to_chat(user, span("notice", "Health: [T.health]"))
-	to_chat(user, span("notice", "Nutrition: [T.nutrition]/[T.get_max_nutrition()]"))
+	to_chat(user, SPAN_NOTICE("**************************"))
+	to_chat(user, SPAN_NOTICE("Slime scan results:"))
+	to_chat(user, SPAN_NOTICE(capitalize_first_letters("[T.colour] [T.is_adult ? "adult" : "baby"] slime")))
+	to_chat(user, SPAN_NOTICE("Health: [T.health]"))
+	to_chat(user, SPAN_NOTICE("Nutrition: [T.nutrition]/[T.get_max_nutrition()]"))
 	if(T.nutrition < T.get_starve_nutrition())
-		to_chat(user, span("alert", "Warning: slime is starving!"))
+		to_chat(user, SPAN_ALERT("Warning: slime is starving!"))
 	else if (T.nutrition < T.get_hunger_nutrition())
-		to_chat(user, span("warning", "Warning: slime is hungry!"))
-	to_chat(user, span("notice", "Electric charge strength: [T.powerlevel]"))
-	to_chat(user, span("notice", "Growth progress: [T.amount_grown]/10"))
+		to_chat(user, SPAN_WARNING("Warning: slime is hungry!"))
+	to_chat(user, SPAN_NOTICE("Electric charge strength: [T.powerlevel]"))
+	to_chat(user, SPAN_NOTICE("Growth progress: [T.amount_grown]/10"))
 	if(T.cores > 1)
-		to_chat(user, span("warning", "Anomalous number of slime cores detected."))
+		to_chat(user, SPAN_WARNING("Anomalous number of slime cores detected."))
 	else if(!T.cores)
-		to_chat(user, span("warning", "No slime cores detected."))
-	to_chat(user, span("notice", "Genetic Information:"))
+		to_chat(user, SPAN_WARNING("No slime cores detected."))
+	to_chat(user, SPAN_NOTICE("Genetic Information:"))
 	if(T.slime_mutation[4] == T.colour)
-		to_chat(user, span("warning", "This slime cannot evolve any further."))
+		to_chat(user, SPAN_WARNING("This slime cannot evolve any further."))
 	else
 		var/list/poss_mutations = uniquelist(T.slime_mutation)
 		var/mutation_message = capitalize(english_list(poss_mutations))
@@ -490,7 +491,7 @@ BREATH ANALYZER
 	desc = "Using an up-to-date database of various costs and prices, this device estimates the market price of an item up to 0.001% accuracy."
 	icon_state = "price_scanner"
 	slot_flags = SLOT_BELT
-	w_class = 2
+	w_class = ITEMSIZE_SMALL
 	throwforce = 0
 	throw_speed = 3
 	throw_range = 3
@@ -509,7 +510,7 @@ BREATH ANALYZER
 	desc = "A hand-held breath analyzer that provides a robust amount of information about the subject's repository system."
 	icon_state = "breath_analyzer"
 	item_state = "analyzer"
-	w_class = 2.0
+	w_class = ITEMSIZE_SMALL
 	flags = CONDUCT
 	slot_flags = SLOT_BELT
 	throwforce = 0

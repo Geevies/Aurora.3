@@ -1,9 +1,9 @@
 /datum/species/machine/shell
-	name = "Shell Frame"
+	name = SPECIES_IPC_SHELL
 	hide_name = TRUE
 	short_name = "jak"
 	name_plural = "Shells"
-	bodytype = "Human"
+	bodytype = BODYTYPE_HUMAN
 	default_genders = list(MALE, FEMALE)
 
 	burn_mod = 1.2
@@ -44,7 +44,7 @@
 		"Your synthetic flesh crawls in the heat, swelling into a disgusting morass of plastic."
 		)
 
-	appearance_flags = HAS_HAIR_COLOR | HAS_SKIN_TONE | HAS_EYE_COLOR | HAS_FBP | HAS_UNDERWEAR | HAS_SOCKS | HAS_SKIN_PRESET
+	appearance_flags = HAS_HAIR_COLOR | HAS_SKIN_TONE | HAS_EYE_COLOR | HAS_FBP | HAS_SKIN_PRESET | HAS_UNDERWEAR | HAS_SOCKS | HAS_LIPS
 
 	has_limbs = list(
 		BP_CHEST =  list("path" = /obj/item/organ/external/chest/shell),
@@ -71,7 +71,10 @@
 		/mob/living/carbon/human/proc/check_tag,
 		/mob/living/carbon/human/proc/tie_hair)
 
-	bodyfall_sound = "bodyfall"
+	bodyfall_sound = /decl/sound_category/bodyfall_sound
+
+	allowed_accents = list(ACCENT_CETI, ACCENT_GIBSON, ACCENT_SOL, ACCENT_COC, ACCENT_ERIDANI, ACCENT_ERIDANIDREG, ACCENT_ELYRA, ACCENT_KONYAN, ACCENT_JUPITER, ACCENT_MARTIAN, ACCENT_LUNA,
+							ACCENT_HIMEO, ACCENT_VENUS, ACCENT_VENUSJIN, ACCENT_PHONG, ACCENT_SILVERSUN, ACCENT_TTS, ACCENT_EUROPA, ACCENT_EARTH)
 
 /datum/species/machine/shell/get_light_color()
 	return
@@ -79,9 +82,8 @@
 /datum/species/machine/shell/handle_death(var/mob/living/carbon/human/H)
 	return
 
-
 /datum/species/machine/shell/rogue
-	name = "Rogue Shell"
+	name = SPECIES_IPC_SHELL_ROGUE
 	short_name = "roguejak"
 	name_plural = "Rogue Shells"
 
@@ -111,11 +113,11 @@
 	return
 
 /datum/species/machine/industrial
-	name = "Hephaestus G1 Industrial Frame"
+	name = SPECIES_IPC_G1
 	short_name = "ind"
 	name_plural = "Industrials"
 	bald = 1
-	bodytype = "Heavy Machine"
+	bodytype = BODYTYPE_IPC_INDUSTRIAL
 	mob_size = 12
 
 	unarmed_types = list(/datum/unarmed_attack/industrial)
@@ -152,7 +154,7 @@
 		)
 
 	flags = IS_IPC | ACCEPTS_COOLER
-	appearance_flags = HAS_EYE_COLOR
+	appearance_flags = HAS_EYE_COLOR | HAS_UNDERWEAR | HAS_SOCKS
 
 	heat_level_1 = 800
 	heat_level_2 = 1600
@@ -179,11 +181,11 @@
 	return
 
 /datum/species/machine/terminator
-	name = "Military Frame"
+	name = SPECIES_IPC_TERMINATOR
 	short_name = "hks"
 	name_plural = "HKs"
 	bald = 1
-	bodytype = "Heavy Machine"
+	bodytype = BODYTYPE_IPC_INDUSTRIAL
 
 	blurb = "\[REDACTED\]"
 
@@ -196,8 +198,8 @@
 	unarmed_types = list(/datum/unarmed_attack/terminator)
 	rarity_value = 20
 
-	language = "Hephaestus Darkcomms"
-	name_language = "Hephaestus Darkcomms"
+	language = LANGUAGE_TERMINATOR
+	name_language = LANGUAGE_TERMINATOR
 
 	eyes = "eyes_terminator"
 	has_floating_eyes = 1
@@ -228,10 +230,9 @@
 
 	flags = IS_IPC | ACCEPTS_COOLER
 	spawn_flags = IS_RESTRICTED
-	appearance_flags = HAS_HAIR_COLOR
+	appearance_flags = HAS_HAIR_COLOR | HAS_UNDERWEAR | HAS_SOCKS
 	vision_flags = DEFAULT_SIGHT | SEE_MOBS
 
-	virus_immune = 1
 	reagent_tag = IS_MACHINE
 
 	inherent_verbs = list(
@@ -288,9 +289,9 @@
 // -- Branded units --
 
 /datum/species/machine/industrial/hephaestus
-	name = "Hephaestus G2 Industrial Frame"
+	name = SPECIES_IPC_G2
 	short_name = "hif"
-	bodytype = "Heavy Machine"
+	bodytype = BODYTYPE_IPC_INDUSTRIAL
 
 	icobase = 'icons/mob/human_races/ipc/r_ind_hephaestus.dmi'
 	deform = 'icons/mob/human_races/ipc/r_ind_hephaestus.dmi'
@@ -340,9 +341,9 @@
 		return rgb(H.r_eyes, H.g_eyes, H.b_eyes)
 
 /datum/species/machine/industrial/xion
-	name = "Xion Industrial Frame"
+	name = SPECIES_IPC_XION
 	short_name = "xmf"
-	bodytype = "Heavy Machine"
+	bodytype = BODYTYPE_IPC_INDUSTRIAL
 
 	icobase = 'icons/mob/human_races/ipc/r_ind_xion.dmi'
 	deform = 'icons/mob/human_races/ipc/r_ind_xion.dmi'
@@ -385,7 +386,7 @@
 	)
 
 /datum/species/machine/industrial/xion/remote
-	name = "Remote Xion Industrial Frame"
+	name = SPECIES_IPC_XION_REMOTE
 	short_name = "rem_xmf"
 
 	spawn_flags = IS_RESTRICTED
@@ -402,9 +403,9 @@
 		return rgb(H.r_eyes, H.g_eyes, H.b_eyes)
 
 /datum/species/machine/zenghu
-	name = "Zeng-Hu Mobility Frame"
+	name = SPECIES_IPC_ZENGHU
 	short_name = "zhf"
-	bodytype = "Zeng-Hu Mobility Frame"
+	bodytype = BODYTYPE_IPC_ZENGHU
 
 	icobase = 'icons/mob/human_races/ipc/r_ind_zenghu.dmi'
 	deform = 'icons/mob/human_races/ipc/r_ind_zenghu.dmi'
@@ -419,7 +420,7 @@
 
 	slowdown = -1.2
 
-	appearance_flags = HAS_EYE_COLOR
+	appearance_flags = HAS_EYE_COLOR | HAS_UNDERWEAR | HAS_SOCKS
 
 	examine_color = "#ff00ff"
 
@@ -444,14 +445,15 @@
 		/mob/living/carbon/human/proc/check_tag
 		)
 
+
 /datum/species/machine/zenghu/get_light_color(mob/living/carbon/human/H)
 	if (istype(H))
 		return rgb(H.r_eyes, H.g_eyes, H.b_eyes)
 
 /datum/species/machine/bishop
-	name = "Bishop Accessory Frame"
+	name = SPECIES_IPC_BISHOP
 	short_name = "bcf"
-	bodytype = "Bishop Accessory Frame"
+	bodytype = BODYTYPE_IPC_BISHOP
 
 	icobase = 'icons/mob/human_races/ipc/r_ind_bishop.dmi'
 	deform = 'icons/mob/human_races/ipc/r_ind_bishop.dmi'
@@ -466,7 +468,7 @@
 	grab_mod = 1.1
 	resist_mod = 4
 
-	appearance_flags = HAS_EYE_COLOR
+	appearance_flags = HAS_EYE_COLOR | HAS_UNDERWEAR | HAS_SOCKS
 
 	examine_color = "#00afea"
 
@@ -491,12 +493,16 @@
 		/mob/living/carbon/human/proc/check_tag
 		)
 
+
+	allowed_accents = list(ACCENT_CETI, ACCENT_GIBSON, ACCENT_SOL, ACCENT_COC, ACCENT_ERIDANI, ACCENT_ERIDANIDREG, ACCENT_ELYRA, ACCENT_KONYAN, ACCENT_JUPITER, ACCENT_MARTIAN, ACCENT_LUNA,
+							ACCENT_HIMEO, ACCENT_VENUS, ACCENT_VENUSJIN, ACCENT_PHONG, ACCENT_SILVERSUN, ACCENT_TTS, ACCENT_EUROPA, ACCENT_EARTH)
+
 /datum/species/machine/bishop/get_light_color(mob/living/carbon/human/H)
 	if (istype(H))
 		return rgb(H.r_eyes, H.g_eyes, H.b_eyes)
 
 /datum/species/machine/unbranded
-	name = "Unbranded Frame"
+	name = SPECIES_IPC_UNBRANDED
 	short_name = "unbran"
 	name_plural = "Unbranded Frames"
 
@@ -532,7 +538,7 @@
 		)
 
 /datum/species/machine/unbranded/remote
-	name = "Remote Unbranded Frame"
+	name = SPECIES_IPC_UNBRANDED_REMOTE
 	short_name = "rem_unbran"
 	name_plural = "Remote Unbranded Frames"
 

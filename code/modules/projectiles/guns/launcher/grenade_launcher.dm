@@ -27,7 +27,7 @@
 
 //revolves the magazine, allowing players to choose between multiple grenade types
 /obj/item/gun/launcher/grenade/proc/pump(mob/M as mob)
-	playsound(M, 'sound/weapons/shotgunpump.ogg', 60, 1)
+	playsound(M, 'sound/weapons/shotgun_pump.ogg', 60, 1)
 
 	var/obj/item/grenade/next
 	if(grenades.len)
@@ -112,7 +112,7 @@
 /obj/item/gun/launcher/grenade/underslung
 	name = "underslung grenade launcher"
 	desc = "Not much more than a tube and a firing mechanism, this grenade launcher is designed to be fitted to a rifle."
-	w_class = 3
+	w_class = ITEMSIZE_NORMAL
 	force = 5
 	max_grenades = 0
 

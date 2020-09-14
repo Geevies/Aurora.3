@@ -47,7 +47,7 @@
 				selected_system.attack_self(user)
 				setClickCooldown(5)
 			return
-	
+
 	if(modifiers["ctrl"])
 		if(selected_system)
 			if(selected_system == A)
@@ -79,7 +79,7 @@
 		to_chat(user, "<span class='warning'>Error: Power levels insufficient.</span>")
 
 	if(user != src)
-		a_intent = user.a_intent
+		set_intent(user.a_intent)
 		if(user.zone_sel)
 			zone_sel.set_selected_zone(user.zone_sel.selecting)
 		else
@@ -167,14 +167,14 @@
 /mob/living/heavy_vehicle/setClickCooldown(var/timeout)
 	next_move = max(world.time + timeout, next_move)
 	for(var/hardpoint in hardpoint_hud_elements)
-		var/obj/screen/movable/mecha/hardpoint/H = hardpoint_hud_elements[hardpoint]
+		var/obj/screen/mecha/hardpoint/H = hardpoint_hud_elements[hardpoint]
 		if(H)
 			H.color = "#FF0000"
 	addtimer(CALLBACK(src, .proc/reset_hardpoint_color), timeout)
 
 /mob/living/heavy_vehicle/proc/reset_hardpoint_color()
 	for(var/hardpoint in hardpoint_hud_elements)
-		var/obj/screen/movable/mecha/hardpoint/H = hardpoint_hud_elements[hardpoint]
+		var/obj/screen/mecha/hardpoint/H = hardpoint_hud_elements[hardpoint]
 		if(H)
 			H.color = null
 
@@ -193,7 +193,7 @@
 		for(var/hardpoint in hardpoints)
 			if(hardpoint != selected_hardpoint)
 				continue
-			var/obj/screen/movable/mecha/hardpoint/H = hardpoint_hud_elements[hardpoint]
+			var/obj/screen/mecha/hardpoint/H = hardpoint_hud_elements[hardpoint]
 			if(istype(H))
 				H.icon_state = "hardpoint"
 				break
@@ -233,13 +233,11 @@
 	user.forceMove(src)
 	LAZYDISTINCTADD(pilots, user)
 	sync_access()
-	update_pilot_overlay()
 	playsound(src, 'sound/machines/windowdoor.ogg', 50, 1)
 	user << sound('sound/mecha/nominal.ogg',volume=50)
 	if(user.client) user.client.screen |= hud_elements
 	LAZYDISTINCTADD(user.additional_vision_handlers, src)
 	update_icon()
-	update_pilot_overlay()
 	return 1
 
 /mob/living/heavy_vehicle/proc/sync_access()
@@ -272,11 +270,9 @@
 		user.client.screen -= hud_elements
 		user.client.eye = user
 	if(user in pilots)
-		a_intent = I_HURT
+		set_intent(I_HURT)
 		LAZYREMOVE(pilots, user)
 		UNSETEMPTY(pilots)
-		update_pilot_overlay()
-	return
 
 /mob/living/heavy_vehicle/relaymove(var/mob/living/user, var/direction)
 	if(world.time < next_mecha_move)
@@ -451,7 +447,7 @@
 
 				user.put_in_hands(body.cell)
 				to_chat(user, "<span class='notice'>You remove \the [body.cell] from \the [src].</span>")
-				playsound(user.loc, 'sound/items/Crowbar.ogg', 50, 1)
+				playsound(user.loc, thing.usesound, 50, 1)
 				visible_message("<span class='notice'>\The [user] pries out \the [body.cell] using the \the [thing].</span>")
 				body.cell = null
 				return
@@ -467,8 +463,14 @@
 					thing.forceMove(body)
 					body.cell = thing
 					to_chat(user, "<span class='notice'>You install \the [body.cell] into \the [src].</span>")
-					playsound(user.loc, 'sound/items/Screwdriver.ogg', 50, 1)
+					playsound(user.loc, 'sound/items/screwdriver.ogg', 50, 1)
 					visible_message("<span class='notice'>\The [user] installs \the [body.cell] into \the [src].</span>")
+				return
+			else if(istype(thing, /obj/item/device/robotanalyzer))
+				to_chat(user, SPAN_NOTICE("Diagnostic Report for \the [src]:"))
+				for(var/obj/item/mech_component/limb in list (head, body, arms, legs))
+					if(limb)
+						limb.return_diagnostics(user)
 				return
 
 	return ..()

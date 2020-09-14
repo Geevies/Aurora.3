@@ -66,7 +66,7 @@
 			if(O.reagents.total_volume < 1)
 				to_chat(user, "The [O] is empty.")
 			else if(O.reagents.total_volume >= 1)
-				if(O.reagents.has_reagent("pacid", 1))
+				if(O.reagents.has_reagent(/datum/reagent/acid/polyacid, 1))
 					to_chat(user, "The acid chews through the balloon!")
 					O.reagents.splash(user, reagents.total_volume)
 					qdel(src)
@@ -302,12 +302,13 @@
 /obj/item/toy/katana
 	name = "replica katana"
 	desc = "A cheap plastic katana that luckily isn't sharp enough to accidentally cut your floor length braid. Woefully underpowered in D20."
-	icon = 'icons/obj/weapons.dmi'
+	contained_sprite = TRUE
+	icon = 'icons/obj/sword.dmi'
 	icon_state = "katana"
 	item_state = "katana"
 	drop_sound = 'sound/items/drop/gun.ogg'
-	pickup_sound = 'sound/items/pickup/gun.ogg'
-	hitsound = "swing_hit"
+	pickup_sound = /decl/sound_category/sword_pickup_sound
+	equip_sound = /decl/sound_category/sword_equip_sound
 	flags = CONDUCT
 	slot_flags = SLOT_BELT | SLOT_BACK
 	force = 5
@@ -807,11 +808,12 @@
 /obj/item/toy/cultsword
 	name = "foam sword"
 	desc = "An arcane weapon wielded by the followers of the hit Saturday morning cartoon \"King Nursee and the Acolytes of Heroism\"."
-	icon = 'icons/obj/weapons.dmi'
+	icon = 'icons/obj/sword.dmi'
 	icon_state = "cultblade"
 	item_state = "cultblade"
 	w_class = ITEMSIZE_LARGE
 	attack_verb = list("attacked", "slashed", "stabbed", "poked")
+	contained_sprite = TRUE
 
 /* NYET.
 /obj/item/toddler

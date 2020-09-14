@@ -75,7 +75,7 @@
 	helm_type = /obj/item/clothing/head/helmet/space/rig/industrial
 	chest_type = /obj/item/clothing/suit/space/rig/industrial
 
-	allowed = list(/obj/item/device/flashlight,/obj/item/tank,/obj/item/device/suit_cooling_unit,/obj/item/storage/bag/ore,/obj/item/pickaxe, /obj/item/gun/custom_ka,/obj/item/material/twohanded/fireaxe,/obj/item/gun/energy/vaurca/thermaldrill)
+	allowed = list(/obj/item/device/flashlight,/obj/item/tank,/obj/item/device/suit_cooling_unit,/obj/item/storage/bag/ore,/obj/item/pickaxe, /obj/item/gun/custom_ka,/obj/item/material/twohanded/fireaxe,/obj/item/gun/energy/vaurca/thermaldrill,/obj/item/storage/backpack/cell)
 
 	req_access = list()
 	req_one_access = list()
@@ -92,7 +92,6 @@
 		/obj/item/rig_module/device/drill,
 		/obj/item/rig_module/device/orescanner,
 		/obj/item/rig_module/device/rfd_c,
-		/obj/item/rig_module/vision/meson,
 		/obj/item/rig_module/actuators
 		)
 
@@ -113,7 +112,7 @@
 	helm_type = /obj/item/clothing/head/helmet/space/rig/eva
 	glove_type = /obj/item/clothing/gloves/rig/eva
 
-	allowed = list(/obj/item/device/flashlight,/obj/item/tank,/obj/item/device/suit_cooling_unit,/obj/item/storage/toolbox,/obj/item/storage/briefcase/inflatable,/obj/item/device/t_scanner,/obj/item/rfd/construction,/obj/item/material/twohanded/fireaxe)
+	allowed = list(/obj/item/device/flashlight,/obj/item/tank,/obj/item/device/suit_cooling_unit,/obj/item/storage/toolbox,/obj/item/storage/briefcase/inflatable,/obj/item/device/t_scanner,/obj/item/rfd/construction,/obj/item/material/twohanded/fireaxe,/obj/item/storage/backpack/cell)
 
 	req_access = list()
 	req_one_access = list()
@@ -127,12 +126,18 @@
 	initial_modules = list(
 		/obj/item/rig_module/device/basicdrill,
 		/obj/item/rig_module/maneuvering_jets,
-		/obj/item/rig_module/device/rfd_c,
-		/obj/item/rig_module/vision/meson
+		/obj/item/rig_module/device/rfd_c
 		)
 
 /obj/item/clothing/gloves/rig/eva
 	siemens_coefficient = 0
+
+/obj/item/rig/eva/equipped/pirate
+	req_access = list(access_syndicate)
+	helm_type = /obj/item/clothing/head/helmet/space/rig/eva/pirate
+
+/obj/item/clothing/head/helmet/space/rig/eva/pirate
+	camera = /obj/machinery/camera/network/mercenary
 
 /obj/item/rig/ce
 
@@ -149,7 +154,7 @@
 	helm_type = /obj/item/clothing/head/helmet/space/rig/ce
 	glove_type = /obj/item/clothing/gloves/rig/ce
 
-	allowed = list(/obj/item/device/flashlight,/obj/item/tank,/obj/item/device/suit_cooling_unit,/obj/item/storage/bag/ore,/obj/item/device/t_scanner,/obj/item/pickaxe,/obj/item/material/twohanded/fireaxe,/obj/item/rfd/construction)
+	allowed = list(/obj/item/device/flashlight,/obj/item/tank,/obj/item/device/suit_cooling_unit,/obj/item/storage/bag/ore,/obj/item/device/t_scanner,/obj/item/pickaxe,/obj/item/material/twohanded/fireaxe,/obj/item/rfd/construction,/obj/item/storage/backpack/cell)
 
 	req_access = list()
 	req_one_access = list()
@@ -165,7 +170,6 @@
 		/obj/item/rig_module/maneuvering_jets,
 		/obj/item/rig_module/device/drill,
 		/obj/item/rig_module/device/rfd_c,
-		/obj/item/rig_module/vision/meson,
 		/obj/item/rig_module/actuators
 		)
 
@@ -285,4 +289,4 @@
 	req_access = list()
 	req_one_access = list()
 
-	species_restricted = list("Human")
+	species_restricted = list(BODYTYPE_HUMAN)

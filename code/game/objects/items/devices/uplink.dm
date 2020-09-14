@@ -350,7 +350,7 @@ A list of items and costs is stored under the datum of every game mode, alongsid
 	icon = 'icons/obj/radio.dmi'
 	icon_state = "radio"
 	flags = CONDUCT
-	w_class = 2
+	w_class = ITEMSIZE_SMALL
 
 /obj/item/device/contract_uplink/New(var/loc, var/mind)
 	..()
@@ -369,7 +369,7 @@ A list of items and costs is stored under the datum of every game mode, alongsid
 	icon = 'icons/obj/device.dmi'
 	icon_state = "locator"
 	desc_antag = "This device allows you to create a single central command report. It has only one use."
-	w_class = 2
+	w_class = ITEMSIZE_SMALL
 
 /obj/item/device/announcer/attack_self(mob/user as mob)
 	if(!player_is_antag(user.mind))
@@ -412,6 +412,10 @@ A list of items and costs is stored under the datum of every game mode, alongsid
 
 /obj/item/device/special_uplink/ninja
 	name = "infiltrator uplink"
+
+/obj/item/device/special_uplink/burglar
+	name = "sponsored uplink"
+	starting_telecrystals = 15
 
 /obj/item/device/special_uplink/rev
 	name = "station bounced radio"

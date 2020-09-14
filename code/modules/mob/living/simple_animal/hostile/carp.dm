@@ -10,7 +10,7 @@
 	icon_rest = "carp_rest"
 	speak_chance = 0
 	turns_per_move = 5
-	meat_type = /obj/item/reagent_containers/food/snacks/carpmeat
+	meat_type = /obj/item/reagent_containers/food/snacks/fish/carpmeat
 	response_help = "pets the"
 	response_disarm = "gently pushes aside the"
 	response_harm = "hits the"
@@ -106,7 +106,7 @@
 /mob/living/simple_animal/hostile/carp/russian/FindTarget()
     . = ..()
     if(.)
-        custom_emote(1,"spots a filthy capitalist!")
+        custom_emote(VISIBLE_MESSAGE,"spots a filthy capitalist!")
 
 /mob/living/simple_animal/hostile/carp/shark
 	name = "space shark"

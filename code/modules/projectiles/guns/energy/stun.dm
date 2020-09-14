@@ -43,12 +43,12 @@
 	icon_state = "crossbow"
 	item_state = "crossbow"
 	has_item_ratio = FALSE
-	w_class = 2.0
+	w_class = ITEMSIZE_SMALL
 	origin_tech = list(TECH_COMBAT = 2, TECH_MAGNET = 2, TECH_ILLEGAL = 5)
 	matter = list(DEFAULT_WALL_MATERIAL = 2000)
 	slot_flags = SLOT_BELT
 	silenced = 1
-	fire_sound = 'sound/weapons/Genhit.ogg'
+	fire_sound = 'sound/weapons/genhit.ogg'
 	projectile_type = /obj/item/projectile/energy/bolt
 	max_shots = 5
 	self_recharge = 1
@@ -67,7 +67,7 @@
 /obj/item/gun/energy/crossbow/largecrossbow
 	name = "energy crossbow"
 	desc = "A weapon favored by mercenary infiltration teams."
-	w_class = 4
+	w_class = ITEMSIZE_LARGE
 	force = 10
 	icon_state = "crossbowlarge"
 	item_state = "crossbow"

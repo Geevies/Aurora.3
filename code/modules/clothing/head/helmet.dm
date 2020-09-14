@@ -7,14 +7,14 @@
 		slot_r_hand_str = "helmet"
 		)
 	item_flags = THICKMATERIAL
-	armor = list(melee = 50, bullet = 15, laser = 50,energy = 10, bomb = 25, bio = 0, rad = 0)
+	armor = list(melee = 50, bullet = 15, laser = 50, energy = 10, bomb = 25, bio = 0, rad = 0)
 	flags_inv = HIDEEARS|BLOCKHEADHAIR
 	cold_protection = HEAD
 	min_cold_protection_temperature = HELMET_MIN_COLD_PROTECTION_TEMPERATURE
 	heat_protection = HEAD
 	max_heat_protection_temperature = HELMET_MAX_HEAT_PROTECTION_TEMPERATURE
 	siemens_coefficient = 0.5
-	w_class = 3
+	w_class = ITEMSIZE_NORMAL
 	var/allow_hair_covering = TRUE //in case if you want to allow someone to switch the BLOCKHEADHAIR var from the helmet or not
 	drop_sound = 'sound/items/drop/helm.ogg'
 	pickup_sound = 'sound/items/pickup/helm.ogg'
@@ -27,24 +27,6 @@
 		flags_inv ^= BLOCKHEADHAIR
 		to_chat(usr, "<span class='notice'>[src] will now [flags_inv & BLOCKHEADHAIR ? "hide" : "show"] hair.</span>")
 
-/obj/item/clothing/head/helmet/warden
-	name = "warden's hat"
-	desc = "It's a special helmet issued to the Warden of a security force. Protects the head from impacts."
-	icon_state = "policehelm"
-	flags_inv = 0
-
-/obj/item/clothing/head/helmet/warden/commissar
-	name = "commissar's cap"
-	desc = "A security commissar's cap."
-	icon_state = "commissarcap"
-
-/obj/item/clothing/head/helmet/hos/cap
-	name = "head of security hat"
-	desc = "The hat of the Head of Security. For showing the officers who's in charge."
-	icon_state = "hoscap"
-	armor = list(melee = 65, bullet = 30, laser = 50, energy = 10, bomb = 25, bio = 0, rad = 0)
-	flags_inv = HIDEEARS
-
 /obj/item/clothing/head/helmet/hos
 	name = "head of security helmet"
 	desc = "A special Internal Security Division helmet designed to protect the precious craniums of important installation security officers."
@@ -54,7 +36,7 @@
 	armor = list(melee = 62, bullet = 50, laser = 50, energy = 35, bomb = 10, bio = 2, rad = 0)
 
 /obj/item/clothing/head/helmet/hos/dermal
-	name = "dermal armour patch"
+	name = "dermal armor patch"
 	desc = "You're not quite sure how you manage to take it on and off, but it implants nicely in your head."
 	icon_state = "dermal"
 	allow_hair_covering = FALSE
@@ -176,8 +158,8 @@
 	icon_state = "swathelm"
 	flags_inv = HIDEEARS|BLOCKHAIR
 	sprite_sheets = list(
-		"Tajara" = 'icons/mob/species/tajaran/helmet.dmi',
-		"Unathi" = 'icons/mob/species/unathi/helmet.dmi'
+		BODYTYPE_TAJARA = 'icons/mob/species/tajaran/helmet.dmi',
+		BODYTYPE_UNATHI = 'icons/mob/species/unathi/helmet.dmi'
 		)
 	armor = list(melee = 62, bullet = 50, laser = 50,energy = 35, bomb = 10, bio = 2, rad = 0)
 	siemens_coefficient = 0.35
@@ -208,7 +190,7 @@
 	icon_state = "unathi_helmet"
 	item_state = "unathi_helmet"
 	contained_sprite = TRUE
-	species_restricted = list("Unathi")
+	species_restricted = list(BODYTYPE_UNATHI)
 	armor = list(melee = 65, bullet = 30, laser = 50, energy = 10, bomb = 25, bio = 0, rad = 0)
 	siemens_coefficient = 0.35
 
@@ -225,7 +207,7 @@
 	icon = 'icons/obj/vaurca_items.dmi'
 	icon_state = "klax_hopeful_helmet"
 	item_state = "klax_hopeful_helmet"
-	species_restricted = list("Vaurca")
+	species_restricted = list(BODYTYPE_VAURCA)
 	armor = list(melee = 70, bullet = 40, laser = 55, energy = 15, bomb = 25, bio = 0, rad = 40)
 	siemens_coefficient = 0.35
 
@@ -290,6 +272,11 @@
 	flags_inv = HIDEEARS|HIDEEYES|BLOCKHEADHAIR
 	armor = list(melee = 50, bullet = 30, laser = 30, energy = 15, bomb = 40, bio = 0, rad = 0)
 	siemens_coefficient = 0.35
+	sprite_sheets = list(
+		"Tajara" = 'icons/mob/species/tajaran/helmet.dmi',
+		"Unathi" = 'icons/mob/species/unathi/helmet.dmi',
+		"Machine" = 'icons/mob/species/machine/helmet.dmi'
+		)
 
 	action_button_name = "Toggle Helmet Light"
 	light_overlay = "helmet_light_dual"

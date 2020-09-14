@@ -4,7 +4,7 @@
 	slot_flags = SLOT_BACK
 	icon = 'icons/obj/storage.dmi'
 	icon_state = "welderpack"
-	w_class = 4.0
+	w_class = ITEMSIZE_LARGE
 	var/max_fuel = 350
 	drop_sound = 'sound/items/drop/backpack.ogg'
 	pickup_sound = 'sound/items/pickup/backpack.ogg'
@@ -13,7 +13,7 @@
 	var/datum/reagents/R = new/datum/reagents(max_fuel) //Lotsa refills
 	reagents = R
 	R.my_atom = src
-	R.add_reagent("fuel", max_fuel)
+	R.add_reagent(/datum/reagent/fuel, max_fuel)
 
 /obj/item/weldpack/attackby(obj/item/W as obj, mob/user as mob)
 	if(W.iswelder())

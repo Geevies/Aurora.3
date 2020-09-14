@@ -28,6 +28,14 @@
 	item_state = "skirt_long"
 	worn_state = "skirt_long"
 
+/obj/item/clothing/under/skirt/high
+	name = "high skirt"
+	desc = "A modest skirt going up to the waist."
+	desc_fluff = "For when covering your legs isn't enough."
+	icon_state = "skirt_high"
+	item_state = "skirt_high"
+	worn_state = "skirt_high"
+
 /obj/item/clothing/under/skirt/pencil
 	name = "pencil skirt"
 	desc = "A professional-looking pencil skirt."
@@ -59,6 +67,22 @@
 	icon_state = "skirt_pleated"
 	item_state = "skirt_pleated"
 	worn_state = "skirt_pleated"
+
+/obj/item/clothing/under/skirt/skater
+	name = "skater skirt"
+	desc = "A plush skater skirt."
+	desc_fluff = "Be it ice skating, skateboarding or rollerskating : You should probably wear shorts under these."
+	icon_state = "skirt_skater"
+	item_state = "skirt_skater"
+	worn_state = "skirt_skater"
+
+/obj/item/clothing/under/skirt/tube
+	name = "tube skirt"
+	desc = "A long tube skirt."
+	desc_fluff = "A pencil skirt. But longer."
+	icon_state = "skirt_tube"
+	item_state = "skirt_tube"
+	worn_state = "skirt_tube"
 
 /obj/item/clothing/under/skirt/offworlder
 	name = "\improper CR skirt"
