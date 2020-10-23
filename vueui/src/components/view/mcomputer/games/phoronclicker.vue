@@ -2,7 +2,7 @@
   <div>
     <div class="row">
       <div class="column">
-        <p class="phoroncount">{{ phoron_count }} Sheets<br><span style="font-size:75%">{{ per_second }} p/s</span></p>
+        <div class="phoroncount"><vui-tooltip :label="roundValue(phoron_count)">{{ phoron_count }}</vui-tooltip> Sheets<br><span style="font-size:75%">{{ per_second }} p/s</span></div>
         <img @click="clicked()" class="phoronimage" src="phoron.png">
       </div>
       <div class="column">
@@ -23,7 +23,10 @@ export default {
   },
   methods: {
     clicked() {
-      this.$root.$data.state.phoron_count++
+      this.$root.$data.state.phoron_count++;
+    },
+    roundValue(value) {
+      return value.toFixed(2)
     }
   }
 }
@@ -37,14 +40,14 @@ export default {
   outline-style: ridge;
   outline-color: black;
   background-color: rgba(0, 0, 0, 0.4);
-  height: 90%;
+  height: 400px;
   overflow: auto;
 }
 
 .column .phoroncount {
-  align-content: center;
+  vertical-align: middle;
   text-align: center;
-  height: 15%;
+  height: 20%;
   width: 90%;
   margin-top: 10px;
   margin-left: 5%;
@@ -56,10 +59,13 @@ export default {
   color: rgb(0, 255, 180);
   font-family: sans-serif;
   font-size: 200%;
+  overflow: hidden;
 }
 
 .column .phoronimage {
-  vertical-align: middle;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
   width: auto;
   height : auto;
   max-height: 100%;
