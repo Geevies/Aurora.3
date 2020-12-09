@@ -14,9 +14,10 @@
 	icon_state = "unexplored"
 	flags = HIDE_FROM_HOLOMAP
 
-//S
-
 // Smalls
+/area/outpost
+	ambience = AMBIENCE_EXPOUTPOST
+
 /area/outpost/mining_north
 	name = "North Mining"
 	icon_state = "outpost_mine_north"
@@ -82,8 +83,6 @@
 
 /area/outpost/engineering/meeting
 	name = "Engineering - Break Room"
-
-
 
 // Research
 /area/outpost/research

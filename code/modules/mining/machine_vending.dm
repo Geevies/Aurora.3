@@ -25,7 +25,6 @@ var/global/list/minevendor_list = list( //keep in order of price
 	new /datum/data/mining_equipment("Seismic Charge",				/obj/item/plastique/seismic,								25,					150),
 	new /datum/data/mining_equipment("Deployable Ladder",			/obj/item/ladder_mobile,									5,					200),
 	new /datum/data/mining_equipment("Deployable Hoist Kit",		/obj/item/hoist_kit,										5,					200),
-	new /datum/data/mining_equipment("Material Scanners",			/obj/item/clothing/glasses/material,						15,					200),
 	new /datum/data/mining_equipment("Mining Drill",				/obj/item/pickaxe/drill,									10,					200),
 	new /datum/data/mining_equipment("Deep Ore Scanner",			/obj/item/mining_scanner,									10,					250),
 	new /datum/data/mining_equipment("Magboots",					/obj/item/clothing/shoes/magboots,							10,					300),
@@ -52,6 +51,7 @@ var/global/list/minevendor_list = list( //keep in order of price
 	new /datum/data/mining_equipment("Drone KA Upgrade",			/obj/item/device/mine_bot_upgrade/ka,						10,					800),
 	new /datum/data/mining_equipment("Ore Summoner",				/obj/item/oreportal,										35,					800),
 	new /datum/data/mining_equipment("Lazarus Injector",			/obj/item/lazarus_injector,									25,					1000),
+	new /datum/data/mining_equipment("Power Cell Backpack",			/obj/item/storage/backpack/cell,							5,					1000),
 	new /datum/data/mining_equipment("Industrial Drill Head",		/obj/machinery/mining/drill,								-1,					1000,	1),
 	new /datum/data/mining_equipment("Super Resonator",				/obj/item/resonator/upgraded,								10,					1250),
 	new /datum/data/mining_equipment("Diamond Pickaxe",				/obj/item/pickaxe/diamond,									10,					1500),
@@ -205,7 +205,22 @@ var/global/list/minevendor_list = list( //keep in order of price
 	return
 
 /obj/machinery/mineral/equipment_vendor/attackby(obj/item/I, mob/user, params)
-	if(istype(I,/obj/item/card/id))
+	if(istype(I, /obj/item/coin/mining))
+		var/choice = input(user, "Which special equipment would you like to dispense from \the [src]?", capitalize_first_letters(name)) as null|anything in list("Enhanced Power Converter", "Hand-held Drill")
+		if(!choice || QDELETED(I) || !Adjacent(user))
+			return
+		var/obj/dispensed_equipment
+		switch(choice)
+			if("Enhanced Power Converter")
+				dispensed_equipment = new /obj/item/custom_ka_upgrade/barrels/barrel02(src)
+			if("Hand-held Drill")
+				dispensed_equipment = new /obj/item/pickaxe/drill/weak(src)
+		if(dispensed_equipment)
+			to_chat(user, SPAN_NOTICE("\The [src] accepts your coin and dispenses \a [dispensed_equipment]."))
+			qdel(I)
+			user.put_in_hands(dispensed_equipment)
+		return
+	else if(istype(I,/obj/item/card/id))
 		var/obj/item/card/id/C = usr.get_active_hand()
 		if(istype(C) && !istype(inserted_id))
 			usr.drop_from_inventory(C,src)

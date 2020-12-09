@@ -1,6 +1,6 @@
 /datum/gear/faction
 	display_name = "idris cap"
-	path = /obj/item/clothing/head/soft/sec/idris
+	path = /obj/item/clothing/head/softcap/security/idris
 	slot = slot_head
 	sort_category = "Factions"
 	cost = 1
@@ -8,7 +8,7 @@
 
 /datum/gear/faction/idris_beret
 	display_name = "idris beret"
-	path = /obj/item/clothing/head/beret/sec/idris
+	path = /obj/item/clothing/head/beret/security/idris
 	faction = "Idris Incorporated"
 
 /datum/gear/faction/idris_uniform_alt
@@ -18,37 +18,48 @@
 	slot = slot_wear_suit
 	faction = "Idris Incorporated"
 
-/datum/gear/faction/necro_beret
-	display_name = "brown necropolis beret"
-	path = /obj/item/clothing/head/beret/sec/necro
-	faction = "Necropolis Industries"
+/datum/gear/faction/idris_armband
+	display_name = "idris armband"
+	path = /obj/item/clothing/accessory/armband/idris
+	faction = "Idris Incorporated"
 
-/datum/gear/faction/necro_beret/alt
-	display_name = "black necropolis beret"
-	path = /obj/item/clothing/head/beret/sec/necro/alt
+/datum/gear/faction/zavodskoi_beret
+	display_name = "black zavodskoi beret"
+	path = /obj/item/clothing/head/beret/security/zavodskoi
+	faction = "Zavodskoi Interstellar"
+
+/datum/gear/faction/zavodskoi_beret/alt
+	display_name = "brown zavodskoi beret"
+	path = /obj/item/clothing/head/beret/security/zavodskoi/alt
 	sort_category = "Factions"
 
-/datum/gear/faction/necro_uniform_alt
-	display_name = "brown necropolis uniform"
-	path = /obj/item/clothing/under/rank/security/necropolis/alt
+/datum/gear/faction/zavodskoi_uniform_alt
+	display_name = "brown zavodskoi uniform"
+	path = /obj/item/clothing/under/rank/security/zavodskoi/alt
 	slot = slot_wear_suit
-	faction = "Necropolis Industries"
+	faction = "Zavodskoi Interstellar"
 
-/datum/gear/faction/necro_research_alt
-	display_name = "brown necropolis research uniform"
-	path = /obj/item/clothing/under/rank/necropolis/research/alt
+/datum/gear/faction/zavodskoi_research_alt
+	display_name = "brown zavodskoi research uniform"
+	path = /obj/item/clothing/under/rank/zavodskoi/research/alt
 	slot = slot_wear_suit
-	faction = "Necropolis Industries"
+	faction = "Zavodskoi Interstellar"
 
-/datum/gear/faction/necro_labcoat
-	display_name = "necropolis labcoat"
-	path = /obj/item/clothing/suit/storage/toggle/labcoat/necro
+/datum/gear/faction/zavodskoi_labcoat
+	display_name = "zavodskoi labcoat"
+	path = /obj/item/clothing/suit/storage/toggle/labcoat/zavodskoi
 	slot = slot_wear_suit
-	faction = "Necropolis Industries"	
+	faction = "Zavodskoi Interstellar"
 
 /datum/gear/faction/eridani_beret
 	display_name = "eridani beret"
-	path = /obj/item/clothing/head/beret/sec/eri
+	path = /obj/item/clothing/head/beret/security/eri
+	slot = slot_head
+	faction = "Eridani Private Military Contractors"
+
+/datum/gear/faction/eridani_cap
+	display_name = "eridani cap"
+	path = /obj/item/clothing/head/softcap/eri
 	slot = slot_head
 	faction = "Eridani Private Military Contractors"
 
@@ -68,25 +79,25 @@
 	display_name = "white zeng-hu beret"
 	path = /obj/item/clothing/head/beret/zeng/alt
 	slot = slot_head
-	faction = "Zeng-Hu Pharmaceuticals"		
+	faction = "Zeng-Hu Pharmaceuticals"
 
 /datum/gear/faction/zenghu_labcoat
 	display_name = "zeng-hu labcoat"
 	path = /obj/item/clothing/suit/storage/toggle/labcoat/zeng
 	slot = slot_wear_suit
-	faction = "Zeng-Hu Pharmaceuticals"	
+	faction = "Zeng-Hu Pharmaceuticals"
 
-/datum/gear/faction/necro_patch
-	display_name = "necropolis sleeve patch"
-	path = /obj/item/clothing/accessory/sleevepatch/necro
+/datum/gear/faction/zavodskoi_patch
+	display_name = "zavodskoi sleeve patch"
+	path = /obj/item/clothing/accessory/sleevepatch/zavodskoi
 	slot = slot_tie
-	faction = "Necropolis Industries"
+	faction = "Zavodskoi Interstellar"
 
-/datum/gear/faction/necrosec_patch
-	display_name = "necropolis security sleeve patch"
-	path = /obj/item/clothing/accessory/sleevepatch/necrosec
+/datum/gear/faction/zavodskoisec_patch
+	display_name = "zavodskoi security sleeve patch"
+	path = /obj/item/clothing/accessory/sleevepatch/zavodskoisec
 	slot = slot_tie
-	faction = "Necropolis Industries"
+	faction = "Zavodskoi Interstellar"
 	allowed_roles = list("Security Officer","Forensic Technician","Warden")
 
 /datum/gear/faction/erisec_patch
@@ -99,7 +110,7 @@
 	display_name = "idris security sleeve patch"
 	path = /obj/item/clothing/accessory/sleevepatch/idrissec
 	faction = "Idris Incorporated"
-	allowed_roles = list("Security Officer","Detective")
+	allowed_roles = list("Security Officer","Detective", "Forensic Technician")
 
 /datum/gear/faction/heph_labcoat
 	display_name = "hephaestus labcoat"

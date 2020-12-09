@@ -10,9 +10,10 @@
 // Alert status
 // And arbitrary messages set by comms computer
 /obj/machinery/status_display
+	name = "status display"
 	icon = 'icons/obj/status_display.dmi'
 	icon_state = "frame"
-	name = "status display"
+	layer = OBJ_LAYER
 	anchored = 1
 	density = 0
 	use_power = 1
@@ -211,7 +212,6 @@
 		return "[add_zero(num2text((timeleft / 60) % 60),2)]:[add_zero(num2text(timeleft % 60), 2)]"
 	else
 		return "Launch"
-	return ""
 
 /obj/machinery/status_display/proc/remove_display()
 	cut_overlays()

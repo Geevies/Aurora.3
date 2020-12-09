@@ -14,6 +14,7 @@
 
 	var/paint_distance = 14 // From how far away can you paint a target?
 
+	var/does_explosion = TRUE
 	var/can_be_emagged = TRUE
 	var/emagged = FALSE // If emagged, things can be dropped in on station areas
 
@@ -46,7 +47,7 @@
 
 /obj/item/device/orbital_dropper/proc/laser_act(var/atom/target, var/mob/living/user)
 	if(has_dropped >= drop_amount)
-		to_chat(user, span("warning", "You can't use this device again!"))
+		to_chat(user, SPAN_WARNING("You can't use this device again!"))
 		return
 
 	var/turf/targloc = get_turf(target)
@@ -56,13 +57,13 @@
 	if(!emagged)
 		for(var/turf/t in block(locate(targloc.x + safety_check_radius, targloc.y + safety_check_radius, targloc.z), locate(targloc.x - safety_check_radius, targloc.y - safety_check_radius, targloc.z)))
 			if (!istype(t.loc, /area/mine))
-				to_chat(user, span("warning", "You can't do this so close to the station, point the laser further into the mine!"))
+				to_chat(user, SPAN_WARNING("You can't do this so close to the station, point the laser further into the mine!"))
 				return
 	if(!(user in (viewers(paint_distance, target))) )
-		to_chat(user, span("warning", "You can't paint the target that far away!"))
+		to_chat(user, SPAN_WARNING("You can't paint the target that far away!"))
 		return
 	if (!user.IsAdvancedToolUser())
-		to_chat(user, span("warning", "You don't have the dexterity to do this!"))
+		to_chat(user, SPAN_WARNING("You don't have the dexterity to do this!"))
 		return
 	add_fingerprint(user)
 
@@ -76,10 +77,10 @@
 	I.pixel_x = target.pixel_x + rand(-5,5)
 	I.pixel_y = target.pixel_y + rand(-5,5)
 
-	to_chat(user, span("notice", "You paint the target at [target]."))
+	to_chat(user, SPAN_NOTICE("You paint the target at [target]."))
 
 	var/obj/item/device/radio/intercom/announcer = new /obj/item/device/radio/intercom(null)
-	announcer.config(list("Common" = FALSE, "Entertainment" = FALSE, "Response Team" = FALSE, "Science" = FALSE, "Command" = FALSE, "Medical" = FALSE, "Engineering" = FALSE, "Security" = FALSE, "Supply" = FALSE, "Service" = FALSE, "Mercenary" = FALSE, "Raider" = FALSE, "Ninja" = FALSE, "AI Private" = FALSE))
+	announcer.config(list("Common" = FALSE, "Entertainment" = FALSE, "Response Team" = FALSE, "Science" = FALSE, "Command" = FALSE, "Medical" = FALSE, "Engineering" = FALSE, "Security" = FALSE, "Penal" = FALSE, "Supply" = FALSE, "Service" = FALSE, "Mercenary" = FALSE, "Raider" = FALSE, "Ninja" = FALSE, "AI Private" = FALSE))
 	if(announcer)
 		if(!emagged)
 			announcer.autosay(drop_message, announcer_name, announcer_channel)
@@ -87,7 +88,8 @@
 			announcer.autosay(drop_message_emagged, announcer_name, "Common")
 
 	has_dropped++
-	addtimer(CALLBACK(GLOBAL_PROC, /proc/explosion, targloc, 1, 2, 4, 6), 100) //YEEHAW
+	if(does_explosion)
+		addtimer(CALLBACK(GLOBAL_PROC, /proc/explosion, targloc, 1, 2, 4, 6), 100) //YEEHAW
 	addtimer(CALLBACK(src, .proc/orbital_drop, targloc, user), 105)
 
 	flick_overlay(I, showto, 20) //2 seconds of the red dot appearing
@@ -96,7 +98,7 @@
 /obj/item/device/orbital_dropper/proc/orbital_drop(var/turf/target, var/user)
 	if(!map)
 		return
-	log_and_message_admins("[key_name_admin(src)] has used a [src] at <A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[target.x];Y=[target.y];Z=[target.z]'>JMP</a>.")
+	log_and_message_admins("[key_name_admin(user)] has used a [src] at <A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[target.x];Y=[target.y];Z=[target.z]'>JMP</a>.")
 	map.load(target, TRUE) //Target must be the center!
 	
 
@@ -106,7 +108,7 @@
 		return
 	if(!emagged)
 		emagged = TRUE
-		to_chat(user, span("danger", "You override \the [src]'s area safety checks!"))
+		to_chat(user, SPAN_DANGER("You override \the [src]'s area safety checks!"))
 		return TRUE
 	else
-		to_chat(user, span("danger", "\The [src]'s area safety checks have already been disabled."))
+		to_chat(user, SPAN_DANGER("\The [src]'s area safety checks have already been disabled."))
