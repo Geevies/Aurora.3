@@ -71,6 +71,8 @@
 	name = "mining outpost dropper"
 	desc = "A device used to paint a target, which will then promptly orbitally drop the requested items. Watch your head with this one!"
 
+	can_be_emagged = FALSE
+	does_explosion = FALSE
 	drop_amount = 1
 	safety_check_radius = 10
 
