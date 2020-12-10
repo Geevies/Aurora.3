@@ -137,6 +137,11 @@ There are several things that need to be remembered:
 	update_hud()		//TODO: remove the need for this
 	cut_overlays()
 
+	if(species.tail_stance)
+		if(!tail_trail)
+			tail_trail = new(src)
+		tail_trail.sync_to_owner()
+
 	if(cloaked)
 		icon = 'icons/mob/human.dmi'
 		icon_state = "body_cloaked"

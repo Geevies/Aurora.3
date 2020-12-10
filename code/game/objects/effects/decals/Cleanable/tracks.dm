@@ -157,6 +157,14 @@
 	going_state  = "human2"
 	amount = 0
 
+/obj/effect/decal/cleanable/blood/tracks/snake
+	name = "wet tracks"
+	dryname = "dried tracks"
+	desc = "They look like still wet tracks left by a giant snake."
+	drydesc = "They look like dried tracks left by a giant snake."
+	coming_state = "snake1"
+	going_state  = "snake2"
+
 /obj/effect/decal/cleanable/blood/tracks/wheels
 	name = "wet tracks"
 	dryname = "dried tracks"

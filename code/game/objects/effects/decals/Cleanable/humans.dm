@@ -77,9 +77,13 @@
 
 	var/obj/item/organ/external/l_foot = perp.get_organ(BP_L_FOOT)
 	var/obj/item/organ/external/r_foot = perp.get_organ(BP_R_FOOT)
-	var/hasfeet = 1
+	var/hasfeet = TRUE
 	if((!l_foot || l_foot.is_stump()) && (!r_foot || r_foot.is_stump()))
-		hasfeet = 0
+		hasfeet = FALSE
+		if(perp.species.tail_stance)
+			var/obj/item/organ/external/groin = perp.get_organ(BP_GROIN)
+			if(groin.is_usable())
+				hasfeet = TRUE
 	if(perp.shoes && !perp.buckled)//Adding blood to shoes
 		var/obj/item/clothing/shoes/S = perp.shoes
 		if(istype(S))

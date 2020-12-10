@@ -97,6 +97,7 @@
 #define BP_HEAD   "head"
 #define BP_CHEST  "chest"
 #define BP_GROIN  "groin"
+#define BP_TAIL   "tail"
 #define BP_ALL_LIMBS list(BP_CHEST, BP_GROIN, BP_HEAD, BP_L_ARM, BP_R_ARM, BP_L_HAND, BP_R_HAND, BP_L_LEG, BP_R_LEG, BP_L_FOOT, BP_R_FOOT)
 #define BP_IS_ROBOTIC(org)  (org.status & ORGAN_ROBOT)
 
@@ -123,6 +124,9 @@
 #define BP_ANCHOR   "anchor"
 #define BP_HAEMO    "haemodynamic"
 #define BP_ADRENAL  "adrenal"
+
+// Sidewinder organs
+#define BP_VENOM_GLAND "venom gland"
 
 //IPC organs
 #define BP_CELL     "cell"

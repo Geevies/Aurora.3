@@ -8,6 +8,8 @@
 #define SPECIES_TAJARA_ZHAN			"Zhan-Khazan Tajara"
 #define SPECIES_TAJARA_MSAI			"M'sai Tajara"
 
+#define SPECIES_SNAKE				"Sidewinder"
+
 #define SPECIES_VAURCA_WORKER		"Vaurca Worker"
 #define SPECIES_VAURCA_WARRIOR		"Vaurca Warrior"
 #define SPECIES_VAURCA_BREEDER		"Vaurca Breeder"
@@ -82,6 +84,8 @@
 #define BODYTYPE_IPC_INDUSTRIAL		"Heavy Machine"
 #define BODYTYPE_IPC_ZENGHU			"Zeng-Hu Mobility Frame"
 #define BODYTYPE_IPC_BISHOP			"Bishop Accessory Frame"
+
+#define BODYTYPE_SNAKE				"Sidewinder"
 
 #define BODYTYPE_GOLEM				"Golem"
 #define BODYTYPE_MONKEY				"Monkey"

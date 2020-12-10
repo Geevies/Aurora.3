@@ -89,6 +89,7 @@
 	pixel_y = species.icon_y_offset
 
 /mob/living/carbon/human/Destroy()
+	QDEL_NULL(tail_trail)
 	human_mob_list -= src
 	for(var/organ in organs)
 		qdel(organ)
@@ -1477,6 +1478,11 @@
 
 	if(species.default_accent)
 		accent = species.default_accent
+
+	if(species.tail_stance)
+		if(!tail_trail)
+			tail_trail = new(src)
+		tail_trail.sync_to_owner()
 
 	if(species)
 		return 1
