@@ -257,3 +257,19 @@
 
 /mob/living/carbon/human/get_standard_pixel_y()
 	return species.icon_y_offset
+
+/mob/living/carbon/human/proc/get_mouse_pointer()
+	var/icon/mouse_pointer
+	var/datum/antagonist/antag = player_is_antag(mind)
+	if(antag)
+		mouse_pointer = antag.get_mouse_pointer(src)
+	if(mouse_pointer)
+		return mouse_pointer
+
+	if(employer_faction)
+		switch(employer_faction)
+			if("NanoTrasen")
+				mouse_pointer = icon('icons/mob/screen/mouse_pointers/nanotrasen.dmi')
+
+	if(mouse_pointer)
+		return mouse_pointer
