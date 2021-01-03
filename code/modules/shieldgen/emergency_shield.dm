@@ -137,6 +137,7 @@
 	opacity = FALSE
 	anchored = FALSE
 	req_access = list(access_engine)
+	var/needs_anchored = TRUE
 	var/health = 100
 	var/active = FALSE
 	var/malfunction = FALSE //Malfunction causes parts of the shield to slowly dissapate
@@ -176,7 +177,8 @@
 	update_use_power(FALSE)
 
 /obj/machinery/shieldgen/proc/create_shields()
-	for(var/T in RANGE_TURFS(2, src))
+	var/turf/our_turf = get_turf(src)
+	for(var/T in RANGE_TURFS(2, our_turf))
 		var/turf/target_tile = T
 		var/obj/item/tape/engineering/E = locate() in target_tile
 		if(E?.shield_marker)
@@ -277,7 +279,7 @@
 			"You hear heavy droning fade out.")
 		src.shields_down()
 	else
-		if(anchored)
+		if(!needs_anchored || anchored)
 			user.visible_message("<span class='notice'>[icon2html(src, viewers(get_turf(src)))] [user] activate the shield generator.</span>", \
 				"<span class='notice'>[icon2html(src, viewers(get_turf(src)))] You activate the shield generator.</span>", \
 				"You hear heavy droning.")
@@ -348,3 +350,15 @@
 	else
 		src.icon_state = malfunction ? "shieldoffbr":"shieldoff"
 	return
+
+// for exosuits
+/obj/machinery/shieldgen/mounted
+	needs_anchored = FALSE
+
+/obj/machinery/shieldgen/mounted/use_power(var/amount)
+	if(!ismech(loc))
+		return FALSE
+	var/mob/living/heavy_vehicle/HV = loc
+	var/obj/item/cell/C = HV.get_cell()
+	if(C)
+		C.use(amount / 2) // reduced to not super drain it

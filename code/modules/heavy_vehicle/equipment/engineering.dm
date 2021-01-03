@@ -47,3 +47,20 @@
 	restricted_hardpoints = list(HARDPOINT_LEFT_HAND, HARDPOINT_RIGHT_HAND)
 	restricted_software = list(MECH_SOFTWARE_ENGINEERING)
 
+/obj/item/mecha_equipment/shield_generator
+	name = "emergency shield projector"
+	desc = "A large, heavy emergency shield projector. It's been modified to be able to fit into the shoulder hardpoint of most modular exosuits."
+	icon_state = "med_droid"
+	restricted_hardpoints = list(HARDPOINT_LEFT_SHOULDER)
+	restricted_software = list(MECH_SOFTWARE_ENGINEERING)
+	origin_tech = list(TECH_MATERIAL = 2, TECH_ENGINEERING = 2)
+	var/obj/machinery/shieldgen/mounted/shield
+
+/obj/item/mecha_equipment/shield_generator/Initialize()
+	. = ..()
+	shield = new /obj/machinery/shieldgen/mounted(src)
+
+/obj/item/mecha_equipment/shield_generator/attack_self(mob/user)
+	. = ..()
+	if(.)
+		shield.attack_hand(user)
