@@ -48,9 +48,9 @@
 	restricted_software = list(MECH_SOFTWARE_ENGINEERING)
 
 /obj/item/mecha_equipment/shield_generator
-	name = "emergency shield projector"
+	name = "mounted emergency shield projector"
 	desc = "A large, heavy emergency shield projector. It's been modified to be able to fit into the shoulder hardpoint of most modular exosuits."
-	icon_state = "med_droid"
+	icon_state = "eshield_gen"
 	restricted_hardpoints = list(HARDPOINT_LEFT_SHOULDER)
 	restricted_software = list(MECH_SOFTWARE_ENGINEERING)
 	origin_tech = list(TECH_MATERIAL = 2, TECH_ENGINEERING = 2)
@@ -64,3 +64,9 @@
 	. = ..()
 	if(.)
 		shield.attack_hand(user)
+		if(shield.active)
+			icon_state = "eshield_gen-on"
+		else
+			icon_state = "eshield_gen"
+		update_icon()
+		owner.update_icon()

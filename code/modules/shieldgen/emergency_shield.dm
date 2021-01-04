@@ -193,8 +193,11 @@
 	use_power(S.shield_generate_power)
 
 /obj/machinery/shieldgen/proc/collapse_shields()
-	for(var/obj/machinery/shield/shield_tile in deployed_shields)
+	for(var/shield_tile in deployed_shields)
 		qdel(shield_tile)
+
+/obj/machinery/shieldgen/proc/check_shields()
+	return
 
 /obj/machinery/shieldgen/power_change()
 	..()
@@ -215,6 +218,7 @@
 	else
 		if (check_delay <= 0)
 			create_shields()
+			check_shields()
 
 			var/new_power_usage = 0
 			for(var/obj/machinery/shield/shield_tile in deployed_shields)
@@ -307,7 +311,7 @@
 	else if(W.iscoil() && malfunction && is_open)
 		var/obj/item/stack/cable_coil/coil = W
 		to_chat(user, "<span class='notice'>You begin to replace the wires.</span>")
-		//if(do_after(user, min(60, round( ((maxhealth/health)*10)+(malfunction*10) ))) //Take longer to repair heavier damage
+		//if(do_after(user, min(60, round( ((maxhealth/health)*10)+(malfunction*10) )))) //Take longer to repair heavier damage
 		if(do_after(user, 30))
 			if (coil.use(1))
 				health = initial(health)
@@ -362,3 +366,10 @@
 	var/obj/item/cell/C = HV.get_cell()
 	if(C)
 		C.use(amount / 2) // reduced to not super drain it
+
+/obj/machinery/shieldgen/mounted/check_shields()
+	var/turf/our_turf = get_turf(src)
+	for(var/S in deployed_shields)
+		var/obj/machinery/shield/shield_tile = S
+		if(get_dist(our_turf, shield_tile.loc) > 3)
+			qdel(shield_tile)
