@@ -122,7 +122,7 @@
 
 			var/contained = reagentlist()
 			target.attack_log += text("\[[time_stamp()]\] <font color='orange'>Has been fed [name] by [key_name(user)] Reagents: [contained]</font>")
-			user.attack_log += text("\[[time_stamp()]\] <font color='red'>Fed [name] to [key_name(target)] Reagents: [contained]</font>")
+			user.attack_log += text("\[[time_stamp()]\] <span class='warning'>Fed [name] to [key_name(target)] Reagents: [contained]</span>")
 			msg_admin_attack("[key_name_admin(user)] fed [key_name_admin(target)] with [name] Reagents: [contained] (INTENT: [uppertext(user.a_intent)]) (<A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[user.x];Y=[user.y];Z=[user.z]'>JMP</a>)",ckey=key_name(user),ckey_target=key_name(target))
 			reagents.trans_to_mob(target, min(reagents.total_volume,bitesize), CHEM_INGEST)
 
@@ -205,7 +205,7 @@
 				I.color = src.filling_color
 				U.add_overlay(I)
 
-				reagents.trans_to_obj(U, min(reagents.total_volume,5))
+				reagents.trans_to_obj(U, min(reagents.total_volume,U.transfer_amt))
 				if(is_liquid)
 					U.is_liquid = TRUE
 				on_consume(user, user)
@@ -950,10 +950,9 @@
 	reagent_data = list(/datum/reagent/nutriment = list("warm heartiness" = 1, "dough" = 2))
 
 /obj/item/reagent_containers/food/snacks/donkpocket/sinpocket
-	name = "\improper Sin-pocket"
-	desc = "The food of choice for the veteran. Do <B>NOT</B> overconsume. Use it in hand to heat and release chemicals."
 	reagent_data = list(/datum/reagent/nutriment = list("delicious cruelty" = 1, "dough" = 2))
 	filling_color = "#6D6D00"
+	desc_antag = "Use it in hand to heat and release chemicals."
 	var/has_been_heated = FALSE
 
 	reagents_to_add = list(/datum/reagent/nutriment/protein = 1, /datum/reagent/nutriment = 3)
@@ -964,8 +963,8 @@
 		return
 	has_been_heated = TRUE
 	user.visible_message(SPAN_NOTICE("[user] crushes \the [src] package."), "You crush \the [src] package and feel it rapidly heat up.")
-	name = "cooked Sin-pocket"
-	desc = "The food of choice for the veteran. Do <B>NOT</B> overconsume."
+	name = "cooked Donk-pocket"
+	desc = "The cooked, reheatable food of choice for the seasoned spaceman."
 	reagents.add_reagent(/datum/reagent/drink/doctorsdelight, 5)
 	reagents.add_reagent(/datum/reagent/hyperzine, 1.5)
 	reagents.add_reagent(/datum/reagent/synaptizine, 1.25)
@@ -1511,6 +1510,11 @@
 			icon_state = "steak_75"
 		if(76 to INFINITY)
 			icon_state = "steak"
+
+/obj/item/reagent_containers/food/snacks/meatsteak/grilled
+	name = "grilled steak"
+	desc = "A piece of meat grilled to absolute perfection. Sssssssip. This is the life."
+	reagents_to_add = list(/datum/reagent/nutriment/protein = 6, /datum/reagent/nutriment/triglyceride = 2, /datum/reagent/sodiumchloride = 1, /datum/reagent/blackpepper = 1, /datum/reagent/spacespice = 1)
 
 /obj/item/reagent_containers/food/snacks/spacylibertyduff
 	name = "spacy liberty duff"
@@ -3200,8 +3204,15 @@
 	var/open = 0 // Is the box open?
 	var/ismessy = 0 // Fancy mess on the lid
 	var/obj/item/reagent_containers/food/snacks/sliceable/pizza/pizza // Content pizza
+	var/pizza_type
 	var/list/boxes = list() // If the boxes are stacked, they come here
 	var/boxtag = ""
+
+/obj/item/pizzabox/Initialize()
+	. = ..()
+	if(pizza_type)
+		pizza = new pizza_type(src)
+	update_icon()
 
 /obj/item/pizzabox/update_icon()
 	cut_overlays()
@@ -3347,21 +3358,25 @@
 		return
 	..()
 
-/obj/item/pizzabox/margherita/New()
-	pizza = new /obj/item/reagent_containers/food/snacks/sliceable/pizza/margherita(src)
+/obj/item/pizzabox/margherita
+	pizza_type = /obj/item/reagent_containers/food/snacks/sliceable/pizza/margherita
 	boxtag = "Margherita Deluxe"
 
-/obj/item/pizzabox/vegetable/New()
-	pizza = new /obj/item/reagent_containers/food/snacks/sliceable/pizza/vegetablepizza(src)
+/obj/item/pizzabox/vegetable
+	pizza_type = /obj/item/reagent_containers/food/snacks/sliceable/pizza/vegetablepizza
 	boxtag = "Gourmet Vegatable"
 
-/obj/item/pizzabox/mushroom/New()
-	pizza = new /obj/item/reagent_containers/food/snacks/sliceable/pizza/mushroompizza(src)
+/obj/item/pizzabox/mushroom
+	pizza_type = /obj/item/reagent_containers/food/snacks/sliceable/pizza/mushroompizza
 	boxtag = "Mushroom Special"
 
-/obj/item/pizzabox/meat/New()
-	pizza = new /obj/item/reagent_containers/food/snacks/sliceable/pizza/meatpizza(src)
+/obj/item/pizzabox/meat
+	pizza_type = /obj/item/reagent_containers/food/snacks/sliceable/pizza/meatpizza
 	boxtag = "Meatlover's Supreme"
+
+/obj/item/pizzabox/pineapple
+	pizza_type = /obj/item/reagent_containers/food/snacks/sliceable/pizza/pineapple
+	boxtag = "Silversun Sunrise"
 
 /obj/item/reagent_containers/food/snacks/sliceable/dionaroast
 	name = "roast diona"
@@ -3621,19 +3636,48 @@
 	name = "packed rice bowl"
 	desc = "Boiled rice packed in a sealed plastic tub with the Nojosuru Foods logo on it. There appears to be a pair of chopsticks clipped to the side."
 	icon_state = "ricetub"
-	trash = /obj/item/trash/ricetub
+	trash = /obj/item/trash/ricetub_s
 	filling_color = "#A66829"
 	center_of_mass = list("x"=17, "y"=16)
 	reagents_to_add = list(/datum/reagent/nutriment = 5)
 	reagent_data = list(/datum/reagent/nutriment = list("rice" = 1))
+	var/sticks = 1
+
+/obj/item/reagent_containers/food/snacks/ricetub/verb/remove_sticks()
+	set name = "Remove Chopsticks"
+	set category = "Object"
+	set src in usr
+
+	var/obj/item/material/kitchen/utensil/fork/chopsticks/cheap/S = new()
+
+	if(use_check_and_message(usr))
+		return
+
+	if(!sticks)
+		to_chat(usr, SPAN_WARNING("There are no chopsticks attached to \the [src]."))
+		return
+
+	sticks = 0
+	trash = /obj/item/trash/ricetub
+	desc = "Boiled rice packed in a sealed plastic tub with the Nojosuru Foods logo on it. There appears to have once been something clipped to the side."
+	usr.put_in_hands(S)
+
+	update_icon()
+	to_chat(usr, SPAN_NOTICE("You remove the chopsticks from \the [src]."))
 
 /obj/item/reagent_containers/food/snacks/ricetub/update_icon()
 	var/percent = round((reagents.total_volume / 5) * 100)
 	switch(percent)
 		if(0 to 90)
-			icon_state = "ricetub_90"
+			if(sticks)
+				icon_state = "ricetub_s_90"
+			else
+				icon_state = "ricetub_90"
 		if(91 to INFINITY)
-			icon_state = "ricetub"
+			if(sticks)
+				icon_state = "ricetub_s"
+			else
+				icon_state = "ricetub"
 
 /obj/item/reagent_containers/food/snacks/seaweed
 	name = "Go-Go Gwok! Authentic Konyanger moss"
@@ -3968,42 +4012,49 @@
 	desc = "A portion sized chip good for dipping. This one has salsa on it."
 	icon_state = "chip_salsa"
 	bitten_state = "chip_half"
+	bitesize = 2
 
 /obj/item/reagent_containers/food/snacks/chip/guac
 	name = "guac chip"
 	desc = "A portion sized chip good for dipping. This one has guac on it."
 	icon_state = "chip_guac"
 	bitten_state = "chip_half"
+	bitesize = 2
 
 /obj/item/reagent_containers/food/snacks/chip/cheese
 	name = "cheese chip"
 	desc = "A portion sized chip good for dipping. This one has cheese sauce on it."
 	icon_state = "chip_cheese"
 	bitten_state = "chip_half"
+	bitesize = 2
 
 /obj/item/reagent_containers/food/snacks/chip/nacho
 	name = "nacho chip"
 	desc = "A nacho ship stray from a plate of cheesy nachos."
 	icon_state = "chip_nacho"
 	bitten_state = "chip_half"
+	bitesize = 2
 
 /obj/item/reagent_containers/food/snacks/chip/nacho/salsa
 	name = "nacho chip"
 	desc = "A nacho ship stray from a plate of cheesy nachos. This one has salsa on it."
 	icon_state = "chip_nacho_salsa"
 	bitten_state = "chip_half"
+	bitesize = 2
 
 /obj/item/reagent_containers/food/snacks/chip/nacho/guac
 	name = "nacho chip"
 	desc = "A nacho ship stray from a plate of cheesy nachos. This one has guac on it."
 	icon_state = "chip_nacho_guac"
 	bitten_state = "chip_half"
+	bitesize = 2
 
 /obj/item/reagent_containers/food/snacks/chip/nacho/cheese
 	name = "nacho chip"
 	desc = "A nacho ship stray from a plate of cheesy nachos. This one has extra cheese on it."
 	icon_state = "chip_nacho_cheese"
 	bitten_state = "chip_half"
+	bitesize = 2
 
 // chip plates
 /obj/item/reagent_containers/food/snacks/chipplate
@@ -4816,6 +4867,33 @@
 	reagents_to_add = list(/datum/reagent/nutriment = 6, /datum/reagent/nutriment/triglyceride = 5)
 	bitesize = 2
 
+/obj/item/reagent_containers/food/snacks/explorer_ration
+	name = "m'sai scout ration"
+	desc = "A mixture of meat, fat and adhomian berries commonly prepared by m'sai explorers and soldiers."
+	icon_state = "scoutration_wrap"
+	reagent_data = list(/datum/reagent/nutriment = list("berries" = 1))
+	reagents_to_add = list(/datum/reagent/nutriment = 4, /datum/reagent/nutriment/protein = 6 , /datum/reagent/nutriment/triglyceride = 5)
+	bitesize = 1
+	var/wrap = TRUE
+
+/obj/item/reagent_containers/food/snacks/explorer_ration/update_icon()
+	if(wrap)
+		icon_state = "scoutration_wrap"
+	else
+		icon_state = "scoutration_open"
+
+/obj/item/reagent_containers/food/snacks/explorer_ration/attack_self(mob/user)
+	src.wrap = !src.wrap
+	to_chat(usr, "You [src.wrap ? "wrap" : "unwrap"] \the [src].")
+	update_icon()
+	return
+
+/obj/item/reagent_containers/food/snacks/explorer_ration/standard_feed_mob(var/mob/user, var/mob/target)
+	if(wrap)
+		to_chat(user, SPAN_NOTICE("You must unwrap \the [src] first."))
+		return
+	..()
+
 /obj/item/reagent_containers/food/snacks/stew/diona
 	name = "dionae stew"
 	desc = "A steaming bowl of juicy dionae nymph. Extra cosy."
@@ -4831,4 +4909,3 @@
 	reagents_to_add = list(/datum/reagent/nutriment = 6)
 	trash = /obj/item/trash/diona_bites
 	bitesize = 3
-

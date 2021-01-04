@@ -16,18 +16,24 @@
 /datum/reagent/toxin/affect_blood(var/mob/living/carbon/M, var/alien, var/removed)
 	if(strength && alien != IS_DIONA)
 		var/dam = (strength * removed)
-		if(target_organ && ishuman(M))
+		if(ishuman(M))
 			var/mob/living/carbon/human/H = M
-			var/obj/item/organ/internal/I = H.internal_organs_by_name[target_organ]
-			if(I)
-				var/can_damage = I.max_damage - I.damage
-				if(can_damage > 0)
-					if(dam > can_damage)
-						I.take_internal_damage(can_damage, silent=TRUE)
-						dam -= can_damage
-					else
-						I.take_internal_damage(dam, silent=TRUE)
-						dam = 0
+			if(target_organ)
+				var/obj/item/organ/internal/I = H.internal_organs_by_name[target_organ]
+				if(I)
+					var/can_damage = I.max_damage - I.damage
+					if(can_damage > 0)
+						if(dam > can_damage)
+							I.take_internal_damage(can_damage, silent=TRUE)
+							dam -= can_damage
+						else
+							I.take_internal_damage(dam, silent=TRUE)
+							dam = 0
+			for(var/organ in H.organs)
+				var/obj/item/organ/external/O = organ
+				var/obj/effect/spider/eggcluster/C = locate() in O
+				if(C)
+					C.take_damage(removed * 2)
 		if(dam)
 			M.adjustToxLoss(target_organ ? (dam * 0.5) : dam)
 
@@ -298,12 +304,15 @@
 
 /datum/reagent/toxin/fertilizer/eznutrient
 	name = "EZ Nutrient"
+	color = "#168042"
 
 /datum/reagent/toxin/fertilizer/left4zed
 	name = "Left-4-Zed"
+	color = "#2A1680"
 
 /datum/reagent/toxin/fertilizer/robustharvest
 	name = "Robust Harvest"
+	color = "#801616"
 
 /datum/reagent/toxin/fertilizer/monoammoniumphosphate
 	name = "Monoammonium Phosphate"
@@ -366,13 +375,14 @@
 			for(var/obj/effect/overlay/wallrot/E in W)
 				qdel(E)
 			W.visible_message(SPAN_NOTICE("The fungi are completely dissolved by the solution!"))
+	if(istype(T, /turf/simulated/floor/diona))
+		T.visible_message(SPAN_WARNING("\The [T] squirms as it's hit by the solution, before dissolving."))
+		var/turf/simulated/floor/F = T
+		F.make_plating()
+		playsound(F, 'sound/species/diona/gestalt_grow.ogg', 30, TRUE)
 
 /datum/reagent/toxin/plantbgone/touch_obj(var/obj/O, var/volume)
-	if(istype(O, /obj/structure/alien/weeds))
-		var/obj/structure/alien/weeds/alien_weeds = O
-		alien_weeds.health -= rand(15, 35)
-		alien_weeds.healthcheck()
-	else if(istype(O, /obj/effect/plant))
+	if(istype(O, /obj/effect/plant))
 		qdel(O)
 
 /datum/reagent/toxin/plantbgone/affect_blood(var/mob/living/carbon/M, var/alien, var/removed)
@@ -524,20 +534,6 @@
 
 /* Transformations */
 
-/datum/reagent/slimetoxin
-	name = "Mutation Toxin"
-	description = "A transformative toxin isolated from jelly extract from green slimes. Use of the chemical has profound effects on the body's cells, converting animal cells into unique slime cells. These slime cells begin to replace the normal cells of the body, resulting in the development of ‘slime people', though eventually these degenerate into grey slimes."
-	reagent_state = LIQUID
-	color = "#13BC5E"
-	taste_description = "sludge"
-
-/datum/reagent/slimetoxin/affect_blood(var/mob/living/carbon/M, var/alien, var/removed)
-	if(ishuman(M))
-		var/mob/living/carbon/human/H = M
-		if(H.species.name != SPECIES_SLIMEPERSON)
-			to_chat(M, SPAN_DANGER("Your flesh rapidly mutates!"))
-			H.set_species(SPECIES_SLIMEPERSON)
-
 /datum/reagent/aslimetoxin
 	name = "Advanced Mutation Toxin"
 	description = "A transformative toxin isolated from jelly extract from black slimes. The chemical is fundamentally the same as regular Mutation Toxin, however its effect is magnitudes faster, degenerating a body into a grey slime immediately."
@@ -660,7 +656,7 @@
 
 /datum/reagent/toxin/spectrocybin/affect_blood(var/mob/living/carbon/M, var/removed)
 	..()
-	if(!(volume > 5))	
+	if(!(volume > 5))
 		M.hallucination = max(M.hallucination, 20)
 		if(prob(20))
 			M.see_invisible = SEE_INVISIBLE_CULT
@@ -710,7 +706,7 @@
 		if(H.reagents.has_reagent(/datum/reagent/thetamycin, 15))
 			return
 
-		if(!H.internal_organs_by_name["zombie"] && prob(15))
+		if(!H.internal_organs_by_name[BP_ZOMBIE_PARASITE] && prob(15))
 			var/obj/item/organ/external/affected = H.get_organ(BP_CHEST)
 			var/obj/item/organ/internal/parasite/zombie/infest = new()
 			infest.replaced(H, affected)

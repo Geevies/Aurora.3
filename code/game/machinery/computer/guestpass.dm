@@ -59,6 +59,7 @@
 	icon_screen = "guest"
 	icon_scanline = "altcomputerw-scanline"
 	density = FALSE
+	appearance_flags = TILE_BOUND // prevents people from viewing the overlay through a wall
 
 	var/obj/item/card/id/giver
 	var/list/accesses = list()
@@ -85,6 +86,8 @@
 	..()
 
 /obj/machinery/computer/guestpass/attack_ai(var/mob/user as mob)
+	if(!ai_can_interact(user))
+		return
 	return attack_hand(user)
 
 /obj/machinery/computer/guestpass/attack_hand(var/mob/user as mob)

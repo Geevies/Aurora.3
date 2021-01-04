@@ -21,6 +21,7 @@
 	var/normalspeed = 1
 	var/heat_proof = 0 // For glass airlocks/opacity firedoors
 	var/air_properties_vary_with_direction = 0
+	var/unres_dir = null // corresponds to dirs. if opened from this dir, no access is required
 	var/maxhealth = 300
 	var/health
 	var/destroy_hits = 10 //How many strong hits it takes to destroy the door
@@ -151,7 +152,7 @@
 		var/mob/M = AM
 		if(world.time - M.last_bumped <= 10) return	//Can bump-open one airlock per second. This is to prevent shock spam.
 		M.last_bumped = world.time
-		if(!M.restrained() && (!issmall(M) || ishuman(M)))
+		if(!M.restrained() && (!issmall(M) || ishuman(M) || istype(M, /mob/living/silicon/robot/drone/mining)))
 			bumpopen(M)
 		return
 
@@ -273,8 +274,10 @@
 		take_damage(tforce)
 		return
 
-/obj/machinery/door/attack_ai(mob/user as mob)
-	return src.attack_hand(user)
+/obj/machinery/door/attack_ai(mob/user)
+	if(!ai_can_interact(user))
+		return
+	return attack_hand(user)
 
 /obj/machinery/door/attack_hand(mob/user as mob)
 	if(src.operating > 0 || isrobot(user))	return //borgs can't attack doors open because it conflicts with their AI-like interaction with them.
@@ -362,7 +365,7 @@
 				user.visible_message("<span class='danger'>\The [user] hits \the [src] with \the [W] with no visible effect.</span>")
 			else
 				user.visible_message("<span class='danger'>\The [user] forcefully strikes \the [src] with \the [W]!</span>")
-				playsound(src.loc, hitsound, 100, 1)
+				playsound(src.loc, hitsound, W.get_clamped_volume(), 1)
 				take_damage(W.force)
 		return
 
@@ -417,9 +420,7 @@
 
 /obj/machinery/door/proc/set_broken()
 	stat |= BROKEN
-	for (var/mob/O in viewers(src, null))
-		if ((O.client && !( O.blinded )))
-			O.show_message("[src.name] breaks!" )
+	visible_message(SPAN_WARNING("[src] breaks!"))
 	update_icon()
 	return
 
@@ -557,8 +558,15 @@
 
 /obj/machinery/door/allowed(mob/M)
 	if(!requiresID())
-		return 1 // Door doesn't require an ID. So obviously they're allowed.
+		return TRUE // Door doesn't require an ID. So obviously they're allowed.
+	if(unrestricted_side(M))
+		return TRUE
 	return ..(M)
+
+/obj/machinery/door/proc/unrestricted_side(mob/M) //Allows for specific side of airlocks to be unrestrected (IE, can exit maint freely, but need access to enter)
+	if(!unres_dir)
+		return FALSE
+	return get_dir(src, M) & unres_dir
 
 /obj/machinery/door/update_nearby_tiles(need_rebuild)
 	for(var/turf/T in locs)

@@ -9,18 +9,17 @@ emp_act
 */
 
 /mob/living/carbon/human/bullet_act(var/obj/item/projectile/P, var/def_zone)
-
 	var/species_check = src.species.bullet_act(P, def_zone, src)
 
 	if(species_check)
 		return species_check
 
 	if(!is_physically_disabled())
-		if(martial_art && martial_art.deflection_chance)
-			if(prob(martial_art.deflection_chance))
-				src.visible_message("<span class='danger'>\The [src] deflects \the [P]!</span>")
-				playsound(src, /decl/sound_category/bulletflyby_sound, 75, 1)
-				return 0
+		var/deflection_chance = check_martial_deflection_chance()
+		if(prob(deflection_chance))
+			visible_message(SPAN_WARNING("\The [src] deftly dodges \the [P]!"), SPAN_NOTICE("You deftly dodge \the [P]!"))
+			playsound(src, /decl/sound_category/bulletflyby_sound, 75, TRUE)
+			return PROJECTILE_DODGED
 
 	def_zone = check_zone(def_zone)
 	if(!has_organ(def_zone))
@@ -45,14 +44,8 @@ emp_act
 	//Shrapnel
 	if(!(species.flags & NO_EMBED) && P.can_embed())
 		var/armor = getarmor_organ(organ, "bullet")
-		if(prob(20 + max(P.damage - armor, -10)))
-			var/obj/item/SP = new P.shrapnel_type()
-			SP.edge = TRUE
-			SP.sharp = TRUE
-			SP.name = (P.name != "shrapnel")? "[P.name] shrapnel" : "shrapnel"
-			SP.desc = "[SP.desc] It looks like it was fired from [P.shot_from]."
-			SP.forceMove(organ)
-			organ.embed(SP)
+		if(prob(20 + max(P.damage + P.embed_chance - armor, -10)))
+			P.do_embed(organ)
 
 	return (..(P , def_zone))
 
@@ -78,10 +71,10 @@ emp_act
 
 				drop_from_inventory(c_hand)
 				if (affected.status & ORGAN_ROBOT)
-					emote("me", 1, "drops what they were holding, their [affected.name] malfunctioning!")
+					visible_message("<b>[src]</b> drops what they were holding, their [affected.name] malfunctioning!")
 				else
 					var/emote_scream = pick("screams in pain and ", "lets out a sharp cry and ", "cries out and ")
-					emote("me", 1, "[(!can_feel_pain()) ? "" : emote_scream ]drops what they were holding in their [affected.name]!")
+					visible_message("<b>[src]</b> [(!can_feel_pain()) ? "" : emote_scream ]drops what they were holding in their [affected.name]!")
 
 	..(stun_amount, agony_amount, def_zone)
 
@@ -194,31 +187,28 @@ emp_act
 				if(s.surge_left)
 					visible_message("<span class='warning'>[src] was not affected by EMP pulse.</span>", "<span class='warning'>Warning: EMP detected, integrated surge prevention module activated. There are [s.surge_left] preventions left.</span>")
 				else
-					s.broken = 1
+					s.broken = TRUE
 					s.icon_state = "surge_ipc_broken"
 					visible_message("<span class='warning'>[src] was not affected by EMP pulse.</span>", "<span class='warning'>Warning: EMP detected, integrated surge prevention module activated. The surge prevention module is fried, replacement recommended.</span>")
-				return 1
+				return TRUE
 			else if(s.surge_left == 0.5)
 				to_chat(src, "<span class='danger'>Warning: EMP detected, integrated surge prevention module is damaged and was unable to fully protect from EMP. Half of the damage taken. Replacement recommended.</span>")
 				for(var/obj/O in src)
-					if(!O)	continue
+					if(!O)
+						continue
 					O.emp_act(severity * 2) // EMP act takes reverse numbers
 				for(var/obj/item/organ/external/O  in organs)
 					O.emp_act(severity)
 					for(var/obj/item/organ/I  in O.internal_organs)
-						if(I.robotic == 0)	continue
+						if(I.robotic == ROBOTIC_NONE)
+							continue
 						I.emp_act(severity * 2) // EMP act takes reverse numbers
-				return 1
+				return TRUE
 			else
 				to_chat(src, "<span class='danger'>Warning: EMP detected, integrated surge prevention module is fried and unable to protect from EMP. Replacement recommended.</span>")
+
 	for(var/obj/O in src)
-		if(!O)	continue
 		O.emp_act(severity)
-	for(var/obj/item/organ/external/O  in organs)
-		O.emp_act(severity)
-		for(var/obj/item/organ/I  in O.internal_organs)
-			if(I.robotic == 0)	continue
-			I.emp_act(severity)
 	..()
 
 /mob/living/carbon/human/resolve_item_attack(obj/item/I, mob/living/user, var/target_zone)
@@ -274,7 +264,7 @@ emp_act
 	// Handle striking to cripple.
 	if(user.a_intent == I_DISARM)
 		effective_force /= 2 //half the effective force
-		if(!..(I, effective_force, blocked, hit_zone))
+		if(!..(I, user, effective_force, blocked, hit_zone))
 			return 0
 
 		attack_joint(affecting, I, blocked) //but can dislocate joints
@@ -409,7 +399,7 @@ emp_act
 			var/client/assailant = M.client
 			if(assailant)
 				src.attack_log += text("\[[time_stamp()]\] <font color='orange'>Has been hit with a [O], thrown by [M.name] ([assailant.ckey])</font>")
-				M.attack_log += text("\[[time_stamp()]\] <font color='red'>Hit [src.name] ([src.ckey]) with a thrown [O]</font>")
+				M.attack_log += text("\[[time_stamp()]\] <span class='warning'>Hit [src.name] ([src.ckey]) with a thrown [O]</span>")
 				if(!istype(src,/mob/living/simple_animal/rat))
 					msg_admin_attack("[src.name] ([src.ckey]) was hit by a [O], thrown by [M.name] ([assailant.ckey]) (<A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[src.x];Y=[src.y];Z=[src.z]'>JMP</a>)",ckey=key_name(M),ckey_target=key_name(src))
 
@@ -454,6 +444,11 @@ emp_act
 					visible_message("<span class='warning'>[src] is pinned to the wall by [O]!</span>","<span class='warning'>You are pinned to the wall by [O]!</span>")
 					src.anchored = 1
 					src.pinned += O
+	else if(ishuman(AM))
+		var/mob/living/carbon/human/H = AM
+		H.Weaken(3)
+		Weaken(3)
+		visible_message(SPAN_WARNING("[src] get knocked over by [H]!"), SPAN_WARNING("You get knocked over by [H]!"))
 
 /mob/living/carbon/human/embed(var/obj/O, var/def_zone=null)
 	if(!def_zone) ..()
@@ -464,14 +459,15 @@ emp_act
 
 
 /mob/living/carbon/human/proc/bloody_hands(var/mob/living/source, var/amount = 2)
-	if (gloves)
-		gloves.add_blood(source)
-		gloves:transfer_blood = amount
-		gloves:bloody_hands_mob = source
+	if(istype(gloves, /obj/item/clothing/gloves))
+		var/obj/item/clothing/gloves/G = gloves
+		G.add_blood(source)
+		G.transfer_blood = amount
+		G.bloody_hands_mob = WEAKREF(source)
 	else
 		add_blood(source)
 		bloody_hands = amount
-		bloody_hands_mob = source
+		bloody_hands_mob = WEAKREF(source)
 	update_inv_gloves()		//updates on-mob overlays for bloody hands and/or bloody gloves
 
 /mob/living/carbon/human/proc/bloody_body(var/mob/living/source)
@@ -573,3 +569,13 @@ emp_act
 		return 1
 	visible_message("<span class='warning'>[user] has grabbed [src] passively!</span>")
 	return 1
+
+/mob/living/carbon/human/set_on_fire()
+	..()
+	for(var/obj/item/I in contents)
+		I.catch_fire()
+
+/mob/living/carbon/human/extinguish_fire()
+	..()
+	for(var/obj/item/I in contents)
+		I.extinguish_fire()

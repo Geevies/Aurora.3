@@ -189,6 +189,14 @@
 	item_state = "r_suit"
 	worn_state = "red_suit"
 
+/obj/item/clothing/under/suit_jacket/nt_skirtsuit
+	name = "nanotrasen skirtsuit"
+	desc = "A black coat with an NT blue kerchief accompanied by a swept skirt with a tasteful blue stripe. Works for every occasion."
+	icon_state = "nt_skirtsuit"
+	item_state = "bl_suit"
+	worn_state = "nt_skirtsuit"
+	body_parts_covered = UPPER_TORSO|LOWER_TORSO|ARMS
+
 /obj/item/clothing/under/kilt
 	name = "kilt"
 	desc = "Includes shoes and plaid"
@@ -252,14 +260,6 @@
 	item_state = "y_suit"
 	worn_state = "dress_yellow"
 
-/obj/item/clothing/under/dress/dress_cap
-	name = "captain's dress uniform"
-	desc = "Feminine fashion for the style concious captain."
-	icon_state = "dress_cap"
-	item_state = "b_suit"
-	worn_state = "dress_cap"
-	body_parts_covered = UPPER_TORSO|LOWER_TORSO|ARMS
-
 /obj/item/clothing/under/dress/dress_hop
 	name = "head of personnel dress uniform"
 	desc = "Feminine fashion for the style concious HoP."
@@ -318,13 +318,6 @@
 	desc = "A very tight form-fitting padded suit that looks extremely comfortable to wear, made of strong woven spider-silk. This variant seems to be tailored to resemble a dress, revealing much more skin."
 	icon_state = "crdress"
 	worn_state = "crdress"
-
-/obj/item/clothing/under/captainformal
-	name = "captain's formal uniform"
-	desc = "A captain's formal-wear, for special occasions."
-	icon_state = "captain_formal"
-	item_state = "b_suit"
-	worn_state = "captain_formal"
 
 /obj/item/clothing/under/hosformalmale
 	name = "head of security's formal uniform"
@@ -493,19 +486,19 @@
 	siemens_coefficient = 0.7
 
 /obj/item/clothing/under/legion/sentinel
-	name = "Tau Ceti Foreign Legion sentinel uniform."
-	desc = "A blue uniform with purple trimming, indicating that the wearer is a sentinel of the TCFL."
+	name = "Tau Ceti Foreign Legion sentinel uniform"
+	desc = "A blue field uniform with purple trimming, indicating that the wearer is a sentinel of the TCFL."
 	worn_state = "taucetilegion_sentinel"
 
 /obj/item/clothing/under/legion/legate
-	name = "Legate uniform"
-	desc = "A stark red uniform worn by senior officers of the Tau Ceti Foreign Legion."
+	name = "Tau Ceti Foreign Legion legate uniform"
+	desc = "A stark red field uniform worn by senior officers of the Tau Ceti Foreign Legion."
 	icon_state = "taucetilegion_legate"
 	worn_state = "taucetilegion_legate"
 
 /obj/item/clothing/under/legion/pilot
 	name = "Tau Ceti Foreign Legion flightsuit"
-	desc = "The uniform worn by Tau Ceti Foreign Legion pilots."
+	desc = "A green flightsuit worn by Tau Ceti Foreign Legion pilots."
 	icon_state = "taucetilegion_pilot"
 	worn_state = "taucetilegion_pilot"
 
@@ -540,7 +533,6 @@
 	icon_state = "lance_dress_f"
 	item_state = "lance_dress_f"
 	worn_state = "lance_dress_f"
-
 
 /obj/item/clothing/under/dress/lance_dress/male
 	name = "lance dress uniform"

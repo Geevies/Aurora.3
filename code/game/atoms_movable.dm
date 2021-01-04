@@ -81,19 +81,32 @@
 				M.turf_collision(T, speed)
 
 //decided whether a movable atom being thrown can pass through the turf it is in.
-/atom/movable/proc/hit_check(var/speed)
+/atom/movable/proc/hit_check(var/speed, var/target)
 	if(throwing)
 		for(var/atom/A in get_turf(src))
 			if(A == src)
 				continue
 			if(isliving(A))
 				var/mob/living/M = A
-				if(M.lying)
+				if(M.lying && M != target)
 					continue
 				throw_impact(A, speed)
 			if(isobj(A))
 				if(A.density && !A.throwpass)	// **TODO: Better behaviour for windows which are dense, but shouldn't always stop movement
 					src.throw_impact(A,speed)
+
+// Prevents robots dropping their modules
+/atom/movable/proc/dropsafety()
+	if(!istype(src.loc))
+		return TRUE
+
+	if (issilicon(src.loc))
+		return FALSE
+
+	if (istype(src.loc, /obj/item/rig_module))
+		return FALSE
+
+	return TRUE
 
 /atom/movable/proc/throw_at(atom/target, range, speed, thrower, var/do_throw_animation = TRUE)
 	if(!target || !src)	return 0
@@ -158,7 +171,7 @@
 		if(!step) // going off the edge of the map makes get_step return null, don't let things go off the edge
 			break
 		src.Move(step)
-		hit_check(speed)
+		hit_check(speed, target)
 		dist_travelled++
 		dist_since_sleep++
 		if(dist_since_sleep >= speed)
@@ -210,6 +223,9 @@
 
 /atom/movable/proc/touch_map_edge()
 	if(z in current_map.sealed_levels)
+		return
+
+	if(anchored)
 		return
 
 	if(current_map.use_overmap)
@@ -320,8 +336,7 @@
 	set waitfor = FALSE
 	if(!isturf(loc))
 		return
-	var/image/I = image(icon = src, loc = loc, layer = layer + 0.1)
-	I.plane = -1
+	var/image/I = image(icon, loc, icon_state, layer + 0.1, dir, pixel_x, pixel_y)
 	I.transform *= 0.75
 	I.appearance_flags = (RESET_COLOR|RESET_TRANSFORM|NO_CLIENT_COLOR|RESET_ALPHA|PIXEL_SCALE)
 	var/turf/T = get_turf(src)
@@ -351,3 +366,6 @@
 	animate(I, alpha = 175, pixel_x = to_x, pixel_y = to_y, time = 3, transform = M, easing = CUBIC_EASING)
 	sleep(1)
 	animate(I, alpha = 0, transform = matrix(), time = 1)
+
+/atom/movable/proc/get_floating_chat_x_offset()
+	return 0

@@ -144,7 +144,7 @@
 	user.lastattacked = target
 	target.lastattacker = user
 	if(!no_attack_log)
-		user.attack_log += "\[[time_stamp()]\]<font color='red'> Attacked [target.name] ([target.ckey]) with [name] (INTENT: [uppertext(user.a_intent)]) (DAMTYE: [uppertext(damagetype)])</font>"
+		user.attack_log += "\[[time_stamp()]\]<span class='warning'> Attacked [target.name] ([target.ckey]) with [name] (INTENT: [uppertext(user.a_intent)]) (DAMTYE: [uppertext(damagetype)])</span>"
 		target.attack_log += "\[[time_stamp()]\]<font color='orange'> Attacked by [user.name] ([user.ckey]) with [name] (INTENT: [uppertext(user.a_intent)]) (DAMTYE: [uppertext(damagetype)])</font>"
 		msg_admin_attack("[key_name(user, highlight_special = 1)] attacked [key_name(target, highlight_special = 1)] with [name] (INTENT: [uppertext(user.a_intent)]) (DAMTYE: [uppertext(damagetype)]) (<A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[user.x];Y=[user.y];Z=[user.z]'>JMP</a>)",ckey=key_name(user),ckey_target=key_name(target) )
 	/////////////////////////
@@ -222,6 +222,22 @@
 
 	return washit
 
+/obj/item/cane/shaman
+	name = "shaman staff"
+	desc = "A seven foot staff traditionally carried by Unathi shamans both as a symbol of authority and to aid them in walking. It is made out of dark, polished wood and is curved at the end."
+	icon_state = "shaman_staff"
+	item_state = "shaman_staff"
+	w_class = ITEMSIZE_LARGE
+
+/obj/item/cane/shaman/afterattack(atom/A, mob/user as mob, proximity)
+	user.setClickCooldown(DEFAULT_ATTACK_COOLDOWN)
+	if(!proximity)
+		return
+	if (istype(A, /turf/simulated/floor))
+		user.visible_message("<span class='notice'>[user] loudly taps their [src.name] against the floor.</span>")
+		playsound(user.loc, 'sound/effects/shieldbash.ogg', 50, 1)
+		return
+
 /obj/item/cane/concealed
 	var/concealed_blade
 
@@ -273,6 +289,12 @@
 	icon_state = "crutch"
 	item_state = "crutch"
 
+/obj/item/cane/white
+	name = "white cane"
+	desc = "A white cane, used by the visually impaired."
+	icon_state = "whitecane"
+	item_state = "whitecane"
+
 /obj/item/cane/shillelagh
 	name = "adhomian shillelagh"
 	desc = "A sturdy walking stick made from adhomian wood."
@@ -304,18 +326,6 @@
 /obj/item/gift/random_pixel/Initialize()
 	pixel_x = rand(-16,16)
 	pixel_y = rand(-16,16)
-
-/obj/item/legcuffs
-	name = "legcuffs"
-	desc = "Use this to keep prisoners in line."
-	gender = PLURAL
-	icon = 'icons/obj/items.dmi'
-	icon_state = "handcuff"
-	flags = CONDUCT
-	throwforce = 0
-	w_class = ITEMSIZE_NORMAL
-	origin_tech = list(TECH_MATERIAL = 1)
-	var/breakouttime = 300	//Deciseconds = 30s = 0.5 minute
 
 /obj/item/SWF_uplink
 	name = "station-bounced radio"

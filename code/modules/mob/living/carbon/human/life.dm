@@ -84,8 +84,10 @@
 	//Update our name based on whether our face is obscured/disfigured
 	name = get_visible_name()
 
-	if(mind && mind.vampire)
-		handle_vampire()
+	if(mind)
+		var/datum/vampire/vampire = mind.antag_datums[MODE_VAMPIRE]
+		if(vampire)
+			handle_vampire()
 
 /mob/living/carbon/human/think()
 	..()
@@ -726,11 +728,14 @@
 
 		if(paralysis || sleeping || InStasis())
 			blinded = TRUE
-			stat = UNCONSCIOUS
+			if(sleeping)
+				stat = UNCONSCIOUS
 
-			adjustHalLoss(-3)
+			adjustHalLoss(-7)
 			if (species.tail)
 				animate_tail_reset()
+			if(prob(2) && is_asystole() && isSynthetic())
+				visible_message("<b>[src]</b> [pick("emits low pitched whirr","beeps urgently")]")
 
 		if(paralysis)
 			AdjustParalysis(-1)
@@ -762,11 +767,11 @@
 		if(resting)
 			dizziness = max(0, dizziness - 15)
 			jitteriness = max(0, jitteriness - 15)
-			adjustHalLoss(-3)
+			adjustHalLoss(-5)
 		else
 			dizziness = max(0, dizziness - 3)
 			jitteriness = max(0, jitteriness - 3)
-			adjustHalLoss(-1)
+			adjustHalLoss(-3)
 
 		//Other
 		handle_statuses()
@@ -793,6 +798,11 @@
 	var/tmp/last_frenzy_state
 	var/tmp/last_oxy_overlay
 
+/mob/living/carbon/human/can_update_hud()
+	if((!client && !bg) || QDELETED(src))
+		return FALSE
+	return TRUE
+
 /mob/living/carbon/human/handle_regular_hud_updates()
 	if(hud_updateflag) // update our mob's hud overlays, AKA what others see flaoting above our head
 		handle_hud_list()
@@ -802,9 +812,9 @@
 		return
 
 	if(stat != DEAD)
-		if(stat == UNCONSCIOUS && health < maxHealth/2)
-			var/ovr
-			var/severity
+		if((stat == UNCONSCIOUS && health < maxHealth / 2) || paralysis || InStasis())
+			//Critical damage passage overlay
+			var/severity = 0
 			switch(health - maxHealth/2)
 				if(-20 to -10)			severity = 1
 				if(-30 to -20)			severity = 2
@@ -816,38 +826,47 @@
 				if(-90 to -80)			severity = 8
 				if(-95 to -90)			severity = 9
 				if(-INFINITY to -95)	severity = 10
-			ovr = "passage[severity]"
-
-			if (ovr != last_brute_overlay)
-				damageoverlay.cut_overlay(last_brute_overlay)
-				damageoverlay.add_overlay(ovr)
-				last_brute_overlay = ovr
+			if(paralysis || InStasis())
+				severity = max(severity, 8)
+			overlay_fullscreen("crit", /obj/screen/fullscreen/crit, severity)
 		else
-			update_oxy_overlay()
+			clear_fullscreen("crit")
+			//Oxygen damage overlay
+			if(getOxyLoss())
+				var/severity = 0
+				switch(getOxyLoss())
+					if(10 to 20)		severity = 1
+					if(20 to 25)		severity = 2
+					if(25 to 30)		severity = 3
+					if(30 to 35)		severity = 4
+					if(35 to 40)		severity = 5
+					if(40 to 45)		severity = 6
+					if(45 to INFINITY)	severity = 7
+				overlay_fullscreen("oxy", /obj/screen/fullscreen/oxy, severity)
+			else
+				clear_fullscreen("oxy")
 
 		//Fire and Brute damage overlay (BSSR)
 		var/hurtdamage = src.getBruteLoss() + src.getFireLoss() + damageoverlaytemp
 		damageoverlaytemp = 0 // We do this so we can detect if someone hits us or not.
-		var/ovr
 		if(hurtdamage)
+			var/severity = 0
 			switch(hurtdamage)
-				if(10 to 25)
-					ovr = "brutedamageoverlay1"
-				if(25 to 40)
-					ovr = "brutedamageoverlay2"
-				if(40 to 55)
-					ovr = "brutedamageoverlay3"
-				if(55 to 70)
-					ovr = "brutedamageoverlay4"
-				if(70 to 85)
-					ovr = "brutedamageoverlay5"
-				if(85 to INFINITY)
-					ovr = "brutedamageoverlay6"
+				if(10 to 25)		severity = 1
+				if(25 to 40)		severity = 2
+				if(40 to 55)		severity = 3
+				if(55 to 70)		severity = 4
+				if(70 to 85)		severity = 5
+				if(85 to INFINITY)	severity = 6
+			overlay_fullscreen("brute", /obj/screen/fullscreen/brute, severity)
+		else
+			clear_fullscreen("brute")
 
-		if(last_brute_overlay != ovr)
-			damageoverlay.cut_overlay(last_brute_overlay)
-			damageoverlay.add_overlay(ovr)
-			last_brute_overlay = ovr
+		if(paralysis_indicator)
+			if(paralysis)
+				paralysis_indicator.icon_state = "paralysis1"
+			else
+				paralysis_indicator.icon_state = "paralysis0"
 
 		if(healths)
 			healths.overlays.Cut()
@@ -870,19 +889,26 @@
 
 				// Apply a fire overlay if we're burning.
 				if(on_fire)
-					health_images += image('icons/mob/screen1_health.dmi',"burning")
+					var/image/burning_image = image('icons/mob/screen1_health.dmi', "burning", pixel_x = species.healths_overlay_x)
+					var/midway_point = FIRE_MAX_STACKS / 2
+					burning_image.color = color_rotation((midway_point - fire_stacks) * 3)
+					health_images += burning_image
 
 				// Show a general pain/crit indicator if needed.
 				if(is_asystole())
-					health_images += image('icons/mob/screen1_health.dmi',"hardcrit")
+					var/image/hardcrit_image = image('icons/mob/screen1_health.dmi', "hardcrit", pixel_x = species.healths_overlay_x)
+					health_images += hardcrit_image
 				else if(trauma_val)
 					if(can_feel_pain())
 						if(trauma_val > 0.7)
-							health_images += image('icons/mob/screen1_health.dmi',"softcrit")
+							var/image/softcrit_image = image('icons/mob/screen1_health.dmi', "softcrit", pixel_x = species.healths_overlay_x)
+							health_images += softcrit_image
 						if(trauma_val >= 1)
-							health_images += image('icons/mob/screen1_health.dmi',"hardcrit")
+							var/image/hardcrit_image = image('icons/mob/screen1_health.dmi', "hardcrit", pixel_x = species.healths_overlay_x)
+							health_images += hardcrit_image
 				else if(no_damage)
-					health_images += image('icons/mob/screen1_health.dmi',"fullhealth")
+					var/image/fullhealth_image = image('icons/mob/screen1_health.dmi', "fullhealth", pixel_x = species.healths_overlay_x)
+					health_images += fullhealth_image
 
 				healths.overlays += health_images
 
@@ -901,11 +927,12 @@
 					nut_icon = 3
 				else if (nut_factor >= CREW_NUTRITION_VERYHUNGRY )
 					nut_icon = 4
-				var/new_val = "nutrition[nut_icon]"
+				var/new_val = "[isSynthetic() ? "charge" : "nutrition"][nut_icon]"
 				if (nutrition_icon.icon_state != new_val)
 					nutrition_icon.icon_state = new_val
+
 			if(hydration_icon)
-				var/hyd_factor = max(0,min(hydration / max_hydration,1))
+				var/hyd_factor = max_hydration ? Clamp(hydration / max_hydration, 0, 1) : 1
 				var/hyd_icon = 5
 				if(hyd_factor >= CREW_HYDRATION_OVERHYDRATED)
 					hyd_icon = 0
@@ -920,6 +947,14 @@
 				var/new_val = "thirst[hyd_icon]"
 				if (hydration_icon.icon_state != new_val)
 					hydration_icon.icon_state = new_val
+
+			if(isSynthetic())
+				var/obj/item/organ/internal/cell/IC = internal_organs_by_name[BP_CELL]
+				if (istype(IC))
+					var/chargeNum = Clamp(Ceiling(IC.percent()/25), 0, 4)	//0-100 maps to 0-4, but give it a paranoid clamp just in case.
+					cells.icon_state = "charge[chargeNum]"
+				else
+					cells.icon_state = "charge-empty"
 
 		if(pressure)
 			var/new_pressure = "pressure[pressure_alert]"
@@ -1023,8 +1058,10 @@
 			playsound_simple(null, pick(scarySounds), 50, TRUE)
 
 /mob/living/carbon/human/proc/handle_changeling()
-	if(mind && mind.changeling)
-		mind.changeling.regenerate()
+	if(mind)
+		var/datum/changeling/changeling = mind.antag_datums[MODE_CHANGELING]
+		if(changeling)
+			changeling.regenerate()
 
 /mob/living/carbon/human/proc/handle_shock()
 	if(status_flags & GODMODE)
@@ -1276,9 +1313,9 @@
 		if(ear_deaf <= 1 && (sdisabilities & DEAF) && has_hearing_aid())
 			setEarDamage(-1, max(ear_deaf-1, 0))
 
-		if(istype(l_ear, /obj/item/clothing/ears/earmuffs) || istype(r_ear, /obj/item/clothing/ears/earmuffs))	//resting your ears with earmuffs heals ear damage faster
+		if(protected_from_sound())	// resting your ears make them heal faster
 			adjustEarDamage(-0.15, 0)
-			setEarDamage(-1, max(ear_deaf, 1))
+			setEarDamage(-1)
 		else if(ear_damage < HEARING_DAMAGE_SLOW_HEAL)	//ear damage heals slowly under this threshold. otherwise you'll need earmuffs
 			adjustEarDamage(-0.05, 0)
 
@@ -1297,7 +1334,7 @@
 		return
 
 	if (failed_last_breath || (getOxyLoss() + get_shock()) > exhaust_threshold)//Can't catch our breath if we're suffocating
-		flash_pain()
+		flash_pain(getOxyLoss()/2)
 		return
 
 	if (nutrition <= 0)

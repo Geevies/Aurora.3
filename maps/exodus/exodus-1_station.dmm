@@ -3250,10 +3250,6 @@
 /area/security/warden)
 "agi" = (
 /obj/structure/table/rack,
-/obj/item/storage/box/seccarts{
-	pixel_x = 3;
-	pixel_y = 2
-	},
 /obj/item/storage/box/handcuffs,
 /obj/item/storage/box/flashbangs{
 	pixel_x = -2;
@@ -4573,7 +4569,7 @@
 	pixel_x = -36;
 	pixel_y = 29
 	},
-/obj/machinery/button/windowtint{
+/obj/machinery/button/switch/windowtint{
 	id = "HoS";
 	pixel_x = -8;
 	pixel_y = 30
@@ -4834,7 +4830,7 @@
 /turf/simulated/floor/tiled/dark,
 /area/security/warden)
 "aji" = (
-/obj/machinery/computer/prisoner,
+/obj/item/modular_computer/console/preset/security/armory,
 /turf/simulated/floor/tiled/dark,
 /area/security/warden)
 "ajj" = (
@@ -4982,7 +4978,7 @@
 /obj/machinery/light_switch{
 	pixel_y = -25
 	},
-/obj/machinery/computer/prisoner,
+/obj/item/modular_computer/console/preset/security/armory,
 /turf/simulated/floor/tiled/dark,
 /area/crew_quarters/heads/hos)
 "ajx" = (
@@ -6180,7 +6176,7 @@
 /obj/effect/floor_decal/corner/blue{
 	dir = 6
 	},
-/obj/machinery/button/windowtint{
+/obj/machinery/button/switch/windowtint{
 	id = "FT Op";
 	pixel_x = 28;
 	pixel_y = 12
@@ -8553,7 +8549,7 @@
 	dir = 8;
 	pixel_x = 24
 	},
-/obj/machinery/button/windowtint{
+/obj/machinery/button/switch/windowtint{
 	id = "FT Op";
 	pixel_x = 28;
 	pixel_y = 24
@@ -11669,7 +11665,7 @@
 /obj/structure/table/standard,
 /obj/item/material/minihoe,
 /obj/item/device/analyzer/plant_analyzer,
-/obj/item/clothing/head/greenbandana,
+/obj/item/clothing/head/bandana/hydro,
 /turf/simulated/floor/tiled,
 /area/security/prison)
 "awl" = (
@@ -11689,7 +11685,6 @@
 /obj/structure/closet{
 	name = "Prisoner's Locker"
 	},
-/obj/item/clothing/head/soft/orange,
 /obj/item/clothing/shoes/sandal,
 /turf/simulated/floor/tiled,
 /area/security/prison)
@@ -23732,7 +23727,7 @@
 /obj/effect/floor_decal/corner/blue/full{
 	dir = 8
 	},
-/obj/machinery/computer/prisoner,
+/obj/item/modular_computer/console/preset/security/armory,
 /turf/simulated/floor/tiled,
 /area/bridge)
 "aTQ" = (
@@ -23755,10 +23750,6 @@
 	},
 /obj/item/device/gps,
 /obj/item/device/gps,
-/obj/item/storage/box/PDAs{
-	pixel_x = 4;
-	pixel_y = 4
-	},
 /obj/item/storage/box/ids,
 /obj/structure/window/reinforced{
 	dir = 8
@@ -26012,7 +26003,7 @@
 /turf/simulated/floor/tiled,
 /area/crew_quarters/locker)
 "aYy" = (
-/obj/item/clothing/head/soft/grey{
+/obj/item/clothing/head/softcap{
 	pixel_x = -2;
 	pixel_y = 3
 	},
@@ -35271,12 +35262,12 @@
 /area/maintenance/locker)
 "bqe" = (
 /obj/structure/table/standard,
-/obj/item/clothing/head/soft/yellow,
+/obj/item/clothing/head/softcap/cargo,
 /obj/item/stamp{
 	pixel_x = -3;
 	pixel_y = 3
 	},
-/obj/item/clothing/head/soft/yellow,
+/obj/item/clothing/head/softcap/cargo,
 /turf/simulated/floor/tiled,
 /area/quartermaster/loading)
 "bqf" = (
@@ -42674,7 +42665,7 @@
 	pixel_x = 26;
 	pixel_y = 17
 	},
-/obj/machinery/button/windowtint{
+/obj/machinery/button/switch/windowtint{
 	id = "HoP";
 	pixel_x = 36;
 	pixel_y = 18
@@ -44828,7 +44819,7 @@
 /obj/structure/bed/chair/office/dark{
 	dir = 1
 	},
-/obj/machinery/button/windowtint{
+/obj/machinery/button/switch/windowtint{
 	id = "Psy";
 	pixel_x = -25
 	},
@@ -44937,7 +44928,7 @@
 	pixel_y = 13;
 	req_access = list(47)
 	},
-/obj/machinery/button/windowtint{
+/obj/machinery/button/switch/windowtint{
 	id = "RD";
 	pixel_x = -26;
 	pixel_y = 21
@@ -45149,7 +45140,7 @@
 /obj/effect/landmark/start{
 	name = "Quartermaster"
 	},
-/obj/machinery/button/windowtint{
+/obj/machinery/button/switch/windowtint{
 	id = "QM";
 	pixel_x = 24;
 	pixel_y = -24
@@ -45396,7 +45387,7 @@
 	dir = 2;
 	icon_state = "shutter0";
 	id = "acute1";
-	name = "EMT Storage Privacy Shutters";
+	name = "First Responder Storage Privacy Shutters";
 	opacity = 0
 	},
 /turf/simulated/floor/plating,
@@ -45408,7 +45399,7 @@
 	dir = 2;
 	icon_state = "shutter0";
 	id = "acute1";
-	name = "EMT Storage Privacy Shutters";
+	name = "First Responder Storage Privacy Shutters";
 	opacity = 0
 	},
 /obj/effect/floor_decal/corner/paleblue{
@@ -45426,7 +45417,7 @@
 	dir = 2;
 	icon_state = "shutter0";
 	id = "acute1";
-	name = "EMT Storage Privacy Shutters";
+	name = "First Responder Storage Privacy Shutters";
 	opacity = 0
 	},
 /obj/machinery/light_switch{
@@ -46377,7 +46368,7 @@
 "bJS" = (
 /obj/machinery/button/remote/blast_door{
 	id = "acute1";
-	name = "EMT Storage Privacy Shutters";
+	name = "First Responder Storage Privacy Shutters";
 	pixel_x = 26;
 	pixel_y = 25;
 	req_access = list(5)
@@ -47172,7 +47163,7 @@
 "bLx" = (
 /obj/machinery/door/firedoor,
 /obj/machinery/door/airlock/medical{
-	name = "EMT Storage";
+	name = "First Responder Storage";
 	req_access = list(5)
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
@@ -47532,15 +47523,6 @@
 /area/crew_quarters/heads/hor)
 "bMd" = (
 /obj/structure/table/standard,
-/obj/item/cartridge/signal/science,
-/obj/item/cartridge/signal/science{
-	pixel_x = -4;
-	pixel_y = 2
-	},
-/obj/item/cartridge/signal/science{
-	pixel_x = 4;
-	pixel_y = 6
-	},
 /obj/item/clothing/glasses/welding/superior,
 /obj/machinery/camera/network/research{
 	c_tag = "Research - RD's Office";
@@ -47950,7 +47932,7 @@
 /area/medical/sleeper)
 "bMO" = (
 /obj/effect/landmark/start{
-	name = "Emergency Medical Technician"
+	name = "First Responder"
 	},
 /obj/item/stool/padded,
 /turf/simulated/floor/tiled/white,
@@ -47963,10 +47945,10 @@
 	req_access = list(5)
 	},
 /obj/effect/landmark/start{
-	name = "Emergency Medical Technician"
+	name = "First Responder"
 	},
 /obj/machinery/camera/network/medbay{
-	c_tag = "Medbay EMT Storage";
+	c_tag = "Medbay First Responder Storage";
 	dir = 1
 	},
 /obj/item/stool/padded,
@@ -48437,15 +48419,6 @@
 /area/quartermaster/qm)
 "bNL" = (
 /obj/structure/table/standard,
-/obj/item/cartridge/quartermaster{
-	pixel_x = 6;
-	pixel_y = 5
-	},
-/obj/item/cartridge/quartermaster,
-/obj/item/cartridge/quartermaster{
-	pixel_x = -4;
-	pixel_y = 7
-	},
 /obj/machinery/light{
 	dir = 4;
 	icon_state = "tube1"
@@ -50229,7 +50202,7 @@
 /obj/machinery/atmospherics/unary/vent_scrubber/on{
 	dir = 8
 	},
-/obj/machinery/button/windowtint{
+/obj/machinery/button/switch/windowtint{
 	id = "isoA_window_tint";
 	pixel_y = 26
 	},
@@ -50281,7 +50254,7 @@
 /obj/machinery/atmospherics/unary/vent_scrubber/on{
 	dir = 8
 	},
-/obj/machinery/button/windowtint{
+/obj/machinery/button/switch/windowtint{
 	id = "isoB_window_tint";
 	pixel_y = 26
 	},
@@ -55081,7 +55054,7 @@
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
 	dir = 4
 	},
-/obj/machinery/button/windowtint{
+/obj/machinery/button/switch/windowtint{
 	id = "CE";
 	pixel_x = 36;
 	pixel_y = 18
@@ -59538,7 +59511,7 @@
 /turf/simulated/floor/tiled,
 /area/engineering/engine_eva)
 "ciT" = (
-/obj/machinery/button/holosign{
+/obj/machinery/button/switch/holosign{
 	_wifi_id = "OR1";
 	pixel_x = 24;
 	pixel_y = 2
@@ -59613,7 +59586,7 @@
 /turf/simulated/floor/plating,
 /area/engineering/locker_room)
 "cjc" = (
-/obj/machinery/button/holosign{
+/obj/machinery/button/switch/holosign{
 	_wifi_id = "OR2";
 	pixel_x = -24;
 	pixel_y = 2
@@ -63376,8 +63349,6 @@
 	pixel_x = 5
 	},
 /obj/item/device/radio/headset/headset_eng,
-/obj/item/cartridge/atmos,
-/obj/item/cartridge/atmos,
 /obj/item/device/pipe_painter,
 /obj/machinery/requests_console{
 	department = "Atmospherics";
@@ -75138,7 +75109,7 @@
 /obj/structure/bed/chair/comfy/brown{
 	dir = 8
 	},
-/obj/machinery/button/windowtint{
+/obj/machinery/button/switch/windowtint{
 	id = "Detective";
 	pixel_x = -28;
 	pixel_y = 12
@@ -75188,7 +75159,7 @@
 "ljp" = (
 /obj/structure/bed/chair,
 /obj/effect/landmark/start{
-	name = "Medical Resident"
+	name = "Medical Intern"
 	},
 /turf/simulated/floor/tiled,
 /area/medical/surgeryobs)
@@ -76523,7 +76494,7 @@
 	req_access = list(38);
 	specialfunctions = 4
 	},
-/obj/machinery/button/windowtint{
+/obj/machinery/button/switch/windowtint{
 	id = "rep_inner";
 	pixel_x = -28;
 	pixel_y = -14
@@ -76786,7 +76757,7 @@
 /obj/machinery/newscaster{
 	pixel_y = -30
 	},
-/obj/machinery/button/windowtint{
+/obj/machinery/button/switch/windowtint{
 	id = "journalist";
 	pixel_x = -24;
 	pixel_y = -12

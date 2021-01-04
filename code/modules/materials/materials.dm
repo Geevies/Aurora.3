@@ -38,6 +38,7 @@
 /material
 	var/name	                          // Unique name for use in indexing the list.
 	var/display_name                      // Prettier name for display.
+	var/adjective_name					  // To override the name for subtypes and stuff.
 	var/use_name
 	var/flags = 0                         // Various status modifiers.
 	var/sheet_singular_name = "sheet"
@@ -144,6 +145,8 @@
 		display_name = name
 	if(!use_name)
 		use_name = display_name
+	if(!adjective_name)
+		adjective_name = display_name
 	if(!shard_icon)
 		shard_icon = shard_type
 
@@ -400,7 +403,7 @@
 	return
 
 /material/diona/place_dismantled_girder(var/turf/target)
-	target.spawn_diona_nymph(target)
+	new /obj/structure/diona/vines(target)
 
 /material/steel/holographic
 	name = "holo" + DEFAULT_WALL_MATERIAL

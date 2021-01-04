@@ -19,13 +19,15 @@
 	required_age = 10
 
 	welcome_text = "Use say \"#g message\" to communicate with your fellow changelings. Remember: you get all of their absorbed DNA if you perform a Full DNA Extraction them."
+	antag_sound = 'sound/effects/antag_notice/ling_alert.ogg'
 	flags = ANTAG_SUSPICIOUS | ANTAG_RANDSPAWN | ANTAG_VOTABLE
 	antaghud_indicator = "hudchangeling"
 
 	faction = "Changeling"
 
 /datum/antagonist/changeling/get_special_objective_text(var/datum/mind/player)
-	return "<br><b>Changeling ID:</b> [player.changeling.changelingID].<br><b>Genomes Absorbed:</b> [player.changeling.absorbedcount]"
+	var/datum/changeling/changeling = player.antag_datums[MODE_CHANGELING]
+	return "<br><b>Changeling ID:</b> [changeling.changelingID].<br><b>Genomes Absorbed:</b> [changeling.absorbedcount]"
 
 /datum/antagonist/changeling/update_antag_mob(var/datum/mind/player)
 	..()

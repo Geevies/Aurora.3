@@ -113,36 +113,34 @@
 
 //this handles hud updates. Calls update_vision() and handle_hud_icons()
 /mob/living/proc/handle_regular_hud_updates()
-	if(!client || QDELETED(src))	return 0
+	if(!can_update_hud())
+		return FALSE
 
 	handle_hud_icons()
 	handle_vision()
 
-	return 1
+	return TRUE
+
+/mob/living/proc/can_update_hud()
+	if(!client || QDELETED(src))
+		return FALSE
+	return TRUE
 
 /mob/living/proc/handle_vision()
-	client.screen.Remove(global_hud.blurry, global_hud.druggy, global_hud.vimpaired, global_hud.darkMask, global_hud.nvg, global_hud.thermal, global_hud.meson, global_hud.science)
 	update_sight()
 
 	if(stat == DEAD)
 		return
 
-	if(blind)
-		if(eye_blind)
-			blind.invisibility = 0
-		else
-			blind.invisibility = 101
-			if(disabilities & NEARSIGHTED)
-				client.screen += global_hud.vimpaired
-			if(eye_blurry)
-				client.screen += global_hud.blurry
+	if(eye_blind)
+		overlay_fullscreen("blind", /obj/screen/fullscreen/blind)
+	else
+		clear_fullscreen("blind")
+		set_fullscreen(disabilities & NEARSIGHTED, "impaired", /obj/screen/fullscreen/impaired, 1)
+		set_fullscreen(eye_blurry, "blurry", /obj/screen/fullscreen/blurry)
 
-			if(druggy)
-				client.screen += global_hud.druggy
-			if(druggy > 5)
-				add_client_color(/datum/client_color/oversaturated)
-			else
-				remove_client_color(/datum/client_color/oversaturated)
+	set_fullscreen(stat == UNCONSCIOUS, "blackout", /obj/screen/fullscreen/blackout)
+
 	if(machine)
 		var/viewflags = machine.check_eye(src)
 		if(viewflags < 0)

@@ -30,6 +30,7 @@ var/list/admin_verbs_admin = list(
 	/datum/admins/proc/access_news_network,	/*allows access of newscasters*/
 	/client/proc/giveruntimelog,		/*allows us to give access to runtime logs to somebody*/
 	/client/proc/getserverlog,			/*allows us to fetch server logs (diary) for other days*/
+	/client/proc/view_signal_log,		/*allows admins to check the log of signaler uses*/
 	/client/proc/jumptocoord,			/*we ghost and jump to a coordinate*/
 	/client/proc/Getmob,				/*teleports a mob to our location*/
 	/client/proc/Getkey,				/*teleports a mob with a certain ckey to our location*/
@@ -48,7 +49,6 @@ var/list/admin_verbs_admin = list(
 	/client/proc/rename_silicon,		//properly renames silicons,
 	/client/proc/manage_silicon_laws,	// Allows viewing and editing silicon laws. ,
 	/client/proc/check_antagonists,
-	/client/proc/admin_memo_control,			/*admin memo system. show/delete/write. +SERVER needed to delete admin memos of others*/
 	/client/proc/dsay,					/*talk in deadchat using our ckey/fakekey*/
 	/client/proc/toggleprayers,			/*toggles prayers on/off*/
 //	/client/proc/toggle_hear_deadcast,	/*toggles whether we hear deadchat*/
@@ -72,7 +72,6 @@ var/list/admin_verbs_admin = list(
 	/client/proc/toggleghostwriters,
 	/client/proc/toggledrones,
 	/datum/admins/proc/show_skills,
-	/client/proc/check_customitem_activity,
 	/client/proc/man_up,
 	/client/proc/global_man_up,
 	/client/proc/response_team, // Response Teams admin verb,
@@ -99,7 +98,8 @@ var/list/admin_verbs_admin = list(
 	/client/proc/wipe_ai,	// allow admins to force-wipe AIs
 	/client/proc/fix_player_list,
 	/client/proc/reset_openturf,
-	/client/proc/toggle_aooc
+	/client/proc/toggle_aooc,
+	/client/proc/force_away_mission
 )
 var/list/admin_verbs_ban = list(
 	/client/proc/unban_panel,
@@ -144,7 +144,6 @@ var/list/admin_verbs_spawn = list(
 	/client/proc/game_panel,
 	/datum/admins/proc/spawn_fruit,
 	/datum/admins/proc/spawn_custom_item,
-	/datum/admins/proc/check_custom_items,
 	/datum/admins/proc/spawn_plant,
 	/datum/admins/proc/spawn_atom,		// allows us to spawn instances,
 	/client/proc/respawn_character,
@@ -170,15 +169,14 @@ var/list/admin_verbs_server = list(
 	/datum/admins/proc/toggle_round_spookyness,
 	/datum/admins/proc/toggle_space_ninja,
 	/client/proc/toggle_random_events,
-	/client/proc/check_customitem_activity,
 	/client/proc/nanomapgen_DumpImage,
-	/client/proc/admin_edit_motd,
 	/client/proc/toggle_recursive_explosions,
 	/client/proc/restart_controller,
 	/client/proc/cmd_ss_panic,
 	/client/proc/configure_access_control,
 	/datum/admins/proc/togglehubvisibility, //toggles visibility on the BYOND Hub
-	/client/proc/dump_memory_usage
+	/client/proc/dump_memory_usage,
+	/client/proc/force_away_mission
 	)
 var/list/admin_verbs_debug = list(
 	/client/proc/getruntimelog,                     // allows us to access runtime logs to somebody,
@@ -273,7 +271,6 @@ var/list/admin_verbs_hideable = list(
 	/client/proc/toggle_antagHUD_use,
 	/client/proc/toggle_antagHUD_restrictions,
 	/client/proc/event_manager_panel,
-	/client/proc/admin_edit_motd,
 	/client/proc/empty_ai_core_toggle_latejoin,
 	/client/proc/empty_ai_core_toggle_latejoin,
 	/client/proc/cmd_admin_change_custom_event,
@@ -301,7 +298,6 @@ var/list/admin_verbs_hideable = list(
 	/client/proc/add_client_color,
 	/datum/admins/proc/force_mode_latespawn,
 	/datum/admins/proc/toggleenter,
-	/client/proc/admin_memo_control,
 	/datum/admins/proc/toggleguests,
 	/datum/admins/proc/capture_map_part,
 	/client/proc/Set_Holiday,
@@ -351,7 +347,6 @@ var/list/admin_verbs_hideable = list(
 	/datum/admins/proc/call_drop_pod,
 	/datum/admins/proc/spawn_fruit,
 	/datum/admins/proc/spawn_custom_item,
-	/datum/admins/proc/check_custom_items,
 	/datum/admins/proc/spawn_plant,
 	/client/proc/show_plant_genes,
 	/datum/admins/proc/spawn_atom,
@@ -401,11 +396,11 @@ var/list/admin_verbs_hideable = list(
 	/client/proc/callproc,
 	/client/proc/callproc_target,
 	/client/proc/debug_controller,
-	/client/proc/check_customitem_activity,
 	/client/proc/print_logout_report,
 	/client/proc/edit_admin_permissions,
 	/proc/possess,
-	/proc/release
+	/proc/release,
+	/client/proc/force_away_mission
 	)
 var/list/admin_verbs_mod = list(
 	/client/proc/cmd_admin_pm_context,	// right-click adminPM interface,
@@ -569,13 +564,13 @@ var/list/admin_verbs_cciaa = list(
 			ghost.reenter_corpse()
 			log_admin("[src] reentered their corpose using aghost.",admin_key=key_name(src))
 		else
-			to_chat(ghost, "<font color='red'>Error: Aghost: Can't reenter corpse.</font>")
+			to_chat(ghost, "<span class='warning'>Error: Aghost: Can't reenter corpse.</span>")
 			return
 
 		feedback_add_details("admin_verb","P") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
 	else if(istype(mob,/mob/abstract/new_player))
-		to_chat(src, "<font color='red'>Error: Aghost: Can't admin-ghost whilst in the lobby. Join or Observe first.</font>")
+		to_chat(src, "<span class='warning'>Error: Aghost: Can't admin-ghost whilst in the lobby. Join or Observe first.</span>")
 	else
 		//ghostize
 		var/mob/body = mob
@@ -728,7 +723,7 @@ var/list/admin_verbs_cciaa = list(
 
 	C.cure_all_traumas(TRUE, CURE_ADMIN)
 	log_and_message_admins("<span class='notice'>cured [key_name(C)]'s traumas.</span>")
-	feedback_add_details("admin_verb","TB") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!\
+	feedback_add_details("admin_verb","TB") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
 /client/proc/add_traumas(mob/T as mob in mob_list)
 	set category = "Fun"
@@ -968,7 +963,7 @@ var/list/admin_verbs_cciaa = list(
 	if(!istype(M, /mob/living/carbon/human))
 		to_chat(usr, "<span class='warning'>You can only do this to humans!</span>")
 		return
-	switch(alert("Are you sure you wish to edit this mob's appearance? Skrell, Unathi, Vox and Tajaran can result in unintended consequences.",,"Yes","No"))
+	switch(alert("Are you sure you wish to edit this mob's appearance? Skrell, Unathi and Tajaran can result in unintended consequences.",,"Yes","No"))
 		if("No")
 			return
 	var/new_facial = input("Please select facial hair color.", "Character Generation") as color
@@ -1035,16 +1030,19 @@ var/list/admin_verbs_cciaa = list(
 	if(holder)
 		var/list/jobs = list()
 		for (var/datum/job/J in SSjobs.occupations)
-			if (J.current_positions >= J.total_positions && J.total_positions != -1)
+			if (J.current_positions >= J.get_total_positions() && J.get_total_positions() != -1)
 				jobs += J.title
 		if (!jobs.len)
-			to_chat(usr, "There are no fully staffed jobs.")
+			to_chat(usr, SPAN_NOTICE("There are no fully staffed jobs."))
 			return
-		var/job = input("Please select job slot to free", "Free job slot")  as null|anything in jobs
+		var/job = input("Please select job slot to free", "Free job slot") as null|anything in jobs
 		if (job)
-			SSjobs.FreeRole(job)
-			message_admins("A job slot for [job] has been opened by [key_name_admin(usr)]")
-			return
+			var/datum/job/J = SSjobs.GetJob(job)
+			if(istype(J))
+				J.total_positions++
+				message_admins("A job slot for [job] has been added by [key_name_admin(usr)]. The total is now [J.get_total_positions()] with [J.current_positions] positions occupied.")
+			else
+				to_chat(usr, SPAN_DANGER("Failed to increase total positions in job [job]."))
 
 /client/proc/toggleattacklogs()
 	set name = "Toggle Attack Log Messages"
@@ -1324,3 +1322,20 @@ var/list/admin_verbs_cciaa = list(
 		to_chat(usr, SPAN_WARNING("File creation failed. Please check to see if the data/logs/memory folder actually exists."))
 	else
 		to_chat(usr, SPAN_NOTICE("Memory dump completed."))
+
+
+/client/proc/force_away_mission()
+	set category = "Server"
+	set name = "Force Away Mission"
+	set desc = "Force a specific away mission to occur."
+
+	if (!check_rights(R_SERVER))
+		return
+
+	var/mission_name = input("Enter Mission Name or press cancel to Reset","Mission Name") as null|text
+	SSpersist_config.forced_awaymission = mission_name
+
+	if(!mission_name)
+		log_and_message_admins("reset the forced away mission.")
+	else
+		log_and_message_admins("forced the following away mission: [mission_name].")

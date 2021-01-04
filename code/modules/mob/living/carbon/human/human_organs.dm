@@ -65,13 +65,19 @@
 						if (W.infection_check())
 							W.germ_level += 1
 
+/mob/living/carbon/human
+	var/next_stance_collapse = 0
+
 /mob/living/carbon/human/proc/handle_stance()
 	// Don't need to process any of this if they aren't standing anyways
 	// unless their stance is damaged, and we want to check if they should stay down
-	if (!stance_damage && (lying || resting) && (life_tick % 4) == 0)
+	if(!stance_damage && (lying || resting))
 		return
 
 	stance_damage = 0
+
+	if(next_stance_collapse > world.time)
+		return
 
 	// Buckled to a bed/chair. Stance damage is forced to 0 since they're sitting on something solid
 	if (istype(buckled, /obj/structure/bed))
@@ -85,7 +91,7 @@
 			//malfunctioning only happens intermittently so treat it as a missing limb when it procs
 			stance_damage += 2
 			if(prob(10))
-				visible_message("\The [src]'s [E.name] [pick("twitches", "shudders")] and sparks!")
+				visible_message(SPAN_WARNING("\The [src]'s [E.name] [pick("twitches", "shudders")] and sparks!"))
 				spark(src, 5)
 		else if (E.is_broken() || !E.is_usable())
 			stance_damage += 1
@@ -103,9 +109,11 @@
 	// standing is poor
 	if(stance_damage >= 4 || (stance_damage >= 2 && prob(5)))
 		if(!(lying || resting))
-			if(can_feel_pain())
-				emote("scream")
-			emote("collapse")
+			emote("scream")
+			if(!weakened)
+				custom_emote(VISIBLE_MESSAGE, "collapses!")
+		Weaken(3)
+		next_stance_collapse = world.time + (rand(8, 16) SECONDS)
 
 /mob/living/carbon/human/proc/handle_grasp()
 	if(!l_hand && !r_hand)
@@ -148,11 +156,11 @@
 					drop_from_inventory(r_hand)
 
 			var/emote_scream = pick(species.pain_item_drop_cry)
-			emote("me", 1, "[(species.flags & NO_PAIN) ? "" : emote_scream ]drops what they were holding in their [E.name]!")
+			visible_message("<b>[src]</b> [(species.flags & NO_PAIN) ? "" : emote_scream ]drops what they were holding in their [E.name]!")
 
 		else if(!(E.status & ORGAN_ROBOT) && (CE_DROPITEM in chem_effects) && prob(chem_effects[CE_DROPITEM]))
 			to_chat(src, SPAN_WARNING("Your [E.name] goes limp and unresponsive for a moment, dropping what it was holding!"))
-			emote("me", 1, "drops what they were holding in their [E.name]!")
+			visible_message("<b>[src]</b> drops what they were holding in their [E.name]!")
 			switch(E.body_part)
 				if(HAND_LEFT, ARM_LEFT)
 					if(!l_hand)
@@ -174,7 +182,7 @@
 						continue
 					drop_from_inventory(r_hand)
 
-			emote("me", 1, "drops what they were holding, their [E.name] malfunctioning!")
+			visible_message("<b>[src]</b> drops what they were holding, their [E.name] malfunctioning!")
 
 			spark(src, 5)
 
@@ -197,7 +205,12 @@
 	return FALSE
 
 /mob/living/carbon/human/is_asystole()
-	if(species.has_organ[BP_HEART] && !isSynthetic())
+	if(isSynthetic())
+		var/obj/item/organ/internal/cell/C = internal_organs_by_name[BP_CELL]
+		if(istype(C))
+			if(!C.is_usable() || !C.percent())
+				return TRUE
+	else if(should_have_organ(BP_HEART))
 		var/obj/item/organ/internal/heart/heart = internal_organs_by_name[BP_HEART]
 		if(!istype(heart) || !heart.is_working())
 			return TRUE

@@ -17,7 +17,7 @@
 	anchored = FALSE
 	density = TRUE
 	req_access = list(access_engine_equip)
-	obj_flags = OBJ_FLAG_ROTATABLE
+	obj_flags = OBJ_FLAG_ROTATABLE | OBJ_FLAG_SIGNALER
 	var/id
 
 	use_power = 0	//uses powernet power, not APC power
@@ -31,6 +31,7 @@
 	var/burst_shots = 3
 	var/last_shot = 0
 	var/shot_number = 0
+	var/shot_counter = 0
 	var/state = EMITTER_LOOSE
 	var/locked = FALSE
 
@@ -50,15 +51,19 @@
 		if(EMITTER_LOOSE)
 			to_chat(user, SPAN_WARNING("\The [src] isn't attached to anything and is not ready to fire."))
 		if(EMITTER_BOLTED)
-			to_chat(user, SPAN_NOTICE("\The [src] is secured to the floor and ready to fire."))
-	if(signaler && user.Adjacent(src))
-		to_chat(user, FONT_SMALL(SPAN_WARNING("\The [src] has a hidden signaler attached to it.")))
+			to_chat(user, SPAN_NOTICE("\The [src] is bolted to the floor, but not yet ready to fire."))
+		if(EMITTER_WELDED)
+			to_chat(user, SPAN_WARNING("\The [src] is bolted and welded to the floor, and ready to fire."))
+	if(Adjacent(user))
+		to_chat(user, SPAN_NOTICE("The shot counter display reads: [shot_counter]"))
+		if(signaler)
+			to_chat(user, SPAN_WARNING("\The [src] has a hidden signaler attached to it."))
 
 /obj/machinery/power/emitter/Destroy()
 	if(special_emitter)
 		message_admins("Emitter deleted at ([x],[y],[z] - <A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[x];Y=[y];Z=[z]'>JMP</a>)",0,1)
 		log_game("Emitter deleted at ([x],[y],[z])")
-		investigate_log("<font color='red'>deleted</font> at ([x],[y],[z])","singulo")
+		investigate_log("<span class='warning'>deleted</span> at ([x],[y],[z])","singulo")
 	QDEL_NULL(wifi_receiver)
 	QDEL_NULL(spark_system)
 	QDEL_NULL(signaler)
@@ -112,10 +117,11 @@
 					if(special_emitter)
 						message_admins("Emitter turned off by [key_name_admin(user, user.client)](<A HREF='?_src_=holder;adminmoreinfo=\ref[user]'>?</A>) in ([x],[y],[z] - <A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[x];Y=[y];Z=[z]'>JMP</a>)",0,1)
 						log_game("Emitter turned off by [user.ckey]([user]) in ([x],[y],[z])",ckey=key_name(user))
-						investigate_log("turned <font color='red'>off</font> by [user.key]","singulo")
+						investigate_log("turned <span class='warning'>off</span> by [user.key]","singulo")
 			else
 				active = TRUE
 				shot_number = 0
+				shot_counter = 0
 				fire_delay = 100
 				if(user)
 					to_chat(user, SPAN_NOTICE("You activate \the [src]."))
@@ -157,7 +163,7 @@
 				powered = FALSE
 				update_icon()
 				if(special_emitter)
-					investigate_log("lost power and turned <font color='red'>off</font>","singulo")
+					investigate_log("lost power and turned <span class='warning'>off</span>","singulo")
 			return
 
 		last_shot = world.time
@@ -179,6 +185,7 @@
 		var/obj/item/projectile/beam/emitter/A = new /obj/item/projectile/beam/emitter(get_turf(src))
 		A.damage = round(power_per_shot / EMITTER_DAMAGE_POWER_TRANSFER)
 		A.launch_projectile(get_step(src, dir))
+		shot_counter++
 
 /obj/machinery/power/emitter/attackby(obj/item/W, mob/user)
 	if(istype(W, /obj/item/device/assembly/signaler))
@@ -236,7 +243,7 @@
 		barrel = EB
 		return
 
-	if(istype(W, /obj/item/card/id) || istype(W, /obj/item/device/pda))
+	if(W.GetID())
 		if(emagged)
 			to_chat(user, SPAN_WARNING("The lock seems to be broken."))
 			return
@@ -309,7 +316,7 @@
 	if(!locked)
 		activate(null)
 	else
-		visible_message("\icon[src] [src] whines, \"Access denied!\"")
+		visible_message("[icon2html(src, viewers(get_turf(src)))] [src] whines, \"Access denied!\"")
 
 
 /obj/item/emitter_barrel

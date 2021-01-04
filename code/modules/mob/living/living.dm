@@ -24,10 +24,10 @@ var/mob/living/next_point_time = 0
 	face_atom(A)
 	if(isturf(A))
 		if(pointing_effect)
-			clear_point()
+			QDEL_NULL(pointing_effect)
 		pointing_effect = new /obj/effect/decal/point(A)
 		pointing_effect.invisibility = invisibility
-		addtimer(CALLBACK(src, .proc/clear_point), 20)
+		addtimer(CALLBACK(GLOBAL_PROC, /proc/qdel, pointing_effect), 2 SECONDS)
 	else
 		var/pointglow = filter(type = "drop_shadow", x = 0, y = -1, offset = 1, size = 1, color = "#F00")
 		LAZYADD(A.filters, pointglow)
@@ -98,11 +98,29 @@ default behaviour is:
 				return
 
 			if(can_swap_with(tmob)) // mutual brohugs all around!
-				var/turf/oldloc = loc
-				forceMove(tmob.loc)
-				tmob.forceMove(oldloc)
+				var/turf/tmob_oldloc = tmob.loc
+				var/turf/src_oldloc = loc
+				if(pulling?.density)
+					tmob.forceMove(pulling.loc)
+					forceMove(tmob_oldloc)
+					pulling.forceMove(src_oldloc)
+				else if(tmob.pulling?.density)
+					forceMove(tmob.pulling.loc)
+					tmob.forceMove(src_oldloc)
+					tmob.pulling.forceMove(tmob_oldloc)
+				else
+					forceMove(tmob_oldloc)
+					if(pulling)
+						pulling.forceMove(src_oldloc)
+					tmob.forceMove(src_oldloc)
+					if(tmob.pulling)
+						tmob.pulling.forceMove(tmob_oldloc)
+				for(var/obj/item/grab/G in list(l_hand, r_hand))
+					G.affecting.forceMove(loc)
+				for(var/obj/item/grab/G in list(tmob.l_hand, tmob.r_hand))
+					G.affecting.forceMove(tmob.loc)
 				now_pushing = FALSE
-				for(var/mob/living/carbon/slime/slime in view(1,tmob))
+				for(var/mob/living/carbon/slime/slime in view(2, tmob))
 					if(slime.victim == tmob)
 						slime.UpdateFeed()
 				return
@@ -191,6 +209,9 @@ default behaviour is:
 	if(swap_density_check(tmob, src))
 		return 0
 
+	if(pulling?.density && tmob.pulling?.density) // if both are pulling, don't shuffle
+		return FALSE
+
 	return can_move_mob(tmob, 1, 0)
 
 /mob/living/verb/succumb()
@@ -204,7 +225,7 @@ default behaviour is:
 
 /mob/living/proc/updatehealth()
 	if(status_flags & GODMODE)
-		health = 100
+		health = maxHealth
 		stat = CONSCIOUS
 	else
 		health = maxHealth - getOxyLoss() - getToxLoss() - getFireLoss() - getBruteLoss() - getCloneLoss() - getHalLoss()
@@ -380,7 +401,7 @@ default behaviour is:
 			return 1
 	return 0
 
-
+// Returns injection time modifier, if 0 then injection fails
 /mob/living/proc/can_inject()
 	return 1
 
@@ -682,7 +703,11 @@ default behaviour is:
 		spawn() C.mob_breakout(src)
 
 /mob/living/proc/escape_inventory(obj/item/holder/H)
-	if(H != src.loc) return
+	if(H != src.loc)
+		return
+	if(health < maxHealth * 0.6)
+		to_chat(src, SPAN_WARNING("You're too injured to escape..."))
+		return
 
 	var/mob/M = H.loc //Get our mob holder (if any).
 
@@ -763,8 +788,14 @@ default behaviour is:
 	set name = "Rest"
 	set category = "IC"
 
+	if(last_special + 1 SECOND > world.time)
+		to_chat(src, SPAN_WARNING("You're too tired to do this now!"))
+		return
+	last_special = world.time
 	resting = !resting
-	to_chat(src, "<span class='notice'>You are now [resting ? "resting" : "getting up"]</span>")
+	to_chat(src, "<span class='notice'>You are now [resting ? "resting" : "getting up"].</span>")
+	update_canmove()
+	update_icon()
 
 /mob/living/proc/cannot_use_vents()
 	return "You can't fit into that vent."
@@ -961,3 +992,23 @@ default behaviour is:
 
 /mob/living/proc/needs_wheelchair()
 	return FALSE
+
+//called when the mob receives a bright flash
+/mob/living/flash_eyes(intensity = FLASH_PROTECTION_MODERATE, override_blindness_check = FALSE, affect_silicon = FALSE, visual = FALSE, type = /obj/screen/fullscreen/flash)
+	if(override_blindness_check || !(disabilities & BLIND))
+		..()
+		overlay_fullscreen("flash", type)
+		spawn(25)
+			if(src)
+				clear_fullscreen("flash", 25)
+		return 1
+
+/mob/living/verb/toggle_run_intent()
+	set hidden = 1
+	set name = "mov_intent"
+	if(hud_used?.move_intent)
+		hud_used.move_intent.Click()
+
+/mob/living/proc/add_hallucinate(var/amount)
+	hallucination += amount
+	hallucination += amount

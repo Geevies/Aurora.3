@@ -146,7 +146,7 @@
 		break_legcuffs()
 		return
 
-	var/obj/item/legcuffs/HC = legcuffed
+	var/obj/item/handcuffs/HC = legcuffed
 
 	//A default in case you are somehow legcuffed with something that isn't an obj/item/legcuffs type
 	var/breakouttime = 1200
@@ -175,15 +175,15 @@
 
 /mob/living/carbon/proc/can_break_cuffs()
 	if(HULK in mutations)
-		return 1
+		return TRUE
 
 	if(stamina < 100)
-		return 0
+		return FALSE
 
-	if(src.gender in src.species.breakcuffs)
-		return 1
+	if(species?.break_cuffs)
+		return TRUE
 
-	return 0
+	return FALSE
 
 /mob/living/carbon/proc/break_handcuffs()
 	visible_message(

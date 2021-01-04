@@ -30,7 +30,7 @@ BREATH ANALYZER
 	health_scan_mob(user, user, mode)
 	add_fingerprint(user)
 
-/proc/get_wound_severity(var/damage_ratio) //Used for ratios.
+/proc/get_wound_severity(var/damage_ratio, var/uppercase = FALSE) //Used for ratios.
 	var/degree = "none"
 
 	switch(damage_ratio)
@@ -44,18 +44,27 @@ BREATH ANALYZER
 			degree = "severe"
 		if(0.75 to 1)
 			degree = "extreme"
+
+	if(uppercase)
+		degree = capitalize(degree)
 	return degree
 
-/proc/get_severity(amount, var/tag = FALSE)
+/proc/get_severity(amount, var/uppercase = FALSE)
+	var/output = "none"
 	if(!amount)
-		return "none"
-	. = "minor"
-	if(amount > 50)
-		. = "severe"
+		output = "none"
+	else if(amount > 50)
+		output = "severe"
 	else if(amount > 25)
-		. = "significant"
+		output = "significant"
 	else if(amount > 10)
-		. = "moderate"
+		output = "moderate"
+	else
+		output = "minor"
+
+	if(uppercase)
+		output = capitalize(output)
+	return output
 
 /proc/health_scan_mob(var/mob/M, var/mob/living/user, var/show_limb_damage = TRUE, var/just_scan = FALSE)
 	if(!just_scan)
@@ -197,6 +206,18 @@ BREATH ANALYZER
 					limb_result = "[limb_result] \[<font color = '#ffa500'><b>[get_severity(org.burn_dam, TRUE)] burns</b></font>\]"
 				if(org.status & ORGAN_BLEEDING)
 					limb_result = "[limb_result] \[<span class='scan_danger'>bleeding</span>\]"
+				var/is_bandaged = org.is_bandaged()
+				var/is_salved = org.is_salved()
+				if(is_bandaged && is_salved)
+					var/icon/B = icon('icons/obj/stacks/medical.dmi', "bandaged")
+					var/icon/S = icon('icons/obj/stacks/medical.dmi', "salved")
+					limb_result = "[limb_result] \[[icon2html(B, user)] | [icon2html(S, user)]\]"
+				else if(is_bandaged)
+					var/icon/B = icon('icons/obj/stacks/medical.dmi', "bandaged")
+					limb_result = "[limb_result] \[[icon2html(B, user)]\]"
+				else if(is_salved)
+					var/icon/S = icon('icons/obj/stacks/medical.dmi', "salved")
+					limb_result = "[limb_result] \[[icon2html(S, user)]\]"
 				dat += limb_result
 		else
 			dat += "No detectable limb injuries."
@@ -565,14 +586,14 @@ BREATH ANALYZER
 		if(0 to 25)
 			to_chat(user,"Subject oxygen levels nominal.")
 		if(25 to 50)
-			to_chat(user,"<font color='blue'>Subject oxygen levels abnormal.</font>")
+			to_chat(user,"<span class='notice'>Subject oxygen levels abnormal.</span>")
 		if(50 to INFINITY)
-			to_chat(user,"<font color='blue'><b>Severe oxygen deprivation detected.</b></font>")
+			to_chat(user,"<span class='notice'><b>Severe oxygen deprivation detected.</b></span>")
 
 	var/obj/item/organ/internal/L = H.internal_organs_by_name[BP_LUNGS]
 	if(istype(L))
 		if(L.is_bruised())
-			to_chat(user,"<font color='red'><b>Ruptured lung detected.</b></font>")
+			to_chat(user,"<span class='warning'><b>Ruptured lung detected.</b></span>")
 		else if(L.is_damaged())
 			to_chat(user,"<b>Damaged lung detected.</b>")
 		else
@@ -588,11 +609,11 @@ BREATH ANALYZER
 		if(INTOX_MUSCLEIMP to INTOX_VOMIT)
 			additional_string = "\[MODERATELY INTOXICATED\]"
 		if(INTOX_VOMIT to INTOX_BALANCE)
-			additional_string = "<font color='red'>\[HEAVILY INTOXICATED\]</font>"
+			additional_string = "<span class='warning'>\[HEAVILY INTOXICATED\]</span>"
 		if(INTOX_BALANCE to INTOX_DEATH)
-			additional_string = "<font color='red'>\[ALCOHOL POISONING LIKELY\]</font>"
+			additional_string = "<span class='warning'>\[ALCOHOL POISONING LIKELY\]</span>"
 		if(INTOX_DEATH to INFINITY)
-			additional_string = "<font color='red'>\[DEATH IMMINENT\]</font>"
+			additional_string = "<span class='warning'>\[DEATH IMMINENT\]</span>"
 	to_chat(user,"<span class='normal'>Blood Alcohol Content: [round(bac,0.01)] <b>[additional_string]</b></span>")
 
 	if(H.breathing && H.breathing.total_volume)
@@ -604,3 +625,78 @@ BREATH ANALYZER
 				++unknown
 		if(unknown)
 			to_chat(user,"<span class='warning'>Non-medical reagent[(unknown > 1)?"s":""] found in subject's respitory system.</span>")
+
+
+/obj/item/device/advanced_healthanalyzer
+	name = "zeng-hu body analyzer"
+	desc = "An expensive and varied-use health analyzer that prints full-body scans after a short scanning delay."
+	icon_state = "zh-analyzer"
+	item_state = "healthanalyzer"
+	slot_flags = SLOT_BELT
+	w_class = ITEMSIZE_NORMAL
+	origin_tech = list(TECH_MAGNET = 2, TECH_BIO = 3)
+	var/obj/machinery/body_scanconsole/internal_bodyscanner = null //this is used to print the date and to deal with extra
+
+/obj/item/device/advanced_healthanalyzer/Initialize()
+	. = ..()
+	if(!internal_bodyscanner)
+		var/obj/machinery/body_scanconsole/S = new (src)
+		S.forceMove(src)
+		S.use_power = FALSE
+		internal_bodyscanner = S
+
+/obj/item/device/advanced_healthanalyzer/Destroy()
+	if(internal_bodyscanner)
+		QDEL_NULL(internal_bodyscanner)
+	return ..()
+
+/obj/item/device/advanced_healthanalyzer/attack(mob/living/M, mob/living/user)
+	if(!internal_bodyscanner)
+		return
+	if(do_after(user, 7 SECONDS, TRUE))
+		print_scan(M, user)
+		add_fingerprint(user)
+
+/obj/item/device/advanced_healthanalyzer/proc/print_scan(var/mob/M, var/mob/living/user)
+	var/obj/item/paper/R = new(user.loc)
+	R.color = "#eeffe8"
+	R.set_content_unsafe("Scan ([M.name])", internal_bodyscanner.format_occupant_data(get_medical_data(M)))
+
+	if(ishuman(user) && !(user.l_hand && user.r_hand))
+		user.put_in_hands(R)
+	user.visible_message("\The [src] spits out a piece of paper.")
+
+/obj/item/device/advanced_healthanalyzer/proc/get_medical_data(var/mob/living/carbon/human/H)
+	if (!ishuman(H))
+		return
+
+	var/list/medical_data = list(
+		"stationtime" = worldtime2text(),
+		"brain_activity" = H.get_brain_status(),
+		"blood_volume" = H.get_blood_volume(),
+		"blood_oxygenation" = H.get_blood_oxygenation(),
+		"blood_pressure" = H.get_blood_pressure(),
+
+		"bruteloss" = get_severity(H.getBruteLoss(), TRUE),
+		"fireloss" = get_severity(H.getFireLoss(), TRUE),
+		"oxyloss" = get_severity(H.getOxyLoss(), TRUE),
+		"toxloss" = get_severity(H.getToxLoss(), TRUE),
+		"cloneloss" = get_severity(H.getCloneLoss(), TRUE),
+
+		"rads" = H.total_radiation,
+		"paralysis" = H.paralysis,
+		"bodytemp" = H.bodytemperature,
+		"borer_present" = H.has_brain_worms(),
+		"inaprovaline_amount" = H.reagents.get_reagent_amount(/datum/reagent/inaprovaline),
+		"dexalin_amount" = H.reagents.get_reagent_amount(/datum/reagent/dexalin),
+		"stoxin_amount" = H.reagents.get_reagent_amount(/datum/reagent/soporific),
+		"bicaridine_amount" = H.reagents.get_reagent_amount(/datum/reagent/bicaridine),
+		"dermaline_amount" = H.reagents.get_reagent_amount(/datum/reagent/dermaline),
+		"blood_amount" = H.vessel.get_reagent_amount(/datum/reagent/blood),
+		"disabilities" = H.sdisabilities,
+		"lung_ruptured" = H.is_lung_ruptured(),
+		"external_organs" = H.organs.Copy(),
+		"internal_organs" = H.internal_organs.Copy(),
+		"species_organs" = H.species.has_organ
+		)
+	return medical_data

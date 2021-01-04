@@ -26,6 +26,7 @@
 	var/pillsprite = "1"
 	var/max_pill_count = 20
 	flags = OPENCONTAINER
+	var/datum/asset/spritesheet/chem_master/chem_asset
 
 /obj/machinery/chem_master/Initialize()
 	. = ..()
@@ -77,7 +78,10 @@
 
 	if (href_list["ejectp"])
 		if(loaded_pill_bottle)
-			loaded_pill_bottle.forceMove(src.loc)
+			if(Adjacent(usr))
+				usr.put_in_hands(loaded_pill_bottle)
+			else
+				loaded_pill_bottle.forceMove(get_turf(src))
 			loaded_pill_bottle = null
 	else if(href_list["close"])
 		usr << browse(null, "window=chemmaster")
@@ -146,7 +150,10 @@
 			return
 		else if (href_list["eject"])
 			if(beaker)
-				beaker:loc = src.loc
+				if(Adjacent(usr))
+					usr.put_in_hands(beaker)
+				else
+					beaker:loc = get_turf(src)
 				beaker = null
 				reagents.clear_reagents()
 				icon_state = "mixer0"
@@ -171,7 +178,7 @@
 			if(reagents.total_volume/count < 1) //Sanity checking.
 				return
 			while (count-- && count >= 0)
-				var/obj/item/reagent_containers/pill/P = new/obj/item/reagent_containers/pill(src.loc)
+				var/obj/item/reagent_containers/pill/P = new/obj/item/reagent_containers/pill(get_turf(src))
 				if(!name) name = reagents.get_master_reagent_name()
 				P.name = "[name] pill"
 				P.pixel_x = rand(-7, 7) //random position
@@ -184,7 +191,7 @@
 		else if (href_list["createbottle"])
 			if(!condi)
 				var/name = sanitizeSafe(input(usr,"Name:","Name your bottle!",reagents.get_master_reagent_name()), MAX_NAME_LEN)
-				var/obj/item/reagent_containers/glass/bottle/P = new/obj/item/reagent_containers/glass/bottle(src.loc)
+				var/obj/item/reagent_containers/glass/bottle/P = new/obj/item/reagent_containers/glass/bottle(get_turf(src))
 				if(!name) name = reagents.get_master_reagent_name()
 				P.name = "[name] bottle"
 				P.pixel_x = rand(-7, 7) //random position
@@ -193,19 +200,26 @@
 				reagents.trans_to_obj(P,60)
 				P.update_icon()
 			else
-				var/obj/item/reagent_containers/food/condiment/P = new/obj/item/reagent_containers/food/condiment(src.loc)
+				var/obj/item/reagent_containers/food/condiment/P = new/obj/item/reagent_containers/food/condiment(get_turf(src))
 				reagents.trans_to_obj(P,50)
 		else if(href_list["change_pill"])
-			var/dat = "<table>"
+			if(!chem_asset)
+				chem_asset = get_asset_datum(/datum/asset/spritesheet/chem_master)
+			var/dat = chem_asset.css_tag()
+			dat += "<table>"
 			for(var/i = 1 to MAX_PILL_SPRITE)
-				dat += "<tr><td><a href=\"?src=\ref[src]&pill_sprite=[i]\"><img src=\"pill[i].png\" /></a></td></tr>"
+				var/pillicon = "pill[i]"
+				dat += "<tr><td><a href=\"?src=\ref[src]&pill_sprite=[i]\">[chem_asset.icon_tag(pillicon)]</a></td></tr>"
 			dat += "</table>"
 			usr << browse(dat, "window=chem_master")
 			return
 		else if(href_list["change_bottle"])
-			var/dat = "<table>"
+			if(!chem_asset)
+				chem_asset = get_asset_datum(/datum/asset/spritesheet/chem_master)
+			var/dat = chem_asset.css_tag()
+			dat += "<table>"
 			for(var/sprite in BOTTLE_SPRITES)
-				dat += "<tr><td><a href=\"?src=\ref[src]&bottle_sprite=[sprite]\"><img src=\"[sprite].png\" /></a></td></tr>"
+				dat += "<tr><td><a href=\"?src=\ref[src]&bottle_sprite=[sprite]\">[chem_asset.icon_tag(sprite)]</a></td></tr>"
 			dat += "</table>"
 			usr << browse(dat, "window=chem_master")
 			return
@@ -218,6 +232,8 @@
 	return
 
 /obj/machinery/chem_master/attack_ai(mob/user as mob)
+	if(!ai_can_interact(user))
+		return
 	return src.attack_hand(user)
 
 /obj/machinery/chem_master/attack_hand(mob/user as mob)
@@ -225,10 +241,9 @@
 		return
 	user.set_machine(src)
 
-	var/datum/asset/pill_icons = get_asset_datum(/datum/asset/chem_master)
-	pill_icons.send(user.client)
-
-	var/dat = ""
+	if(!chem_asset)
+		chem_asset = get_asset_datum(/datum/asset/spritesheet/chem_master)
+	var/dat = chem_asset.css_tag()
 	if(!beaker)
 		dat = "Please insert beaker.<BR>"
 		if(src.loaded_pill_bottle)
@@ -269,9 +284,9 @@
 		else
 			dat += "Empty<BR>"
 		if(!condi)
-			dat += "<HR><BR><A href='?src=\ref[src];createpill=1'>Create pill (60 units max)</A><a href=\"?src=\ref[src]&change_pill=1\"><img src=\"pill[pillsprite].png\" /></a><BR>"
+			dat += "<HR><BR><A href='?src=\ref[src];createpill=1'>Create pill (60 units max)</A><a href=\"?src=\ref[src]&change_pill=1\">[chem_asset.icon_tag("pill[pillsprite]")]</a><BR>"
 			dat += "<A href='?src=\ref[src];createpill_multiple=1'>Create multiple pills</A><BR>"
-			dat += "<A href='?src=\ref[src];createbottle=1'>Create bottle (60 units max)<a href=\"?src=\ref[src]&change_bottle=1\"><img src=\"[bottlesprite].png\" /></A>"
+			dat += "<A href='?src=\ref[src];createbottle=1'>Create bottle (60 units max)<a href=\"?src=\ref[src]&change_bottle=1\">[chem_asset.icon_tag(bottlesprite)]</A>"
 		else
 			dat += "<A href='?src=\ref[src];createbottle=1'>Create bottle (50 units max)</A>"
 	if(!condi)
@@ -381,6 +396,8 @@
 	return 0
 
 /obj/machinery/reagentgrinder/attack_ai(mob/user as mob)
+	if(!ai_can_interact(user))
+		return
 	interact(user)
 
 /obj/machinery/reagentgrinder/attack_hand(mob/user as mob)
@@ -454,7 +471,7 @@
 		return
 	if (!beaker)
 		return
-	beaker.forceMove(src.loc)
+	beaker.forceMove(get_turf(src))
 	beaker = null
 	update_icon()
 
@@ -466,7 +483,7 @@
 		return
 
 	for(var/obj/item/O in holdingitems)
-		O.forceMove(src.loc)
+		O.forceMove(get_turf(src))
 		holdingitems -= O
 	holdingitems.Cut()
 
@@ -548,7 +565,7 @@
 			target.apply_damage(25, PAIN)
 			target.say("*scream")
 
-			user.attack_log += text("\[[time_stamp()]\] <font color='red'>Has fed [target.name]'s ([target.ckey]) hair into a [src].</font>")
+			user.attack_log += text("\[[time_stamp()]\] <span class='warning'>Has fed [target.name]'s ([target.ckey]) hair into a [src].</span>")
 			target.attack_log += text("\[[time_stamp()]\] <font color='orange'>Has had their hair fed into [src] by [user.name] ([user.ckey])</font>")
 			msg_admin_attack("[key_name_admin(user)] fed [key_name_admin(target)] in a [src]. (<A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[user.x];Y=[user.y];Z=[user.z]'>JMP</a>)",ckey=key_name(user),ckey_target=key_name(target))
 		else

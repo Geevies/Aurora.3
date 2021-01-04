@@ -164,6 +164,19 @@
 	else
 		return ..()
 
+/mob/living/carbon/human/playsound_get_environment(pressure_factor = 1.0)
+	if(protected_from_sound())
+		return PADDED_CELL
+	return ..()
+
+/mob/proc/check_sound_equipment_volume()
+	return 1
+
+/mob/living/carbon/human/check_sound_equipment_volume()
+	if(protected_from_sound())
+		return 0.6
+	return 1
+
 /mob/proc/playsound_to(turf/source_turf, sound/original_sound, use_random_freq, modify_environment = TRUE, use_pressure = TRUE, required_preferences = 0, required_asfx_toggles = 0)
 	var/sound/S = copy_sound(original_sound)
 
@@ -209,8 +222,9 @@
 	if (modify_environment)
 		S.environment = playsound_get_environment(pressure_factor)
 
-	sound_to(src, S)
+	S.volume *= check_sound_equipment_volume()
 
+	sound_to(src, S)
 	return S.volume
 
 /mob/proc/playsound_simple(source, soundin, volume, use_random_freq = FALSE, frequency = 0, falloff = 0, use_pressure = TRUE, required_preferences = 0, required_asfx_toggles = 0)
@@ -592,4 +606,70 @@
 	'sound/weapons/grab/grab3.ogg',
 	'sound/weapons/grab/grab4.ogg',
 	'sound/weapons/grab/grab5.ogg'
+)
+
+/decl/sound_category/gunshots
+	sounds = list(
+	'sound/weapons/gunshot/bolter.ogg',
+	'sound/weapons/laser1.ogg',
+	'sound/weapons/Laser2.ogg',
+	'sound/weapons/laser3.ogg',
+	'sound/weapons/lasercannonfire.ogg',
+	'sound/weapons/marauder.ogg',
+	'sound/weapons/laserdeep.ogg',
+	'sound/weapons/laserstrong.ogg',
+	'sound/weapons/gunshot/gunshot_dmr.ogg',
+	'sound/weapons/gunshot/gunshot_light.ogg',
+	'sound/weapons/gunshot/gunshot_mateba.ogg',
+	'sound/weapons/gunshot/gunshot_pistol.ogg',
+	'sound/weapons/gunshot/gunshot_revolver.ogg',
+	'sound/weapons/gunshot/gunshot_rifle.ogg',
+	'sound/weapons/gunshot/gunshot_saw.ogg',
+	'sound/weapons/gunshot/gunshot_shotgun.ogg',
+	'sound/weapons/gunshot/gunshot_shotgun2.ogg',
+	'sound/weapons/gunshot/gunshot_smg.ogg',
+	'sound/weapons/gunshot/gunshot_strong.ogg',
+	'sound/weapons/gunshot/gunshot_suppressed.ogg',
+	'sound/weapons/gunshot/gunshot_svd.ogg',
+	'sound/weapons/gunshot/gunshot_tommygun.ogg',
+	'sound/weapons/gunshot/gunshot1.ogg',
+	'sound/weapons/gunshot/gunshot2.ogg',
+	'sound/weapons/gunshot/gunshot3.ogg',
+	'sound/weapons/gunshot/musket.ogg',
+	'sound/weapons/gunshot/slammer.ogg'
+)
+
+/decl/sound_category/gunshots/ballistic
+	sounds = list(
+	'sound/weapons/gunshot/gunshot_dmr.ogg',
+	'sound/weapons/gunshot/gunshot_light.ogg',
+	'sound/weapons/gunshot/gunshot_mateba.ogg',
+	'sound/weapons/gunshot/gunshot_pistol.ogg',
+	'sound/weapons/gunshot/gunshot_revolver.ogg',
+	'sound/weapons/gunshot/gunshot_rifle.ogg',
+	'sound/weapons/gunshot/gunshot_saw.ogg',
+	'sound/weapons/gunshot/gunshot_shotgun.ogg',
+	'sound/weapons/gunshot/gunshot_shotgun2.ogg',
+	'sound/weapons/gunshot/gunshot_smg.ogg',
+	'sound/weapons/gunshot/gunshot_strong.ogg',
+	'sound/weapons/gunshot/gunshot_suppressed.ogg',
+	'sound/weapons/gunshot/gunshot_svd.ogg',
+	'sound/weapons/gunshot/gunshot_tommygun.ogg',
+	'sound/weapons/gunshot/gunshot1.ogg',
+	'sound/weapons/gunshot/gunshot2.ogg',
+	'sound/weapons/gunshot/gunshot3.ogg',
+	'sound/weapons/gunshot/musket.ogg',
+	'sound/weapons/gunshot/slammer.ogg'
+)
+
+/decl/sound_category/gunshots/energy
+	sounds = list(
+	'sound/weapons/gunshot/bolter.ogg',
+	'sound/weapons/laser1.ogg',
+	'sound/weapons/Laser2.ogg',
+	'sound/weapons/laser3.ogg',
+	'sound/weapons/lasercannonfire.ogg',
+	'sound/weapons/marauder.ogg',
+	'sound/weapons/laserdeep.ogg',
+	'sound/weapons/laserstrong.ogg'
 )

@@ -395,6 +395,7 @@
 			if(usr.attack_ui(slot_id))
 				usr.update_inv_l_hand(0)
 				usr.update_inv_r_hand(0)
+
 	return 1
 
 /obj/screen/movement_intent
@@ -416,7 +417,7 @@
 
 		user.stamina_bar.update(user.stamina)
 
-	if (user.m_intent == "run")
+	if (user.m_intent == M_RUN)
 		icon_state = "running"
 	else
 		icon_state = "walking"
@@ -434,16 +435,23 @@
 
 		if(C.legcuffed)
 			to_chat(C, "<span class='notice'>You are legcuffed! You cannot run until you get [C.legcuffed] removed!</span>")
-			C.m_intent = "walk"	//Just incase
+			C.m_intent = M_WALK	//Just incase
 			C.hud_used.move_intent.icon_state = "walking"
 			return 1
 		switch(usr.m_intent)
-			if("run")
-				usr.m_intent = "walk"
-			if("walk")
-				usr.m_intent = "run"
-
-		update_move_icon(usr)
+			if(M_RUN)
+				usr.m_intent = M_WALK
+			if(M_WALK)
+				usr.m_intent = M_RUN
+	else if(istype(usr, /mob/living/simple_animal/hostile/morph))
+		var/mob/living/simple_animal/hostile/morph/M = usr
+		switch(usr.m_intent)
+			if(M_RUN)
+				usr.m_intent = M_WALK
+			if(M_WALK)
+				usr.m_intent = M_RUN
+		M.update_speed()
+	update_move_icon(usr)
 
 // Hand slots are special to handle the handcuffs overlay
 /obj/screen/inventory/hand

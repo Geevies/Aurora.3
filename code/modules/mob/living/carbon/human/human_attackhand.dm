@@ -47,7 +47,7 @@
 					if(G.cell.charge >= 2500)
 						G.cell.use(G.cell.charge)	//So it drains the cell.
 						visible_message("<span class='danger'>[src] has been touched with the stun gloves by [M]!</span>")
-						M.attack_log += text("\[[time_stamp()]\] <font color='red'>Stungloved [src.name] ([src.ckey])</font>")
+						M.attack_log += text("\[[time_stamp()]\] <span class='warning'>Stungloved [src.name] ([src.ckey])</span>")
 						src.attack_log += text("\[[time_stamp()]\] <font color='orange'>Has been stungloved by [M.name] ([M.ckey])</font>")
 
 						msg_admin_attack("[key_name_admin(M)] stungloved [src.name] ([src.ckey]) (<A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[M.x];Y=[M.y];Z=[M.z]'>JMP</a>)",ckey=key_name(M),ckey_target=key_name(src))
@@ -100,7 +100,7 @@
 
 			return
 
-	var/datum/martial_art/attacker_style = H.martial_art
+	var/datum/martial_art/attacker_style = H.primary_martial_art
 
 	switch(M.a_intent)
 		if(I_HELP)
@@ -110,14 +110,15 @@
 
 				cpr_time = 0
 
-				H.visible_message("<span class='notice'>\The [H] is trying to perform CPR on \the [src].</span>")
-
 				if(!do_after(H, rand(3, 5), src))
 					cpr_time = 1
 					return
 				cpr_time = 1
 
-				H.visible_message("<span class='notice'>\The [H] performs CPR on \the [src]!</span>")
+				H.do_attack_animation(src, null, image('icons/mob/screen/generic.dmi', src, "cpr", src.layer + 1))
+				var/starting_pixel_y = pixel_y
+				animate(src, pixel_y = starting_pixel_y + 4, time = 2)
+				animate(src, pixel_y = starting_pixel_y, time = 2)
 
 				if(is_asystole())
 					if(prob(5 * rand(2, 3)))
@@ -296,7 +297,7 @@
 				H.visible_message("<span class='danger'>[attack_message]</span>")
 
 			playsound(loc, ((miss_type) ? (miss_type == 1 ? attack.miss_sound : 'sound/weapons/thudswoosh.ogg') : attack.attack_sound), 25, 1, -1)
-			H.attack_log += text("\[[time_stamp()]\] <font color='red'>[miss_type ? (miss_type == 1 ? "Missed" : "Blocked") : "[pick(attack.attack_verb)]"] [src.name] ([src.ckey])</font>")
+			H.attack_log += text("\[[time_stamp()]\] <span class='warning'>[miss_type ? (miss_type == 1 ? "Missed" : "Blocked") : "[pick(attack.attack_verb)]"] [src.name] ([src.ckey])</span>")
 			src.attack_log += text("\[[time_stamp()]\] <font color='orange'>[miss_type ? (miss_type == 1 ? "Was missed by" : "Has blocked") : "Has Been [pick(attack.attack_verb)]"] by [H.name] ([H.ckey])</font>")
 			msg_admin_attack("[key_name(H)] [miss_type ? (miss_type == 1 ? "has missed" : "was blocked by") : "has [pick(attack.attack_verb)]"] [key_name(src)] (<A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[H.x];Y=[H.y];Z=[H.z]'>JMP</a>)",ckey=key_name(H),ckey_target=key_name(src))
 
@@ -344,12 +345,18 @@
 		if(I_DISARM)
 			var/disarm_cost
 			var/usesStamina
+			var/obj/item/organ/internal/cell/cell = M.internal_organs_by_name[BP_CELL]
+			var/obj/item/cell/potato
+			if(cell)
+				potato = cell.cell
 
 			if(M.max_stamina > 0)
 				disarm_cost = M.max_stamina / 6
 				usesStamina = TRUE
 			else if(M.max_stamina <= 0)
-				disarm_cost = M.max_nutrition / 8
+				if(M.isSynthetic())
+					disarm_cost = potato.maxcharge / 24
+				disarm_cost = M.max_nutrition / 6
 				usesStamina = FALSE
 
 			if(usesStamina)
@@ -368,7 +375,7 @@
 			if(attacker_style && attacker_style.disarm_act(H, src))
 				return TRUE
 
-			M.attack_log += text("\[[time_stamp()]\] <font color='red'>Disarmed [src.name] ([src.ckey])</font>")
+			M.attack_log += text("\[[time_stamp()]\] <span class='warning'>Disarmed [src.name] ([src.ckey])</span>")
 			src.attack_log += text("\[[time_stamp()]\] <font color='orange'>Has been disarmed by [M.name] ([M.ckey])</font>")
 
 			msg_admin_attack("[key_name(M)] disarmed [src.name] ([src.ckey]) (<A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[M.x];Y=[M.y];Z=[M.z]'>JMP</a>)",ckey=key_name(M),ckey_target=key_name(src))
@@ -377,14 +384,15 @@
 			if(usesStamina)
 				M.stamina = M.stamina - disarm_cost //attempting to knock something out of someone's hands, or pushing them over, is exhausting!
 				M.stamina = Clamp(M.stamina, 0, M.max_stamina)
+			else if(M.isSynthetic())
+				cell.use(disarm_cost)
 			else
-				M.nutrition = M.nutrition - disarm_cost
-				M.nutrition = Clamp(M.nutrition, 0, M.max_nutrition)
+				M.nutrition = Clamp(M.nutrition - disarm_cost, 0, M.max_nutrition)
 
 			if(w_uniform)
 				w_uniform.add_fingerprint(M)
-			var/obj/item/organ/external/affecting = get_organ(ran_zone(M.zone_sel.selecting))
 
+			var/obj/item/organ/external/affecting = get_organ(ran_zone(M.zone_sel.selecting))
 			var/list/holding = list(get_active_hand() = 40, get_inactive_hand() = 20)
 
 			//See if they have any weapons to retaliate with
@@ -463,14 +471,16 @@
 	return
 
 /mob/living/carbon/human/attack_generic(var/mob/user, var/damage, var/attack_message)
-
 	if(!damage)
 		return
 
-	user.attack_log += text("\[[time_stamp()]\] <font color='red'>attacked [src.name] ([src.ckey])</font>")
+	user.attack_log += text("\[[time_stamp()]\] <span class='warning'>attacked [src.name] ([src.ckey])</span>")
 	src.attack_log += text("\[[time_stamp()]\] <font color='orange'>was attacked by [user.name] ([user.ckey])</font>")
-	src.visible_message("<span class='danger'>[user] has [attack_message] [src]!</span>")
 	user.do_attack_animation(src)
+	if(damage < 15 && check_shields(damage, null, user, null, "\the [user]"))
+		return
+
+	visible_message(SPAN_DANGER("[user] has [attack_message] [src]!"))
 
 	var/dam_zone = user.zone_sel?.selecting
 	if(!dam_zone)
@@ -479,7 +489,7 @@
 	var/armor_block = run_armor_check(affecting, "melee")
 	apply_damage(damage, BRUTE, affecting, armor_block)
 	updatehealth()
-	return 1
+	return TRUE
 
 //Used to attack a joint through grabbing
 /mob/living/carbon/human/proc/grab_joint(var/mob/living/user, var/def_zone)

@@ -11,6 +11,7 @@
 	force = 5
 	origin_tech = list(TECH_COMBAT = 2, TECH_MAGNET = 2)
 	matter = list(DEFAULT_WALL_MATERIAL = 2000)
+	offhand_accuracy = 1
 	projectile_type = /obj/item/projectile/energy/blaster
 	max_shots = 6
 
@@ -73,6 +74,7 @@
 	item_state = "blaster_carbine"
 	max_shots = 12
 	origin_tech = list(TECH_COMBAT = 3, TECH_MAGNET = 2)
+	offhand_accuracy = 0
 	projectile_type = /obj/item/projectile/energy/blaster
 	slot_flags = SLOT_BELT
 	w_class = ITEMSIZE_NORMAL
@@ -85,6 +87,7 @@
 	item_state = "blaster_rifle"
 	max_shots = 20
 	origin_tech = list(TECH_COMBAT = 4, TECH_MAGNET = 3)
+	offhand_accuracy = 0
 	projectile_type = /obj/item/projectile/energy/blaster/heavy
 
 	slot_flags = SLOT_BACK
@@ -99,14 +102,6 @@
 	accuracy_wielded = 1
 
 	is_wieldable = TRUE
-
-/obj/item/gun/energy/blaster/rifle/update_icon()
-	..()
-	if(wielded)
-		item_state = "blaster_rifle-wielded"
-	else
-		item_state = initial(item_state)
-	update_held_icon()
 
 /obj/item/gun/energy/blaster/rifle/verb/scope()
 	set category = "Object"

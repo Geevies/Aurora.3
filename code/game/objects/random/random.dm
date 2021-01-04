@@ -342,6 +342,27 @@
 		/obj/item/toy/plushie/bearfire
 	)
 
+/obj/random/balloon
+	name = "random balloon"
+	desc = "This is a random balloon."
+	icon = 'icons/obj/toy.dmi'
+	icon_state = "balloon"
+	spawnlist = list(
+		/obj/item/toy/balloon/color = 7,
+		/obj/item/toy/balloon/latex = 1,
+		/obj/item/toy/balloon/latex/nitrile = 1,
+		/obj/item/toy/balloon/syndicate = 2,
+		/obj/item/toy/balloon/nanotrasen = 2,
+		/obj/item/toy/balloon/fellowship = 1,
+		/obj/item/toy/balloon/fellowshiphead = 1,
+		/obj/item/toy/balloon/contender = 1,
+		/obj/item/toy/balloon/contenderhead = 1,
+		/obj/item/toy/balloon/bat = 1,
+		/obj/item/toy/balloon/ghost = 1,
+		/obj/item/toy/balloon/xmastree = 1,
+		/obj/item/toy/balloon/candycane = 1
+	)
+
 /obj/random/smalltank
 	name = "random small tank"
 
@@ -358,7 +379,7 @@
 	problist = list(
 		/obj/item/storage/belt/utility = 1,
 		/obj/item/storage/belt/medical = 0.4,
-		/obj/item/storage/belt/medical/emt = 0.4,
+		/obj/item/storage/belt/medical/first_responder = 0.4,
 		/obj/item/storage/belt/security/tactical = 0.1,
 		/obj/item/storage/belt/military = 0.1,
 		/obj/item/storage/belt/janitor = 0.4
@@ -431,7 +452,6 @@
 /obj/random/voidsuit
 	name = "random voidsuit"
 	var/damaged = 0
-	var/for_vox = FALSE
 	var/list/suitmap = list(
 		/obj/item/clothing/suit/space/void = /obj/item/clothing/head/helmet/space/void,
 		/obj/item/clothing/suit/space/void/engineering = /obj/item/clothing/head/helmet/space/void/engineering,
@@ -474,6 +494,32 @@
 	)
 	has_postspawn = TRUE
 
+/obj/random/voidsuit/no_nanotrasen
+	suitmap = list(
+		/obj/item/clothing/suit/space/void = /obj/item/clothing/head/helmet/space/void,
+		/obj/item/clothing/suit/space/void/merc = /obj/item/clothing/head/helmet/space/void/merc,
+		/obj/item/clothing/suit/space/void/cruiser = /obj/item/clothing/head/helmet/space/void/cruiser,
+		/obj/item/clothing/suit/space/void/coalition = /obj/item/clothing/head/helmet/space/void/coalition,
+		/obj/item/clothing/suit/space/void/lancer = /obj/item/clothing/head/helmet/space/void/lancer,
+		/obj/item/clothing/suit/space/void/sol = /obj/item/clothing/head/helmet/space/void/sol,
+		/obj/item/clothing/suit/space/void/hephaestus = /obj/item/clothing/head/helmet/space/void/hephaestus,
+		/obj/item/clothing/suit/space/void/zenghu = /obj/item/clothing/head/helmet/space/void/zenghu,
+		/obj/item/clothing/suit/space/void/einstein = /obj/item/clothing/head/helmet/space/void/einstein,
+		/obj/item/clothing/suit/space/void/zavodskoi = /obj/item/clothing/head/helmet/space/void/zavodskoi
+	)
+	problist = list(
+		/obj/item/clothing/suit/space/void = 2,
+		/obj/item/clothing/suit/space/void/merc = 0.5,
+		/obj/item/clothing/suit/space/void/cruiser = 0.5,
+		/obj/item/clothing/suit/space/void/coalition = 1,
+		/obj/item/clothing/suit/space/void/lancer = 0.3,
+		/obj/item/clothing/suit/space/void/sol = 0.5,
+		/obj/item/clothing/suit/space/void/zavodskoi = 0.5,
+		/obj/item/clothing/suit/space/void/einstein = 0.5,
+		/obj/item/clothing/suit/space/void/hephaestus = 0.5,
+		/obj/item/clothing/suit/space/void/zenghu = 0.5
+	)
+
 /obj/random/voidsuit/Initialize(mapload, _damaged = 0)
 	damaged = _damaged
 	. = ..(mapload)
@@ -484,29 +530,9 @@
 		new helmet(loc)
 	else
 		log_debug("random_obj (voidsuit): Type [suit.type] was unable to spawn a matching helmet!")
-	if(!for_vox)
-		new /obj/item/clothing/shoes/magboots(loc)
-	else
-		new /obj/item/clothing/shoes/magboots/vox(loc)
-		new /obj/item/clothing/gloves/yellow/vox(loc)
+	new /obj/item/clothing/shoes/magboots(loc)
 	if (damaged && prob(60))
 		suit.create_breaches(pick(BRUTE, BURN), rand(1, 5))
-
-/obj/random/voidsuit/vox
-	name = "random vox voidsuit"
-	for_vox = TRUE
-	suitmap = list(
-		/obj/item/clothing/suit/space/vox/carapace = /obj/item/clothing/head/helmet/space/vox/carapace,
-		/obj/item/clothing/suit/space/vox/medic = /obj/item/clothing/head/helmet/space/vox/medic,
-		/obj/item/clothing/suit/space/vox/pressure = /obj/item/clothing/head/helmet/space/vox/pressure,
-		/obj/item/clothing/suit/space/vox/stealth = /obj/item/clothing/head/helmet/space/vox/stealth
-	)
-	problist = list(
-		/obj/item/clothing/suit/space/vox/carapace = 1,
-		/obj/item/clothing/suit/space/vox/medic = 1,
-		/obj/item/clothing/suit/space/vox/pressure = 1,
-		/obj/item/clothing/suit/space/vox/stealth = 1
-	)
 
 /obj/random/vendor
 	name = "random vendor"
@@ -517,7 +543,6 @@
 		/obj/machinery/vending/coffee = 1,
 		/obj/machinery/vending/snack = 1,
 		/obj/machinery/vending/cola = 1,
-		/obj/machinery/vending/cart = 1.5,
 		/obj/machinery/vending/cigarette = 1,
 		/obj/machinery/vending/medical = 1.2,
 		/obj/machinery/vending/phoronresearch = 0.7,
@@ -561,16 +586,6 @@
 			V.products[content] = round(V.products[content])
 
 	V.scan_id &= scan_id
-
-/obj/random/pda_cart/item_to_spawn()
-	var/list/options = typesof(/obj/item/cartridge)
-	var/type = pick(options)
-
-	//reroll syndicate cartridge once to make it less common
-	if (type == /obj/item/cartridge/syndicate)
-		type = pick(options)
-
-	return type
 
 /obj/random/glowstick
 	name = "random glowstick"
@@ -753,7 +768,7 @@
 		/obj/item/clothing/head/pumpkin/lantern = 0.4,
 		/obj/item/clothing/head/redcoat = 0.2,
 		/obj/item/clothing/head/richard = 0.3,
-		/obj/item/clothing/head/soft/rainbow = 0.7,
+		/obj/item/clothing/head/softcap/rainbow = 0.7,
 		/obj/item/clothing/head/syndicatefake = 0.5,
 		/obj/item/clothing/head/ushanka = 0.3,
 		/obj/item/clothing/head/witchwig = 0.5,
@@ -887,9 +902,11 @@
 		/obj/random/gloves = 2,
 		/obj/random/glowstick = 0.4,
 		/obj/random/hoodie = 0.5,
+		/obj/random/bandana = 0.5,
+		/obj/random/softcap = 0.5,
+		/obj/random/beret = 0.5,
 		/obj/random/junk = 0.4,
 		/obj/random/medical = 0.4,
-		/obj/random/pda_cart = 0.5,
 		/obj/random/powercell = 0.8,
 		/obj/random/smalltank = 0.5,
 		/obj/random/soap = 0.5,
@@ -913,8 +930,8 @@
 		/obj/item/clothing/gloves/chameleon = 1,
 		/obj/item/clothing/gloves/black = 10,
 
-		/obj/item/clothing/head/chameleon = 0.5,
-		/obj/item/clothing/head/soft/grey = 5,
+		/obj/item/clothing/head/softcap/chameleon = 0.5,
+		/obj/item/clothing/head/softcap = 5,
 
 		/obj/item/clothing/mask/chameleon = 1,
 		/obj/item/clothing/mask/gas/ = 10,
@@ -985,6 +1002,60 @@
 		/obj/item/clothing/suit/storage/hooded/wintercoat/miner = 3,
 		/obj/item/clothing/suit/storage/hooded/wintercoat/security = 2,
 		/obj/item/clothing/suit/storage/hooded/wintercoat/captain = 1
+	)
+
+/obj/random/bandana
+	name = "random bandana"
+	desc = "This is a random bandana."
+	icon = 'icons/obj/clothing/hats/bandanas.dmi'
+	icon_state = "bandana"
+	problist = list(
+		/obj/item/clothing/head/bandana/colorable/random = 5,
+		/obj/item/clothing/head/bandana/engineering = 3,
+		/obj/item/clothing/head/bandana/atmos = 3,
+		/obj/item/clothing/head/bandana/medical = 3,
+		/obj/item/clothing/head/bandana/science = 3,
+		/obj/item/clothing/head/bandana/hydro = 3,
+		/obj/item/clothing/head/bandana/cargo = 3,
+		/obj/item/clothing/head/bandana/miner = 3,
+		/obj/item/clothing/head/bandana/security = 2,
+		/obj/item/clothing/head/bandana/captain = 1
+	)
+
+/obj/random/softcap
+	name = "random softcap"
+	desc = "This is a random softcap."
+	icon = 'icons/obj/clothing/hats/soft_caps.dmi'
+	icon_state = "softcap"
+	problist = list(
+		/obj/item/clothing/head/softcap/colorable/random = 5,
+		/obj/item/clothing/head/softcap/engineering = 3,
+		/obj/item/clothing/head/softcap/atmos = 3,
+		/obj/item/clothing/head/softcap/medical = 3,
+		/obj/item/clothing/head/softcap/science = 3,
+		/obj/item/clothing/head/softcap/hydro = 3,
+		/obj/item/clothing/head/softcap/cargo = 3,
+		/obj/item/clothing/head/softcap/miner = 3,
+		/obj/item/clothing/head/softcap/security = 2,
+		/obj/item/clothing/head/softcap/captain = 1
+	)
+
+/obj/random/beret
+	name = "random beret"
+	desc = "This is a random beret."
+	icon = 'icons/obj/clothing/hats/berets.dmi'
+	icon_state = "beret"
+	problist = list(
+		/obj/item/clothing/head/beret/colorable/random = 5,
+		/obj/item/clothing/head/beret/engineering = 3,
+		/obj/item/clothing/head/beret/atmos = 3,
+		/obj/item/clothing/head/beret/medical = 3,
+		/obj/item/clothing/head/beret/science = 3,
+		/obj/item/clothing/head/beret/hydro = 3,
+		/obj/item/clothing/head/beret/cargo = 3,
+		/obj/item/clothing/head/beret/miner = 3,
+		/obj/item/clothing/head/beret/security = 2,
+		/obj/item/clothing/head/beret/captain = 1
 	)
 
 /obj/random/highvalue
@@ -1130,8 +1201,7 @@
 		/obj/random/action_figure						= 11,
 		/obj/random/plushie								= 44,
 		/obj/item/toy/cultsword							= 5,
-		/obj/item/toy/syndicateballoon					= 5,
-		/obj/item/toy/nanotrasenballoon					= 5,
+		/obj/random/balloon								= 22,
 		/obj/item/toy/katana							= 11,
 		/obj/item/toy/bosunwhistle						= 5,
 		/obj/item/storage/belt/champion			= 11,
@@ -1150,9 +1220,8 @@
 		/obj/item/eightball/broken						= 1,
 		/obj/item/spirit_board					= 5,
 		/obj/item/device/laser_pointer					= 1,
-		/obj/item/clothing/accessory/badge/press/plastic = 2
-
-
+		/obj/item/clothing/accessory/badge/press/plastic = 2,
+		/obj/item/storage/box/partypopper						= 11
 	)
 
 /obj/random/arcade/orion
@@ -1168,8 +1237,7 @@
 		/obj/item/toy/crossbow							= 11,
 		/obj/random/action_figure						= 11,
 		/obj/item/toy/cultsword							= 7,
-		/obj/item/toy/syndicateballoon					= 10,
-		/obj/item/toy/nanotrasenballoon					= 5,
+		/obj/random/balloon								= 22,
 		/obj/item/toy/katana							= 11,
 		/obj/random/plushie								= 55,
 		/obj/item/storage/belt/champion			= 11,
@@ -1426,7 +1494,7 @@
 	icon = 'icons/obj/items.dmi'
 	icon_state = "gift1"
 	spawnlist = list(
-		/obj/item/xmasgift/small = 0.5,
+		/obj/item/xmasgift = 0.5,
 		/obj/item/xmasgift/medium =  0.3,
 		/obj/item/xmasgift/large = 0.2
 	)
@@ -1620,4 +1688,17 @@
 		/obj/structure/reagent_dispensers/keg/beerkeg = 2,
 		/obj/structure/reagent_dispensers/keg/xuizikeg =  0.5,
 		/obj/structure/reagent_dispensers/keg/mead = 0.5
+	)
+
+/obj/random/pizzabox
+	name = "random pizzabox"
+	desc = "Contains a random pizzabox."
+	icon = 'icons/obj/food.dmi'
+	icon_state = "pizzabox1"
+	spawnlist = list(
+		/obj/item/pizzabox/margherita,
+		/obj/item/pizzabox/vegetable,
+		/obj/item/pizzabox/mushroom,
+		/obj/item/pizzabox/meat,
+		/obj/item/pizzabox/pineapple
 	)

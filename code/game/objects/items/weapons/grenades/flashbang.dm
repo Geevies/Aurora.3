@@ -41,7 +41,7 @@
 		eye_safety = M.eyecheck(TRUE)
 		if(ishuman(M))
 			var/mob/living/carbon/human/H = M
-			if(istype(H.l_ear, /obj/item/clothing/ears/earmuffs) || istype(H.r_ear, /obj/item/clothing/ears/earmuffs))
+			if(H.protected_from_sound())
 				ear_safety += 2
 			if(HULK in H.mutations)
 				ear_safety += 1
@@ -50,7 +50,7 @@
 
 //Flashing everyone
 	if(eye_safety < FLASH_PROTECTION_MODERATE)
-		flick("e_flash", M.flash)
+		M.flash_eyes()
 		M.Weaken(10)
 			//Vaurca damage 15/01/16
 		var/mob/living/carbon/human/H = M

@@ -2,10 +2,12 @@
 	name = SPECIES_UNATHI
 	short_name = "una"
 	name_plural = "Unathi"
+	category_name = "Unathi"
 	bodytype = BODYTYPE_UNATHI
 	icobase = 'icons/mob/human_races/unathi/r_lizard.dmi'
 	deform = 'icons/mob/human_races/unathi/r_def_lizard.dmi'
 	preview_icon = 'icons/mob/human_races/unathi/unathi_preview.dmi'
+	bandages_icon = 'icons/mob/bandage.dmi'
 	tail = "sogtail"
 	tail_animation = 'icons/mob/species/unathi/tail.dmi'
 	unarmed_types = list(
@@ -41,7 +43,7 @@
 	exhaust_threshold = 65
 
 	rarity_value = 3
-	breakcuffs = list(MALE)
+	break_cuffs = TRUE
 	mob_size = 10
 	climb_coeff = 1.35
 
@@ -113,4 +115,4 @@
 		return
 	var/obj/item/clothing/shoes/sandal/S = new /obj/item/clothing/shoes/sandal(H)
 	if(H.equip_to_slot_or_del(S,slot_shoes))
-		S.autodrobe_no_remove = 1
+		S.autodrobe_no_remove = TRUE

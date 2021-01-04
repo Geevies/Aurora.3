@@ -1712,7 +1712,48 @@ Follow by example and make good judgement based on length which list to include 
 			length = 2
 			chatname = "ponytail"
 
+/*
+/////////////////////////////////////
+/  =-----------------------------=  /
+/  == Hair Gradient Definitions ==  /
+/  =-----------------------------=  /
+/////////////////////////////////////
+*/
 
+/datum/sprite_accessory/hair_gradients
+	icon = 'icons/mob/hair_gradients.dmi'
+
+	none
+		name = "None"
+		icon_state = "none"
+
+	fade_up
+		name = "Fade (Up)"
+		icon_state = "fadeup"
+
+	fade_down
+		name = "Fade (Down)"
+		icon_state = "fadedown"
+
+	fade_right
+		name = "Fade (Right)"
+		icon_state = "faderight"
+
+	fade_left
+		name = "Fade (Left)"
+		icon_state = "fadeleft"
+
+	vertical_split_right
+		name = "Vertical Split (Right)"
+		icon_state = "vsplit_right"
+
+	vertical_split_left
+		name = "Vertical Split (Left)"
+		icon_state = "vsplit_left"
+
+	horizontal
+		name = "Horizontal Split"
+		icon_state = "hsplit"
 /*
 ///////////////////////////////////
 /  =---------------------------=  /
@@ -1730,7 +1771,7 @@ Follow by example and make good judgement based on length which list to include 
 		icon_state = "bald"
 		gender = NEUTER
 		species_allowed = list(/datum/species/human,/datum/species/human/offworlder,/datum/species/machine/shell,/datum/species/machine/shell/rogue,/datum/species/zombie,/datum/species/unathi,/datum/species/zombie/unathi,
-		/datum/species/tajaran,/datum/species/tajaran/zhan_khazan,/datum/species/tajaran/m_sai,/datum/species/zombie/tajara,/datum/species/skrell,/datum/species/zombie/skrell,/datum/species/vox)
+		/datum/species/tajaran,/datum/species/tajaran/zhan_khazan,/datum/species/tajaran/m_sai,/datum/species/zombie/tajara,/datum/species/skrell,/datum/species/zombie/skrell)
 
 	threeOclock
 		name = "3 O'clock Shadow"
@@ -1933,6 +1974,10 @@ Follow by example and make good judgement based on length which list to include 
 			icon_state = "unathi_bighorn"
 			length = 5
 			chatname = "horns"
+
+			una_bighorns_noside
+				name = "Unathi Big Horns (No Sides)"
+				icon_state = "unathi_bighorn_nosides"
 
 		una_chinhorn
 			name = "Unathi Chin Horn"
@@ -2346,42 +2391,7 @@ Follow by example and make good judgement based on length which list to include 
 			icon_state = "msai_victory"
 			chatname = "curls"
 
-//vox hair
-
-	vox_quills_kingly
-		icon = 'icons/mob/human_face/vox_hair.dmi'
-		name = "Kingly Vox Quills"
-		icon_state = "vox_kingly"
-		species_allowed = list(/datum/species/vox)
-		chatname = "quills"
-
-		vox_braid_long
-			name = "Vox Braid Long"
-			icon_state = "vox_braid_long"
-			chatname = "quills"
-
-		vox_braid_short
-			name = "Vox Braid Short"
-			icon_state = "vox_braid_short"
-			chatname = "quills"
-
-		vox_quills_short
-			name = "Short Vox Quills"
-			icon_state = "vox_shortquills"
-			chatname = "quills"
-
-		vox_quills_mohawk
-			name = "Quill Mohawk"
-			icon_state = "vox_mohawk"
-			chatname = "quills"
-
-		vox_stubble
-			name = "Vox Stubble"
-			icon_state = "vox_stubble"
-			chatname = "quills"
-
 //vaurca antennae
-
 	vaurca_classic
 		icon = 'icons/mob/human_face/vaurca_hair.dmi'
 		name = "Classic Antennae"
@@ -2972,6 +2982,13 @@ Follow by example and make good judgement based on length which list to include 
 		icon_state = "skr_tears"
 		body_parts = list(BP_HEAD)
 		species_allowed = list(/datum/species/skrell,/datum/species/zombie/skrell)
+		do_colouration = FALSE
+
+	skr_axiori_eyes
+		name = "Axiori Eyes"
+		icon_state = "skr_axiori_eyes"
+		body_parts = list(BP_HEAD)
+		species_allowed = list(/datum/species/skrell, /datum/species/zombie/skrell)
 		do_colouration = FALSE
 
 	skr_arms

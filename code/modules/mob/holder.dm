@@ -8,7 +8,6 @@ var/list/holder_mob_icon_cache = list()
 	randpixel = 0
 	center_of_mass = null
 	slot_flags = 0
-	sprite_sheets = list(BODYTYPE_VOX = 'icons/mob/species/vox/head.dmi')
 	origin_tech = null
 	drop_sound = null
 	var/mob/living/contained = null
@@ -402,8 +401,6 @@ var/list/holder_mob_icon_cache = list()
 	name = "kitten"
 	icon_state = "kitten"
 	icon_state_dead = "cat_kitten_dead"
-	slot_flags = SLOT_HEAD
-	w_class = ITEMSIZE_TINY
 	item_state = "kitten"
 
 /obj/item/holder/cat/penny
@@ -411,8 +408,6 @@ var/list/holder_mob_icon_cache = list()
 	desc = "An important cat, straight from Central Command."
 	icon_state = "penny"
 	icon_state_dead = "penny_dead"
-	slot_flags = SLOT_HEAD
-	w_class = ITEMSIZE_TINY
 	item_state = "penny"
 
 /obj/item/holder/carp/baby

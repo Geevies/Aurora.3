@@ -9,6 +9,7 @@
 	var/stat = 0 //Whether a mob is alive or dead. TODO: Move this to living - Nodrak
 	var/can_buckle = TRUE
 
+	var/obj/screen/cells = null
 	var/obj/screen/flash = null
 	var/obj/screen/blind = null
 	var/obj/screen/hands = null
@@ -16,6 +17,7 @@
 	var/obj/screen/purged = null
 	var/obj/screen/internals/internals = null
 	var/obj/screen/oxygen = null
+	var/obj/screen/paralysis_indicator = null
 	var/obj/screen/i_select = null
 	var/obj/screen/m_select = null
 	var/obj/screen/toxin = null
@@ -90,7 +92,7 @@
 	var/lying_prev = 0
 	var/canmove = 1
 	//Allows mobs to move through dense areas without restriction. For instance, in space or out of holder objects.
-	var/incorporeal_move = 0 //0 is off, 1 is normal, 2 is for ninjas.
+	var/incorporeal_move = INCORPOREAL_DISABLE
 	var/lastpuke = 0
 	var/unacidable = 0
 	var/list/pinned = list()            // List of things pinning this creature to walls (see living_defense.dm)
@@ -132,7 +134,7 @@
 	var/intent = null//Living
 	var/shakecamera = 0
 	var/a_intent = I_HELP//Living
-	var/m_intent = "walk"//Living
+	var/m_intent = M_WALK //Living
 	var/lastKnownIP = null
 	var/obj/buckled = null//Living
 	var/obj/item/l_hand = null//Living

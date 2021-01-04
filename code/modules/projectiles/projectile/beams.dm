@@ -246,8 +246,10 @@
 /obj/item/projectile/beam/mousegun/emag
 	name = "diffuse electrical arc"
 
-	taser_effect = 1
-	agony = 60
+	nodamage = FALSE
+	damage_type = BURN
+	damage = 15
+	agony = 30
 
 /obj/item/projectile/beam/mousegun/emag/mousepulse(turf/epicenter, range, log=0)
 	if(!epicenter)
@@ -280,6 +282,16 @@
 						A.gib()
 
 			to_chat(M, 'sound/effects/basscannon.ogg')
+	return TRUE
+
+/obj/item/projectile/beam/mousegun/xenofauna
+	nodamage = FALSE
+	damage = 10
+
+/obj/item/projectile/beam/mousegun/xenofauna/mousepulse(atom/target, range, log)
+	if(is_type_in_list(target, list(/mob/living/simple_animal/hostile/retaliate/cavern_dweller, /mob/living/simple_animal/hostile/carp, /mob/living/simple_animal/carp, /mob/living/simple_animal/hostile/giant_spider)))
+		var/mob/living/simple_animal/SA = target
+		SA.take_organ_damage(0, 20)
 	return TRUE
 
 /obj/item/projectile/beam/shotgun

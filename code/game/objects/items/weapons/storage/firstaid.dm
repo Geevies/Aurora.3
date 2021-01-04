@@ -137,7 +137,8 @@
 	starts_with = list(
 		/obj/item/stack/medical/bruise_pack = 2,
 		/obj/item/stack/medical/advanced/bruise_pack = 2,
-		/obj/item/reagent_containers/pill/bicaridine = 2,
+		/obj/item/reagent_containers/pill/bicaridine = 1,
+		/obj/item/reagent_containers/hypospray/autoinjector/coagzolug = 1,
 		/obj/item/device/healthanalyzer = 1
 	)
 
@@ -245,6 +246,6 @@ obj/item/storage/pill_bottle/butazoline
 	starts_with = list(/obj/item/reagent_containers/pill/minaphobin = 7)
 
 /obj/item/storage/pill_bottle/rmt
-	name = "bottle of 30u RMT pills"
-	desc = "Contains pills used to remedy the effects of prolonged zero-gravity adaptations."
-	starts_with = list(/obj/item/reagent_containers/pill/rmt = 7)
+	name = "bottle of 15u RMT pills"
+	desc = "Contains pills used to remedy the effects of prolonged zero-gravity adaptations. Do not exceed 30u dosage."
+	starts_with = list(/obj/item/reagent_containers/pill/rmt = 10) // 10x 15u RMT pills will last 4 hours.

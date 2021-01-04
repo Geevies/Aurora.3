@@ -79,6 +79,11 @@
 	l_hoodie["sleeveless hoodie"] = /obj/item/clothing/suit/storage/hooded/wintercoat/hoodie/sleeveless
 	gear_tweaks += new/datum/gear_tweak/path(l_hoodie)
 
+/datum/gear/suit/mars
+	display_name = "martian hoodie"
+	description = "An orange hoodie, typically worn in solidarity with Mars' recent misfortunes."
+	path = /obj/item/clothing/suit/storage/hooded/wintercoat/mars
+
 /datum/gear/suit/labcoat
 	display_name = "labcoat"
 	path = /obj/item/clothing/suit/storage/toggle/labcoat
@@ -94,13 +99,13 @@
 	display_name = "surgical apron"
 	path = /obj/item/clothing/suit/apron/surgery
 	cost = 1
-	allowed_roles = list("Scientist", "Chief Medical Officer", "Physician", "Surgeon", "Pharmacist", "Emergency Medical Technician", "Medical Resident", "Xenobiologist", "Roboticist", "Research Director", "Forensic Technician")
+	allowed_roles = list("Scientist", "Chief Medical Officer", "Physician", "Surgeon", "Pharmacist", "First Responder", "Medical Intern", "Xenobiologist", "Roboticist", "Research Director", "Forensic Technician")
 
 /datum/gear/suit/iacvest
 	display_name = "IAC vest"
 	description = "It's a lightweight vest. Made of a dark, navy mesh with highly-reflective white material, designed to be worn by the Interstellar Aid Corps."
 	path = /obj/item/clothing/suit/storage/iacvest
-	allowed_roles = list("Chief Medical Officer", "Physician", "Surgeon", "Pharmacist", "Emergency Medical Technician", "Medical Resident")
+	allowed_roles = list("Chief Medical Officer", "Physician", "Surgeon", "Pharmacist", "First Responder", "Medical Intern")
 	flags = GEAR_HAS_DESC_SELECTION
 
 /datum/gear/suit/poncho
@@ -212,9 +217,20 @@
 	allowed_roles = list("Head of Security")
 
 /datum/gear/suit/dominia_cape
-	display_name = "dominia cape"
+	display_name = "dominian cape"
 	path = /obj/item/clothing/accessory/poncho/dominia_cape
 	flags = GEAR_HAS_DESC_SELECTION
+
+/datum/gear/suit/dominia_cape/New()
+	..()
+	var/dominiacape = list()
+	dominiacape["dominian cape"] = /obj/item/clothing/accessory/poncho/dominia_cape
+	dominiacape["dominian cape, strelitz"] = /obj/item/clothing/accessory/poncho/dominia_cape/strelitz
+	dominiacape["dominian cape, volvalaad"] = /obj/item/clothing/accessory/poncho/dominia_cape/volvalaad
+	dominiacape["dominian cape, kazhkz"] = /obj/item/clothing/accessory/poncho/dominia_cape/kazhkz
+	dominiacape["dominian cape, caladius"] = /obj/item/clothing/accessory/poncho/dominia_cape/caladius
+	dominiacape["dominian cape, zhao"] = /obj/item/clothing/accessory/poncho/dominia_cape/zhao
+	gear_tweaks += new/datum/gear_tweak/path(dominiacape)
 
 /datum/gear/suit/dominia
 	display_name = "dominia coat and jacket selection"
@@ -305,9 +321,16 @@
 	gear_tweaks += new/datum/gear_tweak/path(cardigan)
 
 /datum/gear/suit/himeo
-	display_name = "himean coat"
+	display_name = "himean coat selection"
 	path = /obj/item/clothing/suit/storage/toggle/himeo
 	flags = GEAR_HAS_DESC_SELECTION
+
+/datum/gear/suit/himeo/New()
+	..()
+	var/coat = list()
+	coat["brown himean bekesha"] = /obj/item/clothing/suit/storage/toggle/himeo
+	coat["grey himean bekesha"] = /obj/item/clothing/suit/storage/toggle/himeo/grey
+	gear_tweaks += new/datum/gear_tweak/path(coat)
 
 /datum/gear/suit/vysoka
 	display_name = "chokha selection"
@@ -326,3 +349,8 @@
 	display_name = "submariner jacket"
 	path = /obj/item/clothing/suit/storage/toggle/overlay/submariner
 	flags = GEAR_HAS_NAME_SELECTION | GEAR_HAS_DESC_SELECTION | GEAR_HAS_COLOR_SELECTION
+
+/datum/gear/suit/gadpathur
+	display_name = "gadpathurian overcoat"
+	path = /obj/item/clothing/suit/storage/gadpathur
+	flags = GEAR_HAS_DESC_SELECTION

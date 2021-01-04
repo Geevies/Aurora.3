@@ -7,6 +7,8 @@
 		return FALSE
 
 	var/obj/item/target_slot = get_equipped_item(text2num(slot_to_strip))
+	if(istype(target_slot, /obj/item/clothing/ears/offear))
+		target_slot = (l_ear == target_slot ? r_ear : l_ear)
 
 	switch(slot_to_strip)
 		// Handle things that are part of this interface but not removing/replacing a given item.
@@ -61,7 +63,7 @@
 			if(istype(A, /obj/item/clothing/accessory/badge) || istype(A, /obj/item/clothing/accessory/medal))
 				user.visible_message("<span class='danger'>\The [user] tears off \the [A] from [src]'s [suit.name]!</span>")
 			attack_log += "\[[time_stamp()]\] <font color='orange'>Has had \the [A] removed by [user.name] ([user.ckey])</font>"
-			user.attack_log += "\[[time_stamp()]\] <font color='red'>Attempted to remove [name]'s ([ckey]) [A.name]</font>"
+			user.attack_log += "\[[time_stamp()]\] <span class='warning'>Attempted to remove [name]'s ([ckey]) [A.name]</span>"
 			suit.remove_accessory(user, A)
 			return 1
 
@@ -88,6 +90,9 @@
 
 	if(stripping)
 		admin_attack_log(user, src, "Attempted to remove \a [target_slot]", "Target of an attempt to remove \a [target_slot].", "attempted to remove \a [target_slot] from")
+		if((l_ear == target_slot || r_ear == target_slot) && (target_slot.slot_flags & SLOT_TWOEARS))
+			var/obj/item/clothing/ears/OE = (l_ear == target_slot ? r_ear : l_ear)
+			qdel(OE)
 		unEquip(target_slot)
 	else if(user.unEquip(held))
 		equip_to_slot_if_possible(held, text2num(slot_to_strip), 0, 1, 1)
@@ -116,7 +121,7 @@
 		to_chat(user, "<span class='warning'>\The [src]'s suit sensor controls are locked.</span>")
 		return
 	attack_log += text("\[[time_stamp()]\] <font color='orange'>Has had their sensors toggled by [user.name] ([user.ckey])</font>")
-	user.attack_log += text("\[[time_stamp()]\] <font color='red'>Attempted to toggle [name]'s ([ckey]) sensors</font>")
+	user.attack_log += text("\[[time_stamp()]\] <span class='warning'>Attempted to toggle [name]'s ([ckey]) sensors</span>")
 	suit.set_sensors(user)
 
 // Remove all splints.

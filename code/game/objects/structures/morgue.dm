@@ -339,8 +339,7 @@
 					M.emote("scream")
 				else
 					var/mob/living/carbon/C = M
-					if(C.can_feel_pain())
-						C.emote("scream")
+					C.emote("scream")
 			M.death(1)
 			M.ghostize()
 			qdel(M)
@@ -406,7 +405,7 @@
 	name = "crematorium igniter"
 	desc = "Burn baby burn!"
 	icon = 'icons/obj/power.dmi'
-	icon_state = "crema_switch"
+	icon_state = "light0"
 	req_access = list(access_crematorium)
 	id = 1
 	var/cremate_dir // something for mappers, setting will make a crematorium in one step in this direction toggle
@@ -415,6 +414,7 @@
 	return
 
 /obj/machinery/button/crematorium/attack_hand(mob/user)
+	playsound(src, /decl/sound_category/switch_sound, 30)
 	if(!allowed(user))
 		to_chat(user, SPAN_WARNING("Access denied."))
 		return

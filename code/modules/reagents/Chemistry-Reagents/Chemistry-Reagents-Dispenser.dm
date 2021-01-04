@@ -49,10 +49,7 @@
 	fallback_specific_heat = 1.048
 
 /datum/reagent/ammonia/affect_blood(var/mob/living/carbon/M, var/alien, var/removed)
-	if(alien == IS_VOX)
-		M.adjustOxyLoss(-removed * 10)
-	else
-		M.adjustToxLoss(removed * 1.5)
+	M.adjustToxLoss(removed * 1.5)
 
 /datum/reagent/carbon
 	name = "Carbon"
@@ -93,7 +90,7 @@
 
 /datum/reagent/copper/affect_ingest(var/mob/living/carbon/M, var/alien, var/removed)
 	if (alien & IS_SKRELL)
-		M.add_chemical_effect(CE_BLOODRESTORE, 4 * removed)
+		M.add_chemical_effect(CE_BLOODRESTORE, 3 * removed)
 
 /datum/reagent/alcohol //Parent class for all alcoholic reagents, though this one shouldn't be used anywhere.
 	name = null	// This null name should prevent alcohol from being added to global lists.
@@ -293,7 +290,7 @@
 
 /datum/reagent/iron/affect_ingest(var/mob/living/carbon/M, var/alien, var/removed)
 	if (!(alien & (IS_SKRELL | IS_VAURCA)))
-		M.add_chemical_effect(CE_BLOODRESTORE, 4 * removed)
+		M.add_chemical_effect(CE_BLOODRESTORE, 3 * removed)
 
 /datum/reagent/lithium
 	name = "Lithium"
@@ -316,7 +313,7 @@
 	reagent_state = LIQUID
 	color = "#484848"
 	ingest_met = REM*0.1
-	breathe_met = REM*0.4 
+	breathe_met = REM*0.4
 	breathe_mul = 2 //mercury vapours and skin absorption more dangerous than eating mercury.
 	touch_met = REM*0.1
 	touch_mul = 1.25
@@ -325,7 +322,7 @@
 
 	fallback_specific_heat = 0.631
 
-/datum/reagent/mercury/affect_blood(var/mob/living/carbon/M, var/alien, var/removed)	
+/datum/reagent/mercury/affect_blood(var/mob/living/carbon/M, var/alien, var/removed)
 	M.add_chemical_effect(CE_NEUROTOXIC, 2*removed)
 	if(dose > 1)
 		if(prob(dose/2))
@@ -333,7 +330,7 @@
 		M.confused = max(M.confused, 10)
 	if(dose > 4)
 		M.add_chemical_effect(CE_CLUMSY, 1)
-		if(prob(dose/4))			
+		if(prob(dose/4))
 			M.emote(pick("twitch", "shiver", "drool"))
 		if(prob(dose/4))
 			M.visible_message("<b>[M]</b> chuckles spontaneously.", "You chuckle spontaneously.")
@@ -463,8 +460,7 @@
 				if(affecting.take_damage(0, removed * power * 0.1))
 					H.UpdateDamageIcon()
 				if(prob(100 * removed / meltdose)) // Applies disfigurement
-					if (H.can_feel_pain())
-						H.emote("scream")
+					H.emote("scream")
 					H.status_flags |= DISFIGURED
 		else
 			M.take_organ_damage(0, removed * power * 0.1) // Balance. The damage is instant, so it's weaker. 10 units -> 5 damage, double for pacid. 120 units beaker could deal 60, but a) it's burn, which is not as dangerous, b) it's a one-use weapon, c) missing with it will splash it over the ground and d) clothes give some protection, so not everything will hit
@@ -473,9 +469,9 @@
 	if(O.unacidable)
 		return
 	if((istype(O, /obj/item) || istype(O, /obj/effect/plant)) && (volume > meltdose))
-		var/obj/effect/decal/cleanable/molten_item/I = new/obj/effect/decal/cleanable/molten_item(O.loc)
+		var/obj/effect/decal/cleanable/molten_item/I = new/obj/effect/decal/cleanable/molten_item(get_turf(O))
 		I.desc = "Looks like this was \an [O] some time ago."
-		for(var/mob/M in viewers(5, O))
+		for(var/mob/M in viewers(get_turf(O), 5))
 			to_chat(M, "<span class='warning'>\The [O] melts.</span>")
 		qdel(O)
 		remove_self(meltdose) // 10 units of acid will not melt EVERYTHING on the tile
@@ -553,7 +549,7 @@
 
 /datum/reagent/sulfur/affect_ingest(var/mob/living/carbon/M, var/alien, var/removed)
 	if (alien & IS_VAURCA)
-		M.add_chemical_effect(CE_BLOODRESTORE, 4 * removed)
+		M.add_chemical_effect(CE_BLOODRESTORE, 3 * removed)
 
 /datum/reagent/tungsten
 	name = "Tungsten"

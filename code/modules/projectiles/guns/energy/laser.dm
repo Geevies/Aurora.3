@@ -45,6 +45,7 @@ obj/item/gun/energy/retro
 	fire_sound = 'sound/weapons/laser1.ogg'
 	slot_flags = SLOT_BELT
 	w_class = ITEMSIZE_NORMAL
+	offhand_accuracy = 1
 	projectile_type = /obj/item/projectile/beam
 	fire_delay = 10 //old technology
 	can_turret = 1
@@ -66,6 +67,7 @@ obj/item/gun/energy/retro
 	fire_sound = 'sound/weapons/laser1.ogg'
 	slot_flags = SLOT_BELT
 	w_class = ITEMSIZE_NORMAL
+	offhand_accuracy = 2
 	projectile_type = /obj/item/projectile/beam
 	origin_tech = null
 	max_shots = 5 //to compensate a bit for self-recharging
@@ -199,14 +201,6 @@ obj/item/gun/energy/retro
 	can_turret = TRUE
 	turret_is_lethal = TRUE
 	turret_sprite_set = "laser"
-
-/obj/item/gun/energy/laser/shotgun/update_icon()
-	..()
-	if(wielded)
-		item_state = "[initial(icon_state)]-wielded"
-	else
-		item_state = initial(item_state)
-	update_held_icon()
 
 /obj/item/gun/energy/laser/shotgun/research
 	name = "expedition shotgun"

@@ -56,7 +56,6 @@
 	fire_sound = 'sound/weapons/gunshot/gunshot_shotgun2.ogg'
 	is_wieldable = TRUE
 	var/recentpump = 0 // to prevent spammage
-	var/has_wield_state = TRUE
 	var/rack_sound = 'sound/weapons/shotgun_pump.ogg'
 	var/rack_verb = "pump"
 
@@ -83,20 +82,13 @@
 		playsound(src.loc, chambered.drop_sound, DROP_SOUND_VOLUME, FALSE, required_asfx_toggles = ASFX_DROPSOUND)
 		chambered = null
 
-	if(loaded.len)
+	if(length(loaded))
 		var/obj/item/ammo_casing/AC = loaded[1] //load next casing.
 		loaded -= AC //Remove casing from loaded list.
 		chambered = AC
 
+	update_maptext()
 	update_icon()
-
-/obj/item/gun/projectile/shotgun/pump/update_icon()
-	..()
-	if(wielded && has_wield_state)
-		item_state = "[icon_state]-wielded"
-	else
-		item_state = "[icon_state]"
-	update_held_icon()
 
 /obj/item/gun/projectile/shotgun/pump/combat
 	name = "combat shotgun"
@@ -158,14 +150,6 @@
 		var/datum/firemode/new_mode = switch_firemodes(user)
 		if(new_mode)
 			to_chat(user, SPAN_NOTICE("\The [src] is now set to [new_mode.name]."))
-
-/obj/item/gun/projectile/shotgun/doublebarrel/update_icon()
-	..()
-	if(wielded && has_wield_state)
-		item_state = "[icon_state]-wielded"
-	else
-		item_state = "[icon_state]"
-	update_held_icon()
 
 /obj/item/gun/projectile/shotgun/doublebarrel/pellet
 	ammo_type = /obj/item/ammo_casing/shotgun/pellet

@@ -308,11 +308,11 @@
 					update_icons_required = TRUE
 			if(H.l_ear && washears)
 				if(H.l_ear.clean_blood())
-					H.update_inv_ears(0)
+					H.update_inv_l_ear(0)
 					update_icons_required = TRUE
 			if(H.r_ear && washears)
 				if(H.r_ear.clean_blood())
-					H.update_inv_ears(0)
+					H.update_inv_r_ear(0)
 					update_icons_required = TRUE
 			if(H.belt)
 				if(H.belt.clean_blood())
@@ -396,9 +396,10 @@
 	icon = 'icons/obj/watercloset.dmi'
 	icon_state = "sink"
 	desc = "A sink used for washing one's hands and face."
+	desc_info = "You can right-click this and change the amount transferred per use."
 	anchored = 1
 	var/busy = 0 	//Something's being washed at the moment
-	var/amount_per_transfer_from_this = 10
+	var/amount_per_transfer_from_this = 300
 	var/possible_transfer_amounts = list(5,10,15,25,30,50,60,100,120,250,300)
 
 /obj/structure/sink/verb/set_APTFT() //set amount_per_transfer_from_this
@@ -453,6 +454,9 @@
 
 	// Filling/emptying open reagent containers
 	var/obj/item/reagent_containers/RG = O
+	if (istype(RG, /obj/item/reagent_containers/glass/rag))
+		return
+
 	if (istype(RG) && RG.is_open_container())
 		var/atype = alert(usr, "Do you want to fill or empty \the [RG] at \the [src]?", "Fill or Empty", "Fill", "Empty", "Cancel")
 
@@ -550,7 +554,7 @@
 	if(!I) return 								//Item's been destroyed while washing
 	if(user.get_active_hand() != I) return		//Person has switched hands or the item in their hands
 
-	O.clean_blood()
+	I.clean_blood()
 	user.visible_message( \
 		SPAN_NOTICE("[user] washes \a [I] using \the [src]."), \
 		SPAN_NOTICE("You wash \a [I] using \the [src]."))
