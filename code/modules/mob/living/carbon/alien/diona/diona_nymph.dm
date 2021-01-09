@@ -24,7 +24,6 @@
 	meat_type = /obj/item/reagent_containers/food/snacks/meat/dionanymph
 	meat_amount = 2
 	maxHealth = 50
-	health = 50
 	pass_flags = PASSTABLE
 
 	// Decorative head flower.
@@ -93,9 +92,9 @@
 	if(prob(flower_chance))
 		flower_color = get_random_colour(1)
 	. = ..(mapload)
-	//species = all_species[]
 	set_species(SPECIES_DIONA)
 	setup_dionastats()
+	health = maxHealth
 	eat_types |= TYPE_ORGANIC
 	nutrition = 0 //We dont start with biomass
 	update_verbs()
@@ -168,7 +167,6 @@
 	if(species.holder_type)
 		holder_type = species.holder_type
 
-	icon_state = lowertext(species.name)
 	species.handle_post_spawn(src)
 
 	regenerate_icons()
@@ -359,9 +357,17 @@
 			user.visible_message(SPAN_WARNING("[user] butchers \the [src] messily!"))
 			gib()
 
-
-
 /mob/living/carbon/alien/diona/adjustBruteLoss(var/amount)
 	if (status_flags & GODMODE)
 		return
 	health = min(health - amount, maxHealth)
+
+/mob/living/carbon/alien/diona/giant
+	name = "giant nymph"
+	icon_state = "giant_nymph"
+	maxHealth = 100
+
+/mob/living/carbon/alien/diona/tiny
+	name = "tiny nymph"
+	icon_state = "tiny_nymph"
+	maxHealth = 5
