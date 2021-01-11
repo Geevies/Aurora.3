@@ -22,7 +22,7 @@
 	)
 	inherent_verbs = list(
 		/mob/living/carbon/human/proc/consume_nutrition_from_air,
-		/mob/living/carbon/human/proc/create_structure,
+		/mob/living/carbon/proc/create_structure,
 		/mob/living/carbon/proc/sample
 	)
 	//primitive_form = "Nymph"

@@ -272,7 +272,7 @@
 	consume_nutrition_from_air = !consume_nutrition_from_air
 	to_chat(src, SPAN_NOTICE("You [consume_nutrition_from_air ? "started" : "stopped"] consuming air for nutrition."))
 
-/mob/living/carbon/human/proc/create_structure()
+/mob/living/carbon/proc/create_structure()
 	set category = "Abilities"
 	set name = "Create Structure"
 	set desc = "Expend nymphs or biomass to create structures."
@@ -282,20 +282,30 @@
 		log_debug("Non-Diona [name] had Create Structure ability.")
 		return
 
-	if(use_check_and_message(src))
+	if(use_check_and_message(src, USE_ALLOW_NON_ADV_TOOL_USR))
+		return
+
+	var/datum/dionastats/DS = get_dionastats()
+	if(!DS)
+		to_chat(src, SPAN_DANGER("You don't seem to have Dionastats. Report this to the developers."))
+		return
+	var/list/diona_structures = DS.buildable_structures.Copy()
+	if(!length(diona_structures))
+		to_chat(src, SPAN_WARNING("You don't have any structures to build."))
 		return
 
 	var/can_use_biomass
 	if(nutrition >= max_nutrition * 0.25)
 		can_use_biomass = TRUE
 
-	var/can_use_limbs = TRUE
+	var/can_use_limbs = length(organs_by_name)
 	var/list/viable_limbs = list(BP_L_ARM, BP_R_ARM)
-	for(var/limb in viable_limbs)
-		var/obj/item/organ/external/O = organs_by_name[limb]
-		if(!O)
-			can_use_limbs = FALSE
-			break
+	if(can_use_limbs)
+		for(var/limb in viable_limbs)
+			var/obj/item/organ/external/O = organs_by_name[limb]
+			if(!O)
+				viable_limbs -= limb
+		can_use_limbs = length(viable_limbs)
 
 	var/build_method // What are we using to build this thing?
 	if(can_use_biomass)
@@ -308,20 +318,12 @@
 		to_chat(src, SPAN_NOTICE("We do not have the nymphs nor the biomass to do this!"))
 		return
 
-	var/list/diona_structures = list(
-			"Wall" = /turf/simulated/wall/diona,
-			"Floor" = /turf/simulated/floor/diona,
-			"Glow Bulb" = /obj/structure/diona/bulb/unpowered,
-			"Cancel" = null
-			)
-
-	var/chosen_structure
-	chosen_structure = input("Choose a structure to grow.") in diona_structures
-	if(!chosen_structure || chosen_structure == "Cancel")
+	var/chosen_structure = input(src, "Choose a structure to grow.", "Biomass Building") as null|anything in diona_structures
+	if(!chosen_structure)
 		to_chat(src, SPAN_WARNING("We have elected to not grow anything right now."))
 		return
 
-	if(use_check_and_message(src))
+	if(use_check_and_message(src, USE_ALLOW_NON_ADV_TOOL_USR))
 		return
 
 	if(chosen_structure)
@@ -329,8 +331,8 @@
 
 	if(do_after(src, 50))
 		if(build_method == "biomass") // checking again, a lot can change in a short amount of time - geeves
-			if(nutrition >= max_nutrition * 0.25)
-				nutrition -= max_nutrition * 0.25
+			if(nutrition >= 150)
+				nutrition -= 150
 			else
 				to_chat(src, SPAN_WARNING("We do not have enough biomass!"))
 				return

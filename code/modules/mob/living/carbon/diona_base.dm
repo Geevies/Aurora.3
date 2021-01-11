@@ -619,6 +619,12 @@ var/list/diona_banned_languages = list(
 	var/list/sampled_DNA = list()
 	var/list/language_progress = list()
 
+	var/list/buildable_structures = list(
+		"Wall" = /turf/simulated/wall/diona,
+		"Floor" = /turf/simulated/floor/diona,
+		"Glow Bulb" = /obj/structure/diona/bulb/unpowered
+	)
+
 	var/obj/item/organ/internal/diona/node/light_organ = null //The organ this gestalt uses to receive light. This is left null for nymphs
 	var/obj/item/organ/internal/diona/nutrients/nutrient_organ = null //Organ
 	var/LMS = 1 //Lightmessage state. Switching between states gives the user a message
@@ -628,6 +634,19 @@ var/list/diona_banned_languages = list(
 	var/datum/callback/regen_extra
 	var/regen_limb_progress
 	var/pause_regen = FALSE
+
+/datum/dionastats/nymph
+	buildable_structures = list()
+
+/datum/dionastats/giant_nymph
+	buildable_structures = list(
+		"Coccoon" = /obj/structure/diona/coccoon
+	)
+
+/datum/dionastats/tiny_nymph
+	buildable_structures = list(
+		"Glow Bulb" = /obj/structure/diona/bulb/asteroid
+	)
 
 /datum/dionastats/proc/do_blood_suck(var/mob/living/carbon/user, var/mob/living/carbon/D)
 	user.visible_message(SPAN_DANGER("[user] is trying to bite [D.name]."), SPAN_DANGER("You start biting \the [D], you both must stay still!"))

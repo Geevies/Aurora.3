@@ -78,6 +78,39 @@
 /obj/structure/diona/vines/update_icon()
 	icon_state = "vines[growth]"
 
+/obj/structure/diona/coccoon
+	name = "diona coccoon"
+	desc = "A pulsating caccoon. Seems something is growing inside."
+	icon_state = "diona_coccoon"
+	density = FALSE
+	destroy_spawntype = /obj/structure/diona/vines
+	var/nymph_growth = 0
+
+/obj/structure/diona/coccoon/Initialize(mapload)
+	. = ..()
+	START_PROCESSING(SSprocessing, src)
+
+/obj/structure/diona/coccoon/Destroy()
+	STOP_PROCESSING(SSprocessing, src)
+	return ..()
+
+/obj/structure/diona/coccoon/examine(mob/user)
+	. = ..()
+	if(user.is_diona(user))
+		to_chat(user, SPAN_NOTICE("It seems to be [nymph_growth]% grown."))
+
+/obj/structure/diona/coccoon/process()
+	var/turf/T = get_turf(src)
+	if(T)
+		var/lumcount = T.get_uv_lumcount(0, 2) * 5.5
+		if(lumcount > 1)
+			nymph_growth += lumcount
+	if(nymph_growth >= 100)
+		visible_message(SPAN_NOTICE("\The [src] breaks apart and spawns a tiny diona nymph!"))
+		new /mob/living/carbon/alien/diona/tiny(loc)
+		destroy_spawntype = null
+		qdel(src)
+
 /obj/structure/diona/bulb
 	name = "glow bulb"
 	desc = "A glowing bulb of some sort."
@@ -87,6 +120,18 @@
 	light_color = "#557733"
 	density = FALSE
 	destroy_spawntype = /mob/living/carbon/alien/diona
+
+/obj/structure/diona/bulb/asteroid
+	icon_state = "asteroid_glowbulb"
+
+/obj/structure/diona/bulb/asteroid/Initialize(mapload)
+	. = ..()
+	if(prob(50))
+		icon_state = "asteroid_glowbulb_alt"
+	var/image/bulb_overlay = image(icon, "[icon_state]-bulb")
+	bulb_overlay.layer = EFFECTS_ABOVE_LIGHTING_LAYER
+	bulb_overlay.filters = filter(type="blur", size=1)
+	add_overlay(bulb_overlay)
 
 /obj/structure/diona/bulb/unpowered
 	name = "unpowered glow bulb"

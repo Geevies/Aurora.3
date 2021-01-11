@@ -1,9 +1,9 @@
 
-#define evolve_nutrition 5000 //when a nymph gathers this much nutrition, it can evolve into a gestalt
+#define evolve_nutrition 599 //when a nymph gathers this much nutrition, it can evolve into a gestalt
 
 //Diona time variables, these differ slightly between a gestalt and a nymph. All values are times in seconds
 /mob/living/carbon/alien/diona
-	max_nutrition = 5000
+	max_nutrition = 600
 	language = null
 	mob_size = 4
 	density = 0
@@ -36,6 +36,7 @@
 	var/dark_consciousness = 144              // How long this diona can stay on its feet and keep moving in darkness after energy is gone.
 	var/dark_survival = 216                   // How long this diona can survive in darkness after energy is gone, before it dies
 	var/datum/dionastats/DS
+	var/dionastats_type = /datum/dionastats
 	var/mob/living/carbon/gestalt = null      // If set, then this nymph is inside a gestalt
 	var/kept_clean = FALSE
 
@@ -208,7 +209,7 @@
 
 /mob/living/carbon/alien/diona/proc/setup_dionastats()
 	var/MLS = (1.5 / 2.1) //Maximum energy lost per second, in total darkness
-	DS = new/datum/dionastats()
+	DS = new dionastats_type()
 	DS.max_energy = energy_duration * MLS
 	DS.stored_energy = (DS.max_energy / 2)
 	DS.max_health = maxHealth
@@ -366,8 +367,21 @@
 	name = "giant nymph"
 	icon_state = "giant_nymph"
 	maxHealth = 100
+	dionastats_type = /datum/dionastats/giant_nymph
 
 /mob/living/carbon/alien/diona/tiny
 	name = "tiny nymph"
 	icon_state = "tiny_nymph"
 	maxHealth = 5
+	dionastats_type = /datum/dionastats/tiny_nymph
+
+/mob/living/carbon/alien/diona/tiny/attack_generic(mob/user, damage, attack_message)
+	if(!client)
+		var/mob/living/carbon/alien/diona/giant/DG = user
+		if(istype(DG))
+			to_chat(user, SPAN_NOTICE("You link with \the [src], they will follow you."))
+			master_nymph = DG
+			birds_of_feather += DG
+			DG.birds_of_feather += src
+			return
+	return ..()
