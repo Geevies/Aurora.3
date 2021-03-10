@@ -104,6 +104,7 @@
 	return mob_icon
 
 /obj/item/organ/external/head/get_additional_images(var/mob/living/carbon/human/H)
+	. = ..()
 	if(!H.mind)
 		return
 	var/datum/vampire/vampire = H.mind.antag_datums[MODE_VAMPIRE]
@@ -111,7 +112,7 @@
 		var/image/return_image = image(H.species.eyes_icons, H, "[H.species.eyes]_frenzy", EFFECTS_ABOVE_LIGHTING_LAYER)
 		return_image.appearance_flags = KEEP_APART
 		LAZYADD(additional_images, return_image)
-		return list(return_image)
+		return . + list(return_image)
 
 /obj/item/organ/external/proc/apply_markings(restrict_to_robotic = FALSE)
 	if (!cached_markings)
@@ -220,7 +221,11 @@
 	return mob_icon
 
 /obj/item/organ/external/proc/get_additional_images(var/mob/living/carbon/human/H)
-	return
+	if(isskrell(H))
+		var/image/return_image = image('icons/mob/human_races/r_skeleton.dmi', H, icon_name, BELOW_MOB_LAYER)
+		return_image.appearance_flags = KEEP_APART|RESET_ALPHA
+		LAZYADD(additional_images, return_image)
+		return list(return_image)
 
 /obj/item/organ/external/proc/cut_additional_images(var/mob/living/carbon/human/H)
 	if(LAZYLEN(additional_images))

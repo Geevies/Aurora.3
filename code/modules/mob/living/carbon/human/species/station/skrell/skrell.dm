@@ -15,6 +15,8 @@
 	primitive_form = SPECIES_MONKEY_SKRELL
 	unarmed_types = list(/datum/unarmed_attack/punch, /datum/unarmed_attack/stomp, /datum/unarmed_attack/kick)
 
+	alpha = 180
+
 	blurb = "An amphibious species, Skrell come from the star system known as Nralakk, coined 'Jargon' by \
 	humanity.<br><br>Skrell are a highly advanced, ancient race who place knowledge as the highest ideal. \
 	A dedicated meritocracy, the Skrell strive for ever-expanding knowledge of the galaxy and their place \

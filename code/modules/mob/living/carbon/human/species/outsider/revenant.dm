@@ -1,7 +1,5 @@
 /mob/living/carbon/human/revenant/Initialize(mapload)
 	. = ..(mapload, SPECIES_REVENANT)
-	alpha = 0
-	animate(src, 2 SECONDS, alpha = 180)
 
 /datum/species/revenant
 	name = SPECIES_REVENANT
@@ -18,6 +16,7 @@
 	deform = 'icons/mob/human_races/r_revenant.dmi'
 	eyes = "eyes_revenant"
 	has_floating_eyes = TRUE
+	alpha = 0
 
 	default_genders = list(NEUTER)
 
@@ -125,6 +124,7 @@
 	H.add_language(LANGUAGE_REVENANT_RIFTSPEAK)
 	var/datum/martial_art/revenant/R = new /datum/martial_art/revenant()
 	R.teach(H)
+	animate(H, 2 SECONDS, alpha = 180)
 
 /datum/species/revenant/get_random_name()
 	return "Revenant"
