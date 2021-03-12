@@ -1,0 +1,6 @@
+author: Geeves
+
+delete-after: True
+
+changes:
+  - tweak: "Borers can now only raise people to master level psionics, down from grandmaster."
