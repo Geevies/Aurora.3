@@ -150,7 +150,7 @@ var/const/NO_EMAG_ACT = -50
 /obj/item/card/id/proc/set_id_photo(var/mob/M)
 	front = getFlatIcon(M, SOUTH)
 	front.Scale(128, 128)
-	side = getFlatIcon(M, WEST)
+	side = getFlatIcon(M, WEST, always_use_defdir = TRUE)
 	side.Scale(128, 128)
 
 /mob/proc/set_id_info(var/obj/item/card/id/id_card)

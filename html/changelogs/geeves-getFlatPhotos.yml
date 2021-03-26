@@ -1,0 +1,7 @@
+author: Geeves
+
+delete-after: True
+
+changes:
+  - refactor: "Refactors how getFlatIcon works, this affects stuff like icons in the world moving to the chat or a UI, as well as taking photos."
+  - bugfix: "You can no longer take photos and see things you can't see from where you took it."

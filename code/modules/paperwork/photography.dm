@@ -210,8 +210,10 @@ var/global/photo_count = 0
 		on = 1
 
 //Proc for capturing check
-/mob/living/proc/can_capture_turf(turf/T)
-	return TRUE	// DVIEW will do sanity checks, we've got no special checks.
+/mob/living/proc/can_capture_turf(turf/T, var/list/view)
+	if(T in view)
+		return TRUE
+	return FALSE
 
 /obj/item/device/camera/proc/captureimage(atom/target, mob/living/user, flag)
 	var/obj/item/photo/p = createpicture(get_turf(target), user, flag)
@@ -221,8 +223,9 @@ var/global/photo_count = 0
 	var/mobs = ""
 	var/list/turfs = list()
 
+	var/list/view = view(world.view, user.client.eye)
 	FOR_DVIEW(var/turf/T, size, target, INVISIBILITY_LIGHTING)
-		if (user.can_capture_turf(T))
+		if (user.can_capture_turf(T, view))
 			mobs += get_mobs(T)
 			turfs += T
 
