@@ -106,8 +106,9 @@
 	if(!forceshow && istype(user,/mob/living/silicon/ai))
 		var/mob/living/silicon/ai/AI
 		can_read = get_dist(src, AI.camera) < 2
-	user << browse("<HTML><HEAD><TITLE>[name]</TITLE></HEAD><BODY bgcolor='[color]'>[can_read ? info : stars(info)][stamps]</BODY></HTML>", "window=[name]")
-	onclose(user, "[name]")
+
+	var/datum/vueui/ui = new(user, src, "?<div>[can_read ? info : stars(info)][stamps]</div>", 400, 500, capitalize_first_letters(name), list())
+	ui.open()
 
 /obj/item/paper/verb/rename()
 	set name = "Rename paper"
@@ -234,8 +235,8 @@
 /obj/item/paper/proc/updateinfolinks()
 	info_links = info
 	for (var/i = 1, i <= min(fields, 35), i++)
-		addtofield(i, "<font face=\"[deffont]\"><A href='?src=\ref[src];write=[i]'>write</A></font>", 1)
-	info_links = info_links + "<font face=\"[deffont]\"><A href='?src=\ref[src];write=end'>write</A></font>"
+		addtofield(i, "<vui-button :params=\"{ write: [i] }\"><font face=\"[deffont]\">Write</font></vui-button>", 1)
+	info_links = info_links + "<vui-button :params=\"{ write: \'end\' }\"><font face=\"[deffont]\">Write</font></vui-button>"
 
 
 /obj/item/paper/proc/clearpaper()
@@ -408,8 +409,7 @@
 
 		update_space(t)
 
-		usr << browse("<HTML><HEAD><TITLE>[name]</TITLE></HEAD><BODY bgcolor='[color]'>[info_links][stamps]</BODY></HTML>", "window=[name]") // Update the window
-
+		SSvueui.check_uis_for_change(src)
 		playsound(src, pick('sound/bureaucracy/pen1.ogg','sound/bureaucracy/pen2.ogg'), 20)
 		update_icon()
 		if(c)
@@ -482,7 +482,8 @@
 		if ( istype(RP) && RP.mode == 2 )
 			RP.RenamePaper(user,src)
 		else
-			user << browse("<HTML><HEAD><TITLE>[name]</TITLE></HEAD><BODY bgcolor='[color]'>[info_links][stamps]</BODY></HTML>", "window=[name]")
+			var/datum/vueui/ui = new(user, src, "?<div>[info_links][stamps]</div>", 400, 500, "Editing [capitalize_first_letters(name)]", list())
+			ui.open()
 		return
 
 	else if(istype(P, /obj/item/stamp) || istype(P, /obj/item/clothing/ring/seal))
