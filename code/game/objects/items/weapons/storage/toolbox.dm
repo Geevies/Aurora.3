@@ -205,6 +205,15 @@
 /obj/item/storage/toolbox/lunchbox/nt/filled
 	filled = TRUE
 
+/obj/item/storage/toolbox/lunchbox/idris
+	name = "Idris Incorporated lunchbox"
+	icon_state = "lunchbox_idris"
+	item_state = "lunchbox_idris"
+	desc = "A little lunchbox. This one features a durable holographic screen on the side that showcases the Idris logo."
+
+/obj/item/storage/toolbox/lunchbox/idris/filled
+	filled = TRUE
+
 /obj/item/storage/toolbox/lunchbox/nymph
 	name = "\improper diona nymph lunchbox"
 	icon_state = "lunchbox_dionanymph"
@@ -231,4 +240,14 @@
 	it, a famous Adhomian cartoon character. Approved by the People's Republic of Adhomai."
 
 /obj/item/storage/toolbox/lunchbox/schlorrgo/filled
+	filled = TRUE
+
+/obj/item/storage/toolbox/lunchbox/scc
+	name = "Stellar Corporate Conglomerate lunchbox"
+	desc = "A little lunchbox. This one is branded with the Stellar Corporate Conglomerate logo."
+	desc_fluff = "The Stellar Corporate Conglomerate, also known as Chainlink, is a joint alliance between the NanoTrasen Corporation, Hephaestus Industries, Idris Incorporated, Zeng-Hu Pharmaceuticals and Zavodskoi Interstellar to exercise an undisputed economic dominance over the Orion Spur."
+	icon_state = "lunchbox_scc"
+	item_state = "lunchbox_scc"
+
+/obj/item/storage/toolbox/lunchbox/scc/filled
 	filled = TRUE

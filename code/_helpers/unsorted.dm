@@ -55,6 +55,22 @@
 	else if(dx<0)
 		.+=360
 
+/proc/get_projectile_angle(atom/source, atom/target)
+	var/sx = source.x * world.icon_size
+	var/sy = source.y * world.icon_size
+	var/tx = target.x * world.icon_size
+	var/ty = target.y * world.icon_size
+	var/atom/movable/AM
+	if(ismovable(source))
+		AM = source
+		sx += AM.step_x
+		sy += AM.step_y
+	if(ismovable(target))
+		AM = target
+		tx += AM.step_x
+		ty += AM.step_y
+	return SIMPLIFY_DEGREES(arctan(ty - sy, tx - sx))
+
 //Returns location. Returns null if no location was found.
 /proc/get_teleport_loc(turf/location,mob/target,distance = 1, density = 0, errorx = 0, errory = 0, eoffsetx = 0, eoffsety = 0)
 /*
@@ -548,7 +564,10 @@ Turf and target are seperate in case you want to teleport some distance from a t
 
 	var/datum/progressbar/progbar
 	if (display_progress && user.client && (user.client.prefs.toggles_secondary & PROGRESS_BARS))
-		progbar = new(user, delay, target)
+		var/atom/loc_check = target
+		for(var/i = 0; !isturf(loc_check.loc) && i < 5; i++)
+			loc_check = target.loc
+		progbar = new(user, delay, loc_check)
 
 	var/endtime = world.time + delay
 	var/starttime = world.time
@@ -628,6 +647,13 @@ Turf and target are seperate in case you want to teleport some distance from a t
 	if (progbar)
 		qdel(progbar)
 
+/proc/atom_maintain_position(var/atom/A, var/atom/location)
+	if(QDELETED(A) || QDELETED(location))
+		return FALSE
+	if(A.loc != location)
+		return FALSE
+	return TRUE
+
 //Takes: Anything that could possibly have variables and a varname to check.
 //Returns: 1 if found, 0 if not.
 /proc/hasvar(var/datum/A, var/varname)
@@ -698,6 +724,21 @@ Turf and target are seperate in case you want to teleport some distance from a t
 	else if (zone == BP_R_HAND) return "right hand"
 	else if (zone == BP_L_FOOT) return "left foot"
 	else if (zone == BP_R_FOOT) return "right foot"
+	else return zone
+
+/proc/reverse_parse_zone(zone)
+	if(zone == "right hand") return BP_R_HAND
+	else if (zone == "left hand") return BP_L_HAND
+	else if (zone == "left arm") return BP_L_ARM
+	else if (zone == "right arm") return BP_R_ARM
+	else if (zone == "left leg") return BP_L_LEG
+	else if (zone == "right leg") return BP_R_LEG
+	else if (zone == "left foot") return BP_L_FOOT
+	else if (zone == "right foot") return BP_R_FOOT
+	else if (zone == "left hand") return BP_L_HAND
+	else if (zone == "right hand") return BP_R_HAND
+	else if (zone == "left foot") return BP_L_FOOT
+	else if (zone == "right foot") return BP_R_FOOT
 	else return zone
 
 /proc/get(atom/loc, type)
@@ -776,23 +817,6 @@ var/global/list/common_tools = list(
 	if (O.edge)
 		return 1
 	return 0
-
-//Returns 1 if the given item is capable of popping things like balloons, inflatable barriers, or cutting police tape.
-/proc/can_puncture(obj/item/W as obj)		// For the record, WHAT THE HELL IS THIS METHOD OF DOING IT?
-	if(!W)
-		return 0
-	if(W.sharp)
-		return 1
-	return ( \
-		W.sharp													  || \
-		W.isscrewdriver()                   || \
-		W.ispen()                           || \
-		W.iswelder()					  || \
-		istype(W, /obj/item/flame/lighter/zippo)			  || \
-		istype(W, /obj/item/flame/match)            		  || \
-		istype(W, /obj/item/clothing/mask/smokable/cigarette) 		      || \
-		istype(W, /obj/item/shovel) \
-	)
 
 /proc/is_surgery_tool(obj/item/W)
 	return istype(W, /obj/item/surgery)

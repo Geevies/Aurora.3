@@ -57,14 +57,16 @@
 #define CHAT_GHOSTRADIO 0x2000
 #define SHOW_TYPING     0x4000
 #define CHAT_NOICONS    0x8000
+#define CHAT_GHOSTLOOC	0x10000
 
 #define PARALLAX_SPACE 0x1
 #define PARALLAX_DUST  0x2
 #define PROGRESS_BARS  0x4
 #define PARALLAX_IS_STATIC 0x8
 #define FLOATING_MESSAGES 0x10
+#define HOTKEY_DEFAULT 0x20
 
-#define TOGGLES_DEFAULT (SOUND_ADMINHELP|SOUND_MIDI|SOUND_AMBIENCE|SOUND_LOBBY|CHAT_OOC|CHAT_DEAD|CHAT_GHOSTEARS|CHAT_GHOSTSIGHT|CHAT_PRAYER|CHAT_RADIO|CHAT_ATTACKLOGS|CHAT_LOOC)
+#define TOGGLES_DEFAULT (SOUND_ADMINHELP|SOUND_MIDI|SOUND_AMBIENCE|SOUND_LOBBY|CHAT_OOC|CHAT_DEAD|CHAT_GHOSTEARS|CHAT_GHOSTSIGHT|CHAT_PRAYER|CHAT_RADIO|CHAT_ATTACKLOGS|CHAT_LOOC|CHAT_GHOSTLOOC)
 
 //Sound effects toggles
 #define ASFX_AMBIENCE	1
@@ -201,6 +203,7 @@
 #define PROGRAM_ALL_REGULAR (PROGRAM_CONSOLE | PROGRAM_LAPTOP | PROGRAM_TABLET | PROGRAM_WRISTBOUND | PROGRAM_TELESCREEN)
 #define PROGRAM_ALL_HANDHELD (PROGRAM_TABLET | PROGRAM_WRISTBOUND)
 
+#define PROGRAM_STATE_DISABLED -1
 #define PROGRAM_STATE_KILLED 0
 #define PROGRAM_STATE_BACKGROUND 1
 #define PROGRAM_STATE_ACTIVE 2
@@ -238,12 +241,12 @@
 //Cargo random stock vars
 //These are used in randomstock.dm
 //And also for generating random loot crates in crates.dm
-#define TOTAL_STOCK 	200//The total number of items we'll spawn in cargo stock
+#define TOTAL_STOCK 	180//The total number of items we'll spawn in cargo stock
 
-#define STOCK_UNCOMMON_PROB	23
+#define STOCK_UNCOMMON_PROB	25
 //The probability, as a percentage for each item, that we'll choose from the uncommon spawns list
 
-#define STOCK_RARE_PROB	2.8
+#define STOCK_RARE_PROB	3
 //The probability, as a percentage for each item, that we'll choose from the rare spawns list
 
 //If an item is not rare or uncommon, it will be chosen from the common spawns list.
@@ -321,6 +324,7 @@
 #define USE_ALLOW_NON_ADJACENT 16
 #define USE_FORCE_SRC_IN_USER 32
 #define USE_DISALLOW_SILICONS 64
+#define USE_DISALLOW_SPECIALS 128 // revenants, zombies, etc
 
 #define USE_SUCCESS 0
 #define USE_FAIL_NON_ADJACENT 1
@@ -330,6 +334,7 @@
 #define USE_FAIL_INCAPACITATED 5
 #define USE_FAIL_NOT_IN_USER 6
 #define USE_FAIL_IS_SILICON 7
+#define USE_FAIL_IS_MOB_SPECIAL 8
 
 #define DEFAULT_SIGHT (SEE_SELF)
 

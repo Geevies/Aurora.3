@@ -81,7 +81,7 @@
 	if(W.isscrewdriver())  // Turning it into a crossbow
 		crafting = !crafting
 		if(!crafting)
-			to_chat(user, SPAN_NOTICE("You reassemble the RFD"))
+			to_chat(user, SPAN_NOTICE("You reassemble the RFD."))
 		else
 			to_chat(user, SPAN_NOTICE("The RFD can now be modified."))
 		src.add_fingerprint(user)
@@ -110,9 +110,9 @@
 			var/obj/item/gun/launcher/crossbow/RFD/CB = new(get_turf(user)) // can be found in crossbow.dm
 			forceMove(CB)
 			CB.stored_matter = src.stored_matter
+			user.drop_from_inventory(src)
 			qdel(src)
 			user.put_in_hands(CB)
-			add_fingerprint(user)
 			return
 	..()
 
@@ -336,6 +336,7 @@ RFD Construction-Class
 /obj/item/rfd/construction/mounted/can_use(var/mob/user,var/turf/T)
 	return (user.Adjacent(T) && !user.stat && !user.restrained())
 
+
 /*
 RFD Service-Class
 */
@@ -441,13 +442,16 @@ RFD Mining-Class
 	icon_state = "rfd-m"
 	item_state = "rfd-m"
 
-/obj/item/rfd/mining/afterattack(atom/A, mob/user, proximity)
+/obj/item/rfd/mining/attack_self(mob/user)
+	return
+
+/obj/item/rfd/mining/afterattack(atom/A, mob/user, proximity, click_parameters, var/report_duplicate = TRUE)
 	if(!proximity)
 		return
 
 	if(isrobot(user))
 		var/mob/living/silicon/robot/R = user
-		if(R.stat || !R.cell || R.cell.charge <= 500)
+		if(R.stat || !R.cell || R.cell.charge <= 200)
 			if(last_fail <= world.time - 20) //Spam limiter.
 				last_fail = world.time
 				to_chat(user, SPAN_WARNING("You are unable to produce enough charge to use \the [src]!"))
@@ -467,7 +471,8 @@ RFD Mining-Class
 		return
 
 	if(locate(/obj/structure/track) in A)
-		to_chat(user, SPAN_WARNING("There is already a track on \the [A]!"))
+		if(report_duplicate)
+			to_chat(user, SPAN_WARNING("There is already a track on \the [A]!"))
 		return
 
 	playsound(src.loc, 'sound/machines/click.ogg', 10, 1)
@@ -480,10 +485,12 @@ RFD Mining-Class
 	if(isrobot(user))
 		var/mob/living/silicon/robot/R = user
 		if(R.cell)
-			R.cell.use(500)
+			R.cell.use(200)
 	else
 		stored_matter--
 		to_chat(user, SPAN_NOTICE("The RFD now holds <b>[stored_matter]/30</b> fabrication-units."))
+
+	return TRUE
 
 
 // Malf AI RFD Transformer.
@@ -540,6 +547,8 @@ RFD Mining-Class
 		var/mob/living/silicon/robot/R = user
 		if(R.cell)
 			R.cell.use(used_energy)
+
+	return TRUE
 
 
 /*

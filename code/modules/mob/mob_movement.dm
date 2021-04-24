@@ -268,22 +268,22 @@
 
 		move_delay = world.time - leftover//set move delay
 
-		if (mob.buckled)
-			if(istype(mob.buckled, /obj/vehicle))
+		if (mob.buckled_to)
+			if(istype(mob.buckled_to, /obj/vehicle))
 				//manually set move_delay for vehicles so we don't inherit any mob movement penalties
 				//specific vehicle move delays are set in code\modules\vehicles\vehicle.dm
 				move_delay = world.time
 				//drunk driving
 				if(mob.confused && prob(25))
 					direct = pick(cardinal)
-				return mob.buckled.relaymove(mob,direct)
+				return mob.buckled_to.relaymove(mob,direct)
 
 			//TODO: Fuck wheelchairs.
 			//Toss away all this snowflake code here, and rewrite wheelchairs as a vehicle.
-			else if(istype(mob.buckled, /obj/structure/bed/chair/wheelchair))
+			else if(istype(mob.buckled_to, /obj/structure/bed/chair/wheelchair))
 				var/min_move_delay = 0
-				if(ishuman(mob.buckled))
-					var/mob/living/carbon/human/driver = mob.buckled
+				if(ishuman(mob.buckled_to))
+					var/mob/living/carbon/human/driver = mob.buckled_to
 					var/obj/item/organ/external/l_hand = driver.get_organ(BP_L_HAND)
 					var/obj/item/organ/external/r_hand = driver.get_organ(BP_R_HAND)
 					if((!l_hand || l_hand.is_stump()) && (!r_hand || r_hand.is_stump()))
@@ -293,16 +293,18 @@
 				if(mob.confused && prob(25))
 					direct = pick(cardinal)
 				move_delay += max((mob.movement_delay() + config.walk_speed) * config.walk_delay_multiplier, min_move_delay)
-				return mob.buckled.relaymove(mob,direct)
+				return mob.buckled_to.relaymove(mob,direct)
 
 		var/tally = mob.movement_delay() + config.walk_speed
 
 		// Apply human specific modifiers.
 		var/mob_is_human = ishuman(mob)	// Only check this once and just reuse the value.
+		var/sprint_tally = 0
 		if (mob_is_human)
 			var/mob/living/carbon/human/H = mob
 			//If we're sprinting and able to continue sprinting, then apply the sprint bonus ontop of this
-			if (H.m_intent == "run" && (H.status_flags & GODMODE || H.species.handle_sprint_cost(H, tally))) //This will return false if we collapse from exhaustion
+			if (H.m_intent == M_RUN && (H.status_flags & GODMODE || H.species.handle_sprint_cost(H, tally, TRUE))) //This will return false if we collapse from exhaustion
+				sprint_tally = tally
 				tally = (tally / (1 + H.sprint_speed_factor)) * config.run_delay_multiplier
 			else
 				tally = max(tally * config.walk_delay_multiplier, H.min_walk_delay) //clamp walking speed if its limited
@@ -326,6 +328,8 @@
 		if(istype(mob.pulledby, /obj/structure/bed/chair/wheelchair) || istype(mob.pulledby, /obj/structure/janitorialcart))
 			move_delay += 1
 			return mob.pulledby.relaymove(mob, direct)
+
+		var/old_loc = mob.loc
 
 		//We are now going to move
 		moving = 1
@@ -376,6 +380,10 @@
 			G.adjust_position()
 
 		moving = 0
+
+		if(sprint_tally && mob.loc != old_loc)
+			var/mob/living/carbon/human/H = mob
+			H.species.handle_sprint_cost(H, sprint_tally, FALSE)
 
 	if(isobj(mob.loc) || ismob(mob.loc))	//Inside an object, tell it we moved
 		var/atom/O = mob.loc
@@ -524,7 +532,7 @@
 
 //return 1 if slipped, 0 otherwise
 /mob/proc/handle_spaceslipping()
-	if(prob(slip_chance(5)) && !buckled)
+	if(prob(slip_chance(5)) && !buckled_to)
 		to_chat(src, SPAN_WARNING("You slipped!"))
 		src.inertia_dir = src.last_move
 		step(src, src.inertia_dir)

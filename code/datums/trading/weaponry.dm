@@ -28,6 +28,8 @@
 		/obj/item/gun/projectile/revolver/deckard     = TRADER_THIS_TYPE,
 		/obj/item/gun/projectile/leyon                = TRADER_THIS_TYPE,
 		/obj/item/gun/projectile/automatic/x9         = TRADER_THIS_TYPE,
+		/obj/item/gun/projectile/automatic/rifle/carbine = TRADER_THIS_TYPE,
+		/obj/item/ammo_magazine/a556/carbine 			 = TRADER_THIS_TYPE,
 		/obj/item/ammo_magazine/c45m                         = TRADER_ALL,
 		/obj/item/ammo_magazine/c45m/empty                   = TRADER_BLACKLIST,
 		/obj/item/ammo_magazine/mc10mm                       = TRADER_ALL,
@@ -74,6 +76,7 @@
 		/obj/item/gun/energy/pistol                = TRADER_THIS_TYPE,
 		/obj/item/gun/energy/gun/nuclear           = TRADER_THIS_TYPE,
 		/obj/item/gun/energy/laser/shotgun         = TRADER_THIS_TYPE,
+		/obj/item/gun/energy/freeze                = TRADER_THIS_TYPE,
 		/obj/item/clothing/accessory/holster              = TRADER_ALL,
 		/obj/item/clothing/accessory/holster/thigh/fluff  = TRADER_BLACKLIST_ALL
 	)
@@ -143,9 +146,9 @@
 	)
 
 	possible_trading_items = list(
-		/obj/item/clothing/suit/armor/riot                        = TRADER_THIS_TYPE,
-		/obj/item/clothing/suit/armor/bulletproof                 = TRADER_THIS_TYPE,
-		/obj/item/clothing/suit/armor/laserproof                  = TRADER_THIS_TYPE,
+		/obj/item/clothing/suit/armor/carrier/riot                        = TRADER_THIS_TYPE,
+		/obj/item/clothing/suit/armor/carrier/ballistic                 = TRADER_THIS_TYPE,
+		/obj/item/clothing/suit/armor/carrier/ablative                  = TRADER_THIS_TYPE,
 		/obj/item/clothing/suit/armor/tactical                    = TRADER_THIS_TYPE,
 		/obj/item/clothing/suit/storage/vest                      = TRADER_THIS_TYPE,
 		/obj/item/clothing/head/helmet                            = TRADER_THIS_TYPE,

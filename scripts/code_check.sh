@@ -11,6 +11,15 @@ cd $1
 ERROR_COUNT=0
 echo "Starting Code Check" > code_error.log
 
+echo "Checking for unscoped style tags in VueUI views:" >> code_error.log
+grep -rP '<style[^>]*(?<!scoped)>' vueui/src/components/view >> code_error.log
+if [ $? -eq 0 ]; then
+  ERROR_COUNT=$(($ERROR_COUNT+1))
+  echo "FAIL: Found unscoped style tags in VueUI views" >> code_error.log
+else
+  echo "PASS: Found no unscoped style tags in VueUI views" >> code_error.log
+fi
+
 echo "Checking for step_x and step_y in maps:" >> code_error.log
 grep 'step_[xy]' maps/**/*.dmm >> code_error.log
 if [ $? -eq 0 ]; then
@@ -72,6 +81,15 @@ if [ $TO_WORLD_COUNT -ne $TO_WORLD_COUNT_FOUND ]; then
     echo "FAIL: to_world count $TO_WORLD_COUNT_FOUND does not match expected $TO_WORLD_COUNT" >> code_error.log
 else
     echo "PASS: to_world count matches" >> code_error.log
+fi
+
+echo "Checking for edge = 0/1 uses:" >> code_error.log
+grep -r '\bedge\s*=\s*\d' **/*.dm >> code_error.log
+if [ $? -eq 0 ]; then
+    ERROR_COUNT=$(($ERROR_COUNT+1))
+    echo "FAIL: Found edge = 0/1 in code" >> code_error.log
+else
+    echo "PASS: Did not find edge = 0/1 in code:" >> code_error.log
 fi
 
 echo "Found $ERROR_COUNT Errors while performing code check"

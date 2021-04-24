@@ -1,4 +1,4 @@
-#define SMALL_FONTS(FONTSIZE, MSG) "<span style=\"font-family: 'Small Fonts'; -dm-text-outline: 1 black; font-size: [FONTSIZE];\">[MSG]</span>"
+#define SMALL_FONTS(FONTSIZE, MSG) "<span style=\"font-family: 'Small Fonts'; -dm-text-outline: 1 black; font-size: [FONTSIZE]px;\">[MSG]</span>"
 
 /*
  * Holds procs designed to help with filtering text
@@ -396,6 +396,7 @@
 	var/list/tagname_to_class = list(
 		"OOC" = "ooc",
 		"LOOC" = "looc",
+		"ALOOC" = "adminlooc",
 		"DEV" = "dev",
 		"ADMIN" = "admin",
 		"MOD" = "mod",
@@ -546,6 +547,11 @@
 	t = replacetext(t, "</I>", "\[/i\]")
 	t = replacetext(t, "<U>", "\[u\]")
 	t = replacetext(t, "</U>", "\[/u\]")
+	t = replacetext(t, "<BR>", "\[br\]")
+	t = replacetext(t, "<HR>", "\[hr\]")
+	t = replacetext(t, "<ul>", "\[list\]")
+	t = replacetext(t, "</ul>", "\[/list\]")
+	t = replacetext(t, "<li>", "\[*\]")
 	t = replacetext(t, "<font size=\"4\">", "\[large\]")
 	t = replacetext(t, "</font>", "\[/large\]")
 	t = replacetext(t, "<font size = \"1\">", "\[small\]")

@@ -22,6 +22,7 @@
 	var/max_w_class = ITEMSIZE_NORMAL //Max size of objects that this object can store (in effect only if can_hold isn't set)
 	var/max_storage_space = 8 //The sum of the storage costs of all the items in this storage item.
 	var/storage_slots //The number of storage slots in this container.
+	var/force_column_number // the number of columns the storage item will appear to have
 	var/obj/screen/storage/boxes
 	var/obj/screen/storage/storage_start //storage UI
 	var/obj/screen/storage/storage_continue
@@ -84,12 +85,12 @@
 			return
 
 		switch(over_object.name)
-			if(BP_R_HAND)
+			if("right hand")
 				usr.u_equip(src)
-				usr.put_in_r_hand(src,FALSE)
-			if(BP_L_HAND)
+				usr.equip_to_slot_if_possible(src, slot_r_hand)
+			if("left hand")
 				usr.u_equip(src)
-				usr.put_in_l_hand(src,FALSE)
+				usr.equip_to_slot_if_possible(src, slot_l_hand)
 		src.add_fingerprint(usr)
 
 /obj/item/storage/proc/return_inv()
@@ -195,7 +196,7 @@
 	if(display_contents_with_number)
 		for(var/datum/numbered_display/ND in display_contents)
 			ND.sample_object.screen_loc = "[cx]:16,[cy]:16"
-			ND.sample_object.maptext = "<font color='white'>[(ND.number > 1)? "[ND.number]" : ""]</font>"
+			ND.sample_object.maptext = SMALL_FONTS(7, "[(ND.number > 1)? "[ND.number]" : ""]")
 			ND.sample_object.layer = SCREEN_LAYER+0.01
 			cx++
 			if (cx > (4+cols))
@@ -294,7 +295,7 @@
 		space_orient_objs(numbered_contents, defer_overlays)
 	else
 		var/row_num = 0
-		var/col_count = min(7,storage_slots) -1
+		var/col_count = force_column_number ? force_column_number : min(7, storage_slots) - 1
 		if (adjusted_contents > 7)
 			row_num = round((adjusted_contents-1) / 7) // 7 is the maximum allowed width.
 		src.slot_orient_objs(row_num, col_count, numbered_contents)
@@ -323,12 +324,12 @@
 
 	if(LAZYLEN(can_hold))
 		if(!is_type_in_list(W, can_hold))
-			if(!stop_messages && ! istype(W, /obj/item/hand_labeler))
+			if(!stop_messages && ! istype(W, /obj/item/device/hand_labeler))
 				to_chat(usr, "<span class='notice'>[src] cannot hold \the [W].</span>")
 			return 0
 		var/max_instances = can_hold[W.type]
 		if(max_instances && instances_of_type_in_list(W, contents, TRUE) >= max_instances)
-			if(!stop_messages && !istype(W, /obj/item/hand_labeler))
+			if(!stop_messages && !istype(W, /obj/item/device/hand_labeler))
 				to_chat(usr, "<span class='notice'>[src] has no more space specifically for \the [W].</span>")
 			return 0
 
@@ -523,8 +524,8 @@
 			to_chat(user, "<span class='warning'>Trying to place a loaded tray into [src] was a bad idea.</span>")
 			return
 
-	if(istype(W, /obj/item/hand_labeler))
-		var/obj/item/hand_labeler/HL = W
+	if(istype(W, /obj/item/device/hand_labeler))
+		var/obj/item/device/hand_labeler/HL = W
 		if(HL.mode == 1)
 			return
 
@@ -534,7 +535,7 @@
 /obj/item/storage/dropped(mob/user as mob)
 	return
 
-/obj/item/storage/attack_hand(mob/user as mob)
+/obj/item/storage/attack_hand(mob/user)
 	if(ishuman(user))
 		var/mob/living/carbon/human/H = user
 		if(H.l_store == src && !H.get_active_hand())	//Prevents opening if it's in a pocket.
@@ -550,7 +551,7 @@
 		src.open(user)
 	else
 		..()
-		for(var/mob/M in range(1))
+		for(var/mob/M in range(1, get_turf(src)) - user)
 			if (M.s_active == src)
 				src.close(M)
 	src.add_fingerprint(user)

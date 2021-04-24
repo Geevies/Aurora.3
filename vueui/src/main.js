@@ -2,10 +2,12 @@
  * Vue.js based ui framework for SS13
  * Made for Aurora, by Karolis K.
  */
+import "core-js/stable"
 import Vue from 'vue'
 import upperFirst from 'lodash/upperFirst'
 import camelCase from 'lodash/camelCase'
 
+import Plugin from './plugin'
 import Store from './store.js'
 import './assets/global.scss'
 import ByWin from './byWin'
@@ -30,6 +32,7 @@ requireComponent.keys().forEach(fileName => {
   )
 })
 
+Vue.use(Plugin)
 Vue.config.productionTip = false
 global.Vue = Vue
 

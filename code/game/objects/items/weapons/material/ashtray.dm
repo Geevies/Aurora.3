@@ -17,6 +17,26 @@
 	update_icon()
 	return
 
+/obj/item/material/ashtray/shatter()
+	..()
+	if(emptyout(get_turf(src)))
+		visible_message(SPAN_DANGER("The contents of [src] spill everywhere!"))
+
+/obj/item/material/ashtray/proc/emptyout(atom/dest)
+	if(!contents.len)
+		return FALSE
+	for (var/obj/O in contents)
+		O.forceMove(dest)
+	update_icon()
+	return TRUE
+
+/obj/item/material/ashtray/attack_self(mob/user)
+	var/turf/dest = get_turf(src)
+	if(emptyout(dest))
+		user.visible_message("<b>[user]</b> pours [src] out onto [dest].", SPAN_NOTICE("You pour [src] out onto [dest]."))
+		return
+	to_chat(user, SPAN_WARNING("[src] is empty, there's nothing to pour out!"))
+
 /obj/item/material/ashtray/update_icon()
 	color = null
 	cut_overlays()
@@ -50,7 +70,7 @@
 		if (istype(W,/obj/item/clothing/mask/smokable/cigarette))
 			var/obj/item/clothing/mask/smokable/cigarette/cig = W
 			if (cig.lit == TRUE)
-				src.visible_message("[user] crushes [cig] in \the [src], putting it out.")
+				user.visible_message("<b>[user]</b> crushes [cig] in [src], putting it out.", SPAN_NOTICE("You crush [cig] in [src], putting it out."))
 				playsound(src.loc, 'sound/items/cigs_lighters/cig_snuff.ogg', 50, 1)
 				STOP_PROCESSING(SSprocessing, cig)
 				var/obj/item/butt = new cig.type_butt(src)
@@ -60,16 +80,21 @@
 				//spawn(1)
 				//	TemperatureAct(150)
 			else if (cig.lit == FALSE)
-				to_chat(user, "You place [cig] in [src] without even smoking it. Why would you do that?")
+				user.visible_message(
+					"<b>[user]</b> places [cig] in [src] without even smoking it.",
+					SPAN_NOTICE("You place [cig] in [src] without even smoking it. Why would you do that?")
+				)
+		else
+			user.visible_message("<b>[user]</b> places [W] in [src].", SPAN_NOTICE("You place [W] in [src]."))
 
-		src.visible_message("[user] places [W] in [src].")
 		user.update_inv_l_hand()
 		user.update_inv_r_hand()
 		add_fingerprint(user)
 		update_icon()
 	else
 		health = max(0,health - W.force)
-		to_chat(user, "You hit [src] with [W].")
+		user.visible_message(user, SPAN_DANGER("[user] hits [src] with [W]!"), SPAN_DANGER("You hit [src] with [W]."))
+		playsound(get_turf(src), material.hitsound, 25)
 		if (health < 1)
 			shatter()
 	return
@@ -77,10 +102,8 @@
 /obj/item/material/ashtray/throw_impact(atom/hit_atom)
 	if (health > 0)
 		health = max(0,health - 3)
-		if (contents.len)
-			src.visible_message("<span class='danger'>\The [src] slams into [hit_atom], spilling its contents!</span>")
-		for (var/obj/item/clothing/mask/smokable/cigarette/O in contents)
-			O.forceMove(src.loc)
+		if(emptyout(get_turf(src)))
+			visible_message(SPAN_DANGER("[src] slams into [hit_atom], spilling its contents everywhere!"))
 		if (health < 1)
 			shatter()
 			return

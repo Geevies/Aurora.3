@@ -1010,27 +1010,6 @@ proc/admin_notice(var/message, var/rights)
 
 	item_to_spawn.spawn_item(get_turf(usr))
 
-/datum/admins/proc/check_custom_items()
-
-	set category = "Debug"
-	set desc = "Check the custom item list."
-	set name = "Check Custom Items"
-
-	if(!check_rights(R_SPAWN))	return
-
-	if(!custom_items)
-		to_chat(usr, "Custom item list is null.")
-		return
-
-	if(!custom_items.len)
-		to_chat(usr, "Custom item list not populated.")
-		return
-
-	for(var/assoc_key in custom_items)
-		to_chat(usr, "[assoc_key] has:")
-		var/list/current_items = custom_items[assoc_key]
-		for(var/datum/custom_item/item in current_items)
-			to_chat(usr, "- name: [item.name] icon: [item.item_icon] path: [item.item_path] desc: [item.item_desc]")
 
 /datum/admins/proc/spawn_plant(seedtype in SSplants.seeds)
 	set category = "Debug"
@@ -1358,21 +1337,22 @@ proc/admin_notice(var/message, var/rights)
 	set name = "Toggle Wind"
 	set desc = "Paralyzes a player. Or unparalyses them."
 
+	toggle_wind_paralysis(H, usr)
+
+/proc/toggle_wind_paralysis(var/mob/living/target, var/mob/user)
 	var/msg
-
-	if(check_rights(R_ADMIN|R_MOD))
-		if (H.paralysis == 0)
-			msg = "has paralyzed [key_name_admin(H)]."
-			H.visible_message("<font color='#002eb8'><b>OOC Information:</b></font> <span class='warning'>[H] has been winded by a member of staff! Please freeze all roleplay involving their character until the matter is resolved! Adminhelp if you have further questions.</span>", "<span class='warning'><b>You have been winded by a member of staff! Please stand by until they contact you!</b></span>")
-			H.paralysis = 8000
+	if(check_rights(R_ADMIN|R_MOD, user))
+		if (target.paralysis == 0)
+			msg = "has paralyzed [key_name_admin(target)]."
+			target.visible_message("<font color='#002eb8'><b>OOC Information:</b></font> <span class='warning'>[user] has been winded by a member of staff! Please freeze all roleplay involving their character until the matter is resolved! Adminhelp if you have further questions.</span>", "<span class='warning'><b>You have been winded by a member of staff! Please stand by until they contact you!</b></span>")
+			target.paralysis = 8000
 		else
-			if (alert("The player is currently winded. Do you want to unwind him?", "Unwind player?", "Yes", "No") == "No")
+			if (alert(user, "The player is currently winded. Do you want to unwind him?", "Unwind player?", "Yes", "No") == "No")
 				return
-
-			H.paralysis = 0
-			msg = "has unparalyzed [key_name_admin(H)]."
-			H.visible_message("<font color='#002eb8'><b>OOC Information:</b></font> <font color='green'>[H] has been unwinded by a member of staff!</font>", "<span class='warning'><b>You have been unwinded by a member of staff!</b></span>")
-		log_and_message_admins(msg)
+			target.paralysis = 0
+			msg = "has unparalyzed [key_name_admin(target)]."
+			target.visible_message("<font color='#002eb8'><b>OOC Information:</b></font> <font color='green'>[user] has been unwinded by a member of staff!</font>", "<span class='warning'><b>You have been unwinded by a member of staff!</b></span>")
+		log_and_message_admins(msg, user)
 		feedback_add_details("admin_verb", "WIND")
 
 /datum/admins/proc/toggle_round_spookyness()

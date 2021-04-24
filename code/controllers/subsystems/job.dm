@@ -17,6 +17,7 @@
 	var/list/datum/job/type_occupations = list()	//Dict of all jobs, keys are types
 	var/list/mob/abstract/new_player/unassigned = list()
 	var/list/job_debug = list()
+	var/list/bitflag_to_job = list()
 
 	var/list/factions = list()
 	var/list/name_factions = list()
@@ -59,6 +60,9 @@
 		occupations += job
 		name_occupations[job.title] = job
 		type_occupations[J] = job
+		if(!length(bitflag_to_job["[job.department_flag]"]))
+			bitflag_to_job["[job.department_flag]"] = list()
+		bitflag_to_job["[job.department_flag]"]["[job.flag]"] = job
 		if (config && config.use_age_restriction_for_jobs)
 			job.fetch_age_restriction()
 
@@ -342,9 +346,9 @@
 			LateSpawn(H, rank)
 
 		// Moving wheelchair if they have one
-		if(H.buckled && istype(H.buckled, /obj/structure/bed/chair/wheelchair))
-			H.buckled.forceMove(H.loc)
-			H.buckled.set_dir(H.dir)
+		if(H.buckled_to && istype(H.buckled_to, /obj/structure/bed/chair/wheelchair))
+			H.buckled_to.forceMove(H.loc)
+			H.buckled_to.set_dir(H.dir)
 
 	if(H.mind)
 		// If they're a department supervisor/head give them the account info for that department
@@ -660,7 +664,14 @@
 
 	if(spawnpos && istype(spawnpos))
 		if(spawnpos.check_job_spawning(rank))
-			H.forceMove(pick(spawnpos.turfs))
+			if(istype(spawnpos, /datum/spawnpoint/cryo) && (rank in command_positions))
+				var/datum/spawnpoint/cryo/C = spawnpos
+				if(length(C.command_turfs))
+					H.forceMove(pick(C.command_turfs))
+				else
+					H.forceMove(pick(spawnpos.turfs))
+			else
+				H.forceMove(pick(spawnpos.turfs))
 			. = spawnpos.msg
 			spawnpos.after_join(H)
 		else
@@ -741,7 +752,7 @@
 			else
 				permitted = TRUE
 
-			if(G.whitelisted && (!(H.species.name in G.whitelisted)))
+			if(!G.check_species_whitelist(H))
 				permitted = FALSE
 
 			if(G.faction && G.faction != H.employer_faction)
@@ -760,7 +771,7 @@
 					metadata = gear_test
 				else
 					metadata = list()
-				var/obj/item/CI = G.spawn_item(null,metadata)
+				var/obj/item/CI = G.spawn_item(null,metadata, H)
 				if (G.slot == slot_wear_mask || G.slot == slot_wear_suit || G.slot == slot_head)
 					if (leftovers)
 						leftovers += thing
@@ -799,7 +810,7 @@
 				metadata = gear_test
 			else
 				metadata = list()
-			var/obj/item/CI = G.spawn_item(H, metadata)
+			var/obj/item/CI = G.spawn_item(H, metadata, H)
 			if (H.equip_to_slot_or_del(CI, G.slot))
 				to_chat(H, "<span class='notice'>Equipping you with [thing]!</span>")
 				used_slots += G.slot
@@ -830,7 +841,7 @@
 					metadata = gear_test
 				else
 					metadata = list()
-				G.spawn_item(B, metadata)
+				G.spawn_item(B, metadata, H)
 				Debug("EIS/([H]): placed [thing] in [B].")
 
 		else
@@ -911,7 +922,7 @@
 				metadata = gear_test
 			else
 				metadata = list()
-			var/obj/item/organ/A = G.spawn_item(H, metadata)
+			var/obj/item/organ/A = G.spawn_item(H, metadata, H)
 			var/obj/item/organ/external/affected = H.get_organ(A.parent_organ)
 			A.replaced(H, affected)
 			H.update_body()
