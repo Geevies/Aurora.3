@@ -22,6 +22,14 @@
 	sort_category = "Xenowear - Unathi"
 	flags = GEAR_HAS_NAME_SELECTION | GEAR_HAS_DESC_SELECTION | GEAR_HAS_COLOR_SELECTION
 
+/datum/gear/suit/unathi_robe
+	display_name = "himation cloak"
+	path = /obj/item/clothing/suit/unathi/himation
+	cost = 1
+	whitelisted = list(SPECIES_UNATHI)
+	sort_category = "Xenowear - Unathi"
+	flags = GEAR_HAS_NAME_SELECTION | GEAR_HAS_DESC_SELECTION | GEAR_HAS_COLOR_SELECTION | GEAR_HAS_ADDITIONAL_COLOR_SELECTION
+
 /datum/gear/suit/unathi_robe/kilt
 	display_name = "wasteland kilt"
 	path = /obj/item/clothing/suit/unathi/robe/kilt
