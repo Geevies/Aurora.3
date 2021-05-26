@@ -19,6 +19,7 @@
 /obj/item/material/twohanded
 	w_class = ITEMSIZE_LARGE
 	var/wielded = 0
+	var/can_wield = TRUE
 	var/force_wielded = 0
 	var/force_unwielded
 	var/wield_sound = /decl/sound_category/generic_wield_sound
@@ -64,8 +65,8 @@
 	force = force_unwielded
 	throwforce = round(force*thrown_force_divisor)
 
-/obj/item/material/twohanded/New()
-	..()
+/obj/item/material/twohanded/Initialize()
+	. = ..()
 	update_icon()
 
 /obj/item/material/twohanded/mob_can_equip(M, slot, disable_warning = FALSE)
@@ -103,6 +104,9 @@
 /obj/item/material/twohanded/attack_self(mob/user as mob)
 
 	..()
+
+	if(!can_wield)
+		return
 
 	if(istype(user, /mob/living/carbon/human))
 		var/mob/living/carbon/human/H = user

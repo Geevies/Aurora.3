@@ -109,11 +109,14 @@
 /*
 	Helpers
 */
-/obj/item/clothing/proc/get_tag_color(var/set_color)
+/obj/item/proc/get_tag_color(var/set_color)
 	var/list/color_to_color = list("red" = COLOR_RED, "blue" = COLOR_BLUE)
 	color = color_to_color[set_color]
-	update_clothing_icon()
+	update_held_icon()
 
+/obj/item/clothing/get_tag_color(var/set_color)
+	. = ..()
+	update_clothing_icon()
 
 /*
 	Closets
@@ -142,3 +145,48 @@
 	helmet_path = /obj/item/clothing/head/helmet/riot/laser_tag/blue
 	armor_path = /obj/item/clothing/suit/armor/riot/laser_tag/blue
 	gun_path = /obj/item/gun/energy/lasertag/blue
+
+/obj/item/material/twohanded/pike/flag/laser_tag
+	name = "laser tag flag"
+	desc = "A flag to be used in laser tag games."
+	icon = 'icons/clothing/kit/laser_tag.dmi'
+	icon_state = "flag"
+	base_icon = "flag"
+	contained_sprite = TRUE
+	slot_flags = 0
+
+	attack_verb = list("harmlessly prodded")
+	can_wield = FALSE
+
+	unwielded_force_divisor = 0.1
+	force_divisor = 0.2
+
+	edge = FALSE
+	can_embed = FALSE
+
+	use_material_sound = FALSE
+
+	var/laser_tag_color = "red"
+	var/datum/weakref/parent_stand
+
+/obj/item/material/twohanded/pike/flag/laser_tag/Initialize()
+	. = ..()
+	get_tag_color(laser_tag_color)
+
+/obj/item/material/twohanded/pike/flag/laser_tag/attackby(obj/item/I, mob/user)
+	if(I.ismultitool())
+		var/chosen_color = input(user, "Which color do you wish your flag to be?", "Color Selection") as null|anything in list("blue", "red")
+		if(!chosen_color)
+			return
+		laser_tag_color = chosen_color
+		get_tag_color(chosen_color)
+		to_chat(user, SPAN_NOTICE("\The [src] is now a [chosen_color] laser tag flag."))
+		return
+	return ..()
+
+/obj/item/material/twohanded/pike/flag/laser_tag/blue
+	laser_tag_color = "blue"
+
+/atom/laser_tag_stand // thing's so useless it doesn't even need to move
+	name = "laser tag stand"
+	desc = "A stand for a laser tag flag."

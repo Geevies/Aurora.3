@@ -236,9 +236,9 @@ obj/item/gun/energy/retro
 		return
 	return ..()
 
-/obj/item/gun/energy/lasertag/proc/get_tag_color(var/set_color)
+/obj/item/gun/energy/lasertag/get_tag_color(var/set_color)
 	projectile_type = text2path("/obj/item/projectile/beam/laser_tag/[set_color]")
-	if(pin)
+	if(istype(pin, /obj/item/device/firing_pin/tag))
 		QDEL_NULL(pin)
 		var/pin_path = text2path("/obj/item/device/firing_pin/tag/[set_color]")
 		pin = new pin_path(src)
