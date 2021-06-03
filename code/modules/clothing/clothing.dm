@@ -28,6 +28,8 @@
 	var/material_armor_modifer = 1 // Adjust if you want seperate types of armor made from the same material to have different protectiveness (e.g. makeshift vs real armor)
 	var/refittable = TRUE // If false doesn't let the clothing be refit in suit cyclers
 
+	var/backing_icon = 'icons/clothing/misc/backing.dmi'
+	var/backing_icon_state = null
 
 /obj/item/clothing/Initialize(var/mapload, var/material_key)
 	. = ..(mapload)
@@ -266,6 +268,13 @@
 		if(!isnull(material.conductivity))
 			siemens_coefficient = between(0, material.conductivity / 10, 10)
 		slowdown = between(0, round(material.weight / 10, 0.1), 6)
+
+/obj/item/clothing/worn_overlays(icon_file)
+	. = ..()
+	if(backing_icon_state && backing_icon && ishuman(loc) && loc.alpha < 255) // todo: make it only show up when wearing, not holding
+		var/image/backing = image(backing_icon, null, backing_icon_state, BELOW_MOB_LAYER)
+		backing.color = get_average_color()
+		. += backing
 
 ///////////////////////////////////////////////////////////////////////
 // Ears: headsets, earmuffs and tiny objects

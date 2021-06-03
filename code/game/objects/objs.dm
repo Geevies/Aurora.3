@@ -255,3 +255,11 @@
 		. |= DAM_SHARP
 		if(damtype == BURN)
 			. |= DAM_LASER
+
+/obj/proc/get_average_color(var/no_transparency = TRUE)
+	var/icon/I = icon(icon, icon_state)
+	I.Scale(1, 1)
+	var/hex_color = I.GetPixel(1, 1)
+	if(no_transparency && length(hex_color) == 9)
+		return copytext(hex_color, 1, 8)
+	return hex_color

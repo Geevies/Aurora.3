@@ -38,6 +38,7 @@
 //Jackets with buttons
 /obj/item/clothing/suit/storage/toggle
 	var/opened = FALSE
+	backing_icon_state = "torso_backing"
 
 /obj/item/clothing/suit/storage/toggle/verb/toggle()
 	set name = "Toggle Coat Buttons"
