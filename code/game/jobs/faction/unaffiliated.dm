@@ -13,7 +13,13 @@
 		/datum/job/visitor,
 		/datum/job/journalist,
 		/datum/job/merchant,
+		/datum/job/merchant/assistant,
 		/datum/job/consular
+	)
+
+	titles_to_loadout = list(
+		"Merchant" = /datum/outfit/job/merchant,
+		"Merchant Assistant" = /datum/outfit/merchant_assistant
 	)
 
 	title_suffix = "INDEP"

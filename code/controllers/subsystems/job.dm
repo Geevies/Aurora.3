@@ -112,6 +112,7 @@
 		if(!latejoin)
 			position_limit = job.get_spawn_positions()
 		if((job.current_positions < position_limit) || position_limit == -1)
+			job.pre_spawn()
 			Debug("Player: [player] is now Rank: [rank], JCP:[job.current_positions], JPL:[position_limit]")
 			player.mind.assigned_role = rank
 			player.mind.role_alt_title = GetPlayerAltTitle(player, rank)
@@ -269,7 +270,7 @@
 
 			// Loop through all jobs
 			for(var/datum/job/job in shuffledoccupations) // SHUFFLE ME BABY
-				if(!job || (job.title in SSticker.mode.disabled_jobs) ) //11/2/16
+				if(!job || (job.title in SSticker.mode.disabled_jobs) || !job.can_spawn(player)) //11/2/16
 					continue
 
 				if(jobban_isbanned(player, job.title))

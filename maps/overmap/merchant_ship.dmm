@@ -1,0 +1,799 @@
+//MAP CONVERTED BY dmm2tgm.py THIS HEADER COMMENT PREVENTS RECONVERSION, DO NOT REMOVE
+"cm" = (
+/obj/item/stool/bar/padded,
+/obj/effect/landmark/start{
+	name = "Merchant Assistant"
+	},
+/turf/simulated/floor/wood,
+/area/merchant_ship)
+"cP" = (
+/obj/machinery/power/terminal{
+	dir = 1
+	},
+/obj/structure/cable{
+	d2 = 4;
+	icon_state = "0-4"
+	},
+/turf/simulated/floor/carpet/rubber,
+/area/merchant_ship)
+"dd" = (
+/obj/machinery/atmospherics/pipe/tank/carbon_dioxide{
+	dir = 8
+	},
+/turf/simulated/floor/carpet/rubber,
+/area/merchant_ship)
+"du" = (
+/obj/structure/cable{
+	d1 = 1;
+	d2 = 4;
+	icon_state = "1-4"
+	},
+/obj/machinery/light{
+	dir = 8
+	},
+/turf/simulated/floor/carpet/rubber,
+/area/merchant_ship)
+"ek" = (
+/obj/machinery/light,
+/turf/simulated/floor/wood,
+/area/merchant_ship)
+"ez" = (
+/turf/simulated/floor/plating,
+/area/merchant_ship)
+"eZ" = (
+/obj/structure/table/wood/gamblingtable,
+/turf/simulated/floor/wood,
+/area/merchant_ship)
+"gr" = (
+/obj/machinery/atmospherics/unary/engine{
+	dir = 1
+	},
+/turf/template_noop,
+/area/template_noop)
+"gz" = (
+/turf/simulated/floor/tiled/white,
+/area/merchant_ship)
+"gN" = (
+/obj/structure/cable{
+	d1 = 1;
+	d2 = 2;
+	icon_state = "1-2"
+	},
+/turf/simulated/floor/carpet/rubber,
+/area/merchant_ship)
+"gX" = (
+/obj/machinery/computer/ship/engines,
+/turf/simulated/floor/carpet/rubber,
+/area/merchant_ship)
+"gY" = (
+/obj/machinery/atmospherics/pipe/simple/hidden{
+	dir = 9
+	},
+/turf/simulated/wall/r_wall,
+/area/merchant_ship)
+"hY" = (
+/obj/machinery/light{
+	dir = 4
+	},
+/turf/simulated/floor/carpet/rubber,
+/area/merchant_ship)
+"ia" = (
+/obj/machinery/computer/ship/sensors,
+/turf/simulated/floor/shuttle/black,
+/area/merchant_ship)
+"ip" = (
+/obj/structure/railing/mapped,
+/turf/template_noop,
+/area/template_noop)
+"jt" = (
+/turf/simulated/floor/wood,
+/area/merchant_ship)
+"jI" = (
+/obj/structure/railing/mapped{
+	dir = 4
+	},
+/turf/template_noop,
+/area/template_noop)
+"jP" = (
+/turf/simulated/floor/shuttle/dark_blue,
+/area/merchant_ship)
+"la" = (
+/obj/machinery/atmospherics/pipe/simple/hidden{
+	dir = 6
+	},
+/turf/simulated/wall/r_wall,
+/area/merchant_ship)
+"lj" = (
+/obj/structure/cable{
+	d1 = 1;
+	d2 = 2;
+	icon_state = "1-2"
+	},
+/obj/structure/cable{
+	d1 = 1;
+	d2 = 8;
+	icon_state = "1-8"
+	},
+/turf/simulated/floor/carpet/rubber,
+/area/merchant_ship)
+"ou" = (
+/obj/structure/lattice/catwalk,
+/turf/template_noop,
+/area/merchant_ship)
+"oL" = (
+/obj/machinery/power/smes/buildable{
+	charge = 1500000
+	},
+/obj/structure/cable{
+	d2 = 4;
+	icon_state = "0-4"
+	},
+/turf/simulated/floor/carpet/rubber,
+/area/merchant_ship)
+"ps" = (
+/obj/effect/map_effect/airlock/e_to_w,
+/turf/simulated/wall/r_wall,
+/area/merchant_ship)
+"pw" = (
+/obj/effect/map_effect/wingrille_spawn/reinforced,
+/turf/simulated/floor/plating,
+/area/merchant_ship)
+"pE" = (
+/obj/structure/lattice/catwalk,
+/obj/machinery/shipsensors/weak,
+/turf/template_noop,
+/area/merchant_ship)
+"rn" = (
+/turf/simulated/wall/r_wall,
+/area/merchant_ship)
+"tG" = (
+/obj/item/stool/bar/padded,
+/obj/effect/landmark/start{
+	name = "Merchant"
+	},
+/turf/simulated/floor/wood,
+/area/merchant_ship)
+"wW" = (
+/obj/effect/landmark/start{
+	name = "LateJoinMerchant Assistant";
+	pixel_x = -16
+	},
+/obj/effect/landmark/start{
+	name = "LateJoinMerchant";
+	pixel_x = 16
+	},
+/turf/simulated/floor/tiled/white,
+/area/merchant_ship)
+"xU" = (
+/obj/machinery/atmospherics/pipe/simple/hidden{
+	dir = 9
+	},
+/turf/simulated/floor/wood,
+/area/merchant_ship)
+"Ar" = (
+/obj/machinery/light{
+	dir = 8
+	},
+/turf/simulated/floor/carpet/rubber,
+/area/merchant_ship)
+"BP" = (
+/obj/machinery/door/airlock/engineering{
+	name = "Engineering and Power"
+	},
+/turf/simulated/floor/carpet/rubber,
+/area/merchant_ship)
+"CQ" = (
+/obj/machinery/power/apc{
+	dir = 1;
+	name = "north bump";
+	pixel_y = 24;
+	req_access = list(110)
+	},
+/obj/structure/cable{
+	d2 = 2;
+	icon_state = "0-2"
+	},
+/turf/simulated/floor/carpet/rubber,
+/area/merchant_ship)
+"Ee" = (
+/obj/structure/cable{
+	d1 = 4;
+	d2 = 8;
+	icon_state = "4-8"
+	},
+/turf/simulated/floor/carpet/rubber,
+/area/merchant_ship)
+"Fa" = (
+/obj/machinery/door/airlock/highsecurity{
+	name = "Bridge"
+	},
+/turf/simulated/floor/wood,
+/area/merchant_ship)
+"FV" = (
+/obj/structure/bed/roller,
+/turf/simulated/floor/tiled/white,
+/area/merchant_ship)
+"Ho" = (
+/obj/effect/overmap/visitable/ship/merchant,
+/turf/simulated/floor/shuttle/dark_blue,
+/area/merchant_ship)
+"HZ" = (
+/obj/structure/table/reinforced,
+/turf/simulated/floor/wood,
+/area/merchant_ship)
+"IF" = (
+/obj/machinery/light{
+	dir = 4
+	},
+/turf/simulated/floor/tiled/white,
+/area/merchant_ship)
+"Jc" = (
+/turf/template_noop,
+/area/template_noop)
+"Ke" = (
+/turf/simulated/floor/carpet/rubber,
+/area/merchant_ship)
+"Np" = (
+/obj/machinery/atmospherics/pipe/manifold/hidden{
+	dir = 1
+	},
+/turf/simulated/wall/r_wall,
+/area/merchant_ship)
+"Ns" = (
+/obj/machinery/cryopod{
+	dir = 1
+	},
+/turf/simulated/floor/tiled/white,
+/area/merchant_ship)
+"NF" = (
+/obj/structure/cable{
+	d1 = 1;
+	d2 = 8;
+	icon_state = "1-8"
+	},
+/obj/machinery/alarm{
+	dir = 8;
+	pixel_x = 28
+	},
+/obj/structure/table/glass,
+/obj/item/stack/material/tritium/full,
+/turf/simulated/floor/carpet/rubber,
+/area/merchant_ship)
+"NG" = (
+/obj/machinery/atmospherics/pipe/simple/hidden{
+	dir = 6
+	},
+/turf/simulated/floor/carpet/rubber,
+/area/merchant_ship)
+"NT" = (
+/obj/machinery/door/airlock/medical{
+	name = "Infirmary"
+	},
+/turf/simulated/floor/carpet/rubber,
+/area/merchant_ship)
+"OQ" = (
+/obj/machinery/atmospherics/binary/pump/high_power/on,
+/turf/simulated/floor/carpet/rubber,
+/area/merchant_ship)
+"Qx" = (
+/obj/structure/cable{
+	d2 = 2;
+	icon_state = "0-2"
+	},
+/obj/structure/cable{
+	d1 = 1;
+	d2 = 8;
+	icon_state = "2-8"
+	},
+/obj/machinery/power/port_gen/pacman/mrs{
+	anchored = 1
+	},
+/turf/simulated/floor/carpet/rubber,
+/area/merchant_ship)
+"Rv" = (
+/obj/machinery/door/airlock{
+	name = "Cargo"
+	},
+/turf/simulated/floor/carpet/rubber,
+/area/merchant_ship)
+"RT" = (
+/obj/structure/cryofeed{
+	dir = 2
+	},
+/turf/simulated/floor/tiled/white,
+/area/merchant_ship)
+"Sc" = (
+/obj/structure/lattice/catwalk,
+/obj/machinery/light/small/emergency{
+	dir = 4
+	},
+/turf/template_noop,
+/area/merchant_ship)
+"Tn" = (
+/obj/machinery/light,
+/turf/simulated/floor/shuttle/dark_blue,
+/area/merchant_ship)
+"Ty" = (
+/obj/machinery/atmospherics/pipe/simple/hidden,
+/turf/simulated/floor/wood,
+/area/merchant_ship)
+"TH" = (
+/obj/structure/table/reinforced/steel,
+/turf/simulated/floor/shuttle/black,
+/area/merchant_ship)
+"Ub" = (
+/obj/machinery/atmospherics/pipe/manifold/hidden{
+	dir = 8
+	},
+/turf/simulated/floor/carpet/rubber,
+/area/merchant_ship)
+"Ue" = (
+/obj/machinery/computer/ship/helm,
+/turf/simulated/floor/shuttle/black,
+/area/merchant_ship)
+"Un" = (
+/obj/machinery/atmospherics/pipe/tank/air,
+/obj/machinery/door/window/brigdoor/westright{
+	dir = 2;
+	name = "Air Tank";
+	req_access = null;
+	req_one_access = null
+	},
+/obj/structure/window/reinforced{
+	dir = 4
+	},
+/turf/simulated/floor/wood,
+/area/merchant_ship)
+"Xe" = (
+/obj/structure/bed/chair/office/bridge/pilot{
+	dir = 1
+	},
+/turf/simulated/floor/shuttle/dark_blue,
+/area/merchant_ship)
+"YB" = (
+/obj/machinery/atmospherics/pipe/simple/hidden{
+	dir = 4
+	},
+/turf/simulated/wall/r_wall,
+/area/merchant_ship)
+
+(1,1,1) = {"
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+"}
+(2,1,1) = {"
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+"}
+(3,1,1) = {"
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+jI
+jI
+jI
+rn
+rn
+rn
+rn
+rn
+rn
+rn
+rn
+Jc
+Jc
+"}
+(4,1,1) = {"
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+ip
+ou
+Sc
+ou
+rn
+gz
+FV
+FV
+gz
+Ns
+RT
+rn
+Jc
+Jc
+"}
+(5,1,1) = {"
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+ip
+ou
+rn
+ez
+ps
+gz
+gz
+gz
+wW
+Ns
+RT
+rn
+Jc
+Jc
+"}
+(6,1,1) = {"
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+ip
+pE
+rn
+ez
+rn
+gz
+gz
+gz
+IF
+Ns
+RT
+rn
+Jc
+Jc
+"}
+(7,1,1) = {"
+Jc
+Jc
+rn
+rn
+rn
+rn
+rn
+rn
+rn
+ez
+rn
+rn
+NT
+rn
+rn
+rn
+rn
+rn
+Jc
+Jc
+"}
+(8,1,1) = {"
+Jc
+Jc
+rn
+TH
+TH
+TH
+rn
+Un
+Ty
+xU
+rn
+Ke
+Ke
+Ke
+Ar
+Ke
+Ke
+rn
+Jc
+Jc
+"}
+(9,1,1) = {"
+Jc
+Jc
+pw
+TH
+jP
+jP
+rn
+eZ
+tG
+jt
+rn
+Ke
+Ke
+Ke
+Ke
+Ke
+Ke
+la
+gr
+Jc
+"}
+(10,1,1) = {"
+Jc
+Jc
+pw
+Ue
+Xe
+jP
+Fa
+jt
+jt
+ek
+rn
+Ke
+Ke
+Ke
+Ke
+Ke
+Ke
+Np
+gr
+Jc
+"}
+(11,1,1) = {"
+Jc
+Jc
+pw
+ia
+Ho
+Tn
+rn
+HZ
+cm
+jt
+Rv
+Ke
+Ke
+Ke
+Ke
+Ke
+Ke
+Np
+gr
+Jc
+"}
+(12,1,1) = {"
+Jc
+Jc
+pw
+TH
+jP
+jP
+rn
+HZ
+cm
+jt
+rn
+Ke
+Ke
+Ke
+Ke
+Ke
+Ke
+Np
+gr
+Jc
+"}
+(13,1,1) = {"
+Jc
+Jc
+rn
+TH
+TH
+TH
+rn
+HZ
+HZ
+HZ
+rn
+Ke
+hY
+Ke
+Ke
+Ke
+Ke
+YB
+Jc
+Jc
+"}
+(14,1,1) = {"
+Jc
+Jc
+rn
+rn
+rn
+rn
+rn
+rn
+rn
+rn
+rn
+rn
+rn
+rn
+BP
+rn
+rn
+YB
+Jc
+Jc
+"}
+(15,1,1) = {"
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+rn
+CQ
+gN
+du
+Ke
+Ke
+Ke
+YB
+Jc
+Jc
+"}
+(16,1,1) = {"
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+rn
+oL
+cP
+Ee
+NG
+Ub
+OQ
+gY
+Jc
+Jc
+"}
+(17,1,1) = {"
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+rn
+Qx
+lj
+NF
+dd
+dd
+gX
+rn
+Jc
+Jc
+"}
+(18,1,1) = {"
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+rn
+rn
+rn
+rn
+rn
+rn
+rn
+rn
+Jc
+Jc
+"}
+(19,1,1) = {"
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+"}
+(20,1,1) = {"
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+Jc
+"}

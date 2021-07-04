@@ -35,6 +35,9 @@
 	var/list/alt_outfits = null           // A list of special outfits for the alt titles list("alttitle" = /datum/outfit)
 	var/list/blacklisted_species = null   // A blacklist of species that can't be this job
 
+
+/datum/job/proc/pre_spawn()
+
 //Only override this proc
 /datum/job/proc/after_spawn(mob/living/carbon/human/H)
 
@@ -196,6 +199,9 @@
 
 /datum/job/proc/has_alt_title(var/mob/H, var/supplied_title, var/desired_title)
 	return (supplied_title == desired_title) || (H.mind && H.mind.role_alt_title == desired_title)
+
+/datum/job/proc/can_spawn(mob/abstract/new_player/player)
+	return TRUE
 
 /datum/outfit/job
 	name = "Standard Gear"

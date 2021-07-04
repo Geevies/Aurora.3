@@ -1,0 +1,7 @@
+author: Geeves
+
+delete-after: True
+
+changes:
+  - rscadd: "The merchant now has their own ship."
+  - rscadd: "The merchant assistant is now a proper job, but can only spawn at roundstart if a merchant is readied."
