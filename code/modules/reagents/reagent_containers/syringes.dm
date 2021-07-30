@@ -47,6 +47,12 @@
 	LAZYCLEARLIST(targets)
 	return ..()
 
+/obj/item/reagent_containers/syringe/examine(mob/user, distance)
+	. = ..()
+	if(reagents.total_volume)
+		var/reagent_color = reagents.get_color()
+		to_chat(user, SPAN_NOTICE("\The [src] appears to be filled with <span style='color:[reagent_color];font-weight:bold'>[hex2colorname(reagent_color)]</span> liquid."))
+
 /obj/item/reagent_containers/syringe/process() // this only happens once it's used
 	if(prob(75)) // sorry, had to nerf this.
 		return
