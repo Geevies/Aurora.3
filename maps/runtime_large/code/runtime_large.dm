@@ -26,3 +26,7 @@
 		NETWORK_COMMAND,
 		NETWORK_ENGINEERING,
 	)
+
+/datum/map/runtime_large/finalize_load()
+	var/datum/map_template/kataphract_ship/KS = new
+	KS.load_new_z()

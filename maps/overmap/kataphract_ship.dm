@@ -1,3 +1,7 @@
+/datum/map_template/kataphract_ship
+	name = "Kataphract Ship"
+	mappath = 'maps/overmap/kataphract_ship.dmm'
+
 /obj/effect/overmap/visitable/ship/kataphract
 	name = "HMV Decimation"
 	desc = "An Unathi Foundation-Class vessel, this one bears the signatures worn by Hegemony Kataphracts."

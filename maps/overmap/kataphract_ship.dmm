@@ -27,7 +27,9 @@
 /turf/simulated/floor/plating,
 /area/kataphract_chapter/bridge)
 "af" = (
-/turf/space,
+/turf/simulated/wall/shuttle/dark/corner{
+	dir = 5
+	},
 /turf/simulated/wall/shuttle/dark/corner{
 	dir = 5
 	},
@@ -87,7 +89,9 @@
 /turf/simulated/floor/plating,
 /area/kataphract_chapter/bridge)
 "an" = (
-/turf/space,
+/turf/simulated/wall/shuttle/dark/corner{
+	dir = 9
+	},
 /turf/simulated/wall/shuttle/dark/corner{
 	dir = 9
 	},
@@ -732,7 +736,9 @@
 /turf/simulated/floor/plating,
 /area/kataphract_chapter/bridge)
 "ca" = (
-/turf/space,
+/turf/simulated/wall/shuttle/dark/corner{
+	dir = 9
+	},
 /turf/simulated/wall/shuttle/dark/corner{
 	dir = 9
 	},
@@ -763,7 +769,9 @@
 /turf/simulated/floor/tiled/dark,
 /area/kataphract_chapter/bridge)
 "cd" = (
-/turf/space,
+/turf/simulated/wall/shuttle/dark/corner{
+	dir = 5
+	},
 /turf/simulated/wall/shuttle/dark/corner{
 	dir = 5
 	},
@@ -4414,7 +4422,9 @@
 /turf/simulated/floor/tiled,
 /area/kataphract_chapter/engineering)
 "jC" = (
-/turf/space,
+/turf/simulated/wall/shuttle/dark/corner{
+	dir = 6
+	},
 /turf/simulated/wall/shuttle/dark/corner{
 	dir = 6
 	},
@@ -4672,7 +4682,9 @@
 /turf/simulated/floor/airless,
 /area/kataphract_chapter/port_solars)
 "jY" = (
-/turf/space,
+/turf/simulated/wall/shuttle/dark/corner{
+	dir = 6
+	},
 /turf/simulated/wall/shuttle/dark/corner{
 	dir = 6
 	},
@@ -6002,7 +6014,9 @@
 /turf/simulated/floor/reinforced,
 /area/kataphract_chapter/hangar)
 "mI" = (
-/turf/space,
+/turf/simulated/wall/shuttle/dark/corner{
+	dir = 10
+	},
 /turf/simulated/wall/shuttle/dark/corner{
 	dir = 10
 	},
@@ -6035,7 +6049,9 @@
 /turf/simulated/floor/tiled/dark,
 /area/kataphract_chapter/commissary)
 "mM" = (
-/turf/space,
+/turf/simulated/wall/shuttle/dark/corner{
+	dir = 10
+	},
 /turf/simulated/wall/shuttle/dark/corner{
 	dir = 10
 	},
@@ -6175,7 +6191,9 @@
 /turf/simulated/floor/airless,
 /area/kataphract_chapter/port_solars)
 "mY" = (
-/turf/space,
+/turf/simulated/wall/shuttle/dark/corner{
+	dir = 10
+	},
 /turf/simulated/wall/shuttle/dark/corner{
 	dir = 10
 	},
@@ -6537,7 +6555,7 @@
 /turf/simulated/floor/tiled,
 /area/kataphract_chapter/hull)
 "Ag" = (
-/turf/space,
+/turf/simulated/wall/r_wall,
 /turf/simulated/wall/r_wall,
 /area/kataphract_chapter/hull)
 "AR" = (
