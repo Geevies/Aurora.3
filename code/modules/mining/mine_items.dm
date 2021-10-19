@@ -25,12 +25,13 @@
 	new /obj/item/shovel(src)
 	new /obj/item/pickaxe(src)
 	new /obj/item/gun/custom_ka/frame01/prebuilt(src)
-	new /obj/item/ore_radar(src)
+	new /obj/item/ore_detector(src)
 	new /obj/item/key/minecarts(src)
 	new /obj/item/device/gps/mining(src)
 	new /obj/item/book/manual/ka_custom(src)
 	new /obj/item/clothing/accessory/storage/overalls/mining(src)
 	new /obj/item/clothing/head/bandana/miner(src)
+	new /obj/item/clothing/head/hardhat/orange(src)
 
 /******************************Lantern*******************************/
 
@@ -392,6 +393,20 @@
 	throwforce = 7.0
 	w_class = ITEMSIZE_SMALL
 
+/obj/item/shovel/gadpathur
+	name = "trench shovel"
+	desc = "A standard-issue Gadpathurian entrenching tool. Sharpened edges make this tool/weapon equally adept at breaking earth and collarbones."
+	icon_state = "gadpathur_shovel"
+	item_state = "gadpathur_shovel"
+	force = 10
+	w_class = ITEMSIZE_NORMAL
+	origin_tech = list(TECH_MATERIAL = 1, TECH_ENGINEERING = 1, TECH_COMBAT = 2)
+	attack_verb = list("bashed", "bludgeoned", "thrashed", "whacked", "slashed", "cut")
+	sharp = TRUE
+
+/obj/item/shovel/gadpathur/iscrowbar()
+	return TRUE
+
 // Flags.
 
 /obj/item/stack/flag
@@ -585,14 +600,13 @@
 	key = null
 	var/image/I = new(icon = 'icons/obj/cart.dmi', icon_state = "[icon_state]_overlay", layer = src.layer + 0.2) //over mobs
 	add_overlay(I)
-	turn_off() //so engine verbs are correctly set
+	turn_off()
 
 /obj/vehicle/train/cargo/engine/mining/attackby(obj/item/W, mob/user)
 	if(istype(W, /obj/item/key/minecarts))
 		if(!key)
 			user.drop_from_inventory(W, src)
 			key = W
-			verbs += /obj/vehicle/train/cargo/engine/verb/remove_key
 		return
 	..()
 
@@ -921,6 +935,14 @@ var/list/total_extraction_beacons = list()
 			return
 		if(A.anchored)
 			return
+		var/turf/T = get_turf(A)
+		for(var/found_inhibitor in bluespace_inhibitors)
+			var/obj/machinery/anti_bluespace/AB = found_inhibitor
+			if(T.z != AB.z || get_dist(T, AB) > 8 || (AB.stat & (NOPOWER | BROKEN)))
+				continue
+			AB.use_power(AB.active_power_usage)
+			to_chat(user, SPAN_WARNING("A nearby bluespace inhibitor interferes with \the [src]!"))
+			return
 		to_chat(user, SPAN_NOTICE("You start attaching the pack to \the [A]..."))
 		if(do_after(user,50))
 			to_chat(user, SPAN_NOTICE("You attach the pack to \the [A] and activate it."))
@@ -968,11 +990,10 @@ var/list/total_extraction_beacons = list()
 	var/area/area_name = get_area(src)
 	name += " ([rand(100,999)]) ([area_name.name])"
 	total_extraction_beacons += src
-	..()
 
 /obj/structure/extraction_point/Destroy()
 	total_extraction_beacons -= src
-	. = ..()
+	return ..()
 
 /**********************Resonator**********************/
 
@@ -1144,13 +1165,14 @@ var/list/total_extraction_beacons = list()
 /******************************Sculpting*******************************/
 /obj/item/autochisel
 	name = "auto-chisel"
+	desc = "With an integrated AI chip and hair-trigger precision, this baby makes sculpting almost automatic!"
 	icon = 'icons/obj/contained_items/tools/drills.dmi'
-	icon_state = "jackhammer"
+	icon_state = "chisel"
 	item_state = "jackhammer"
 	contained_sprite = TRUE
 	origin_tech = list(TECH_MATERIAL = 3, TECH_POWER = 2, TECH_ENGINEERING = 2)
-	desc = "With an integrated AI chip and hair-trigger precision, this baby makes sculpting almost automatic!"
 
+#define TRUE_QDEL 3
 /obj/structure/sculpting_block
 	name = "sculpting block"
 	desc = "A finely chiselled sculpting block, it is ready to be your canvas."
@@ -1159,89 +1181,163 @@ var/list/total_extraction_beacons = list()
 	density = TRUE
 	opacity = TRUE
 	anchored = FALSE
-	obj_flags = OBJ_FLAG_ROTATABLE
 	var/sculpted = FALSE
 	var/mob/living/T
 	var/times_carved = 0
-	var/last_struck = 0
+	var/busy_sculpting = FALSE
 
-/obj/structure/sculpting_block/attackby(obj/item/C as obj, mob/user as mob)
+/obj/structure/sculpting_block/attackby(obj/item/C, mob/user)
+	if(C.iswrench())
+		visible_message("<b>[user]</b> starts to [anchored ? "un" : ""]anchor \the [src].", SPAN_NOTICE("You start to [anchored ? "un" : ""]anchor \the [src]."))
+		if(do_after(user, 5 SECONDS, TRUE))
+			playsound(src.loc, C.usesound, 100, 1)
+			anchored = !anchored
 
-	if (C.iswrench())
-		playsound(src.loc, C.usesound, 100, 1)
-		to_chat(user, "<span class='notice'>You [anchored ? "un" : ""]anchor the [name].</span>")
-		anchored = !anchored
+	else if(istype(C, /obj/item/autochisel))
+		if(sculpted)
+			to_chat(user, SPAN_WARNING("\The [src] has already been sculpted!"))
+			return
+		if(busy_sculpting)
+			to_chat(user, SPAN_WARNING("Someone's already busy sculpting \the [src]!"))
+			return
 
-	if(istype(C, /obj/item/autochisel))
-		if(!sculpted)
-			if(last_struck)
-				return
+		busy_sculpting = TRUE
+
+		var/choice = input(user, "What would you like to sculpt?", "Sculpting Options") as null|anything in list("Sculpture", "Ladder")
+		if(!choice)
+			busy_sculpting = FALSE
+			return
+		choice = lowertext(choice)
+		var/result = sculpture_options(choice, user)
+		if(!result)
+			busy_sculpting = FALSE
+			return
+
+		user.visible_message(SPAN_NOTICE("\The [user] begins sculpting."), SPAN_NOTICE("You begin sculpting."))
+
+		if(prob(25))
+			playsound(loc, 'sound/items/screwdriver.ogg', 20, TRUE)
+		else
+			playsound(loc, /decl/sound_category/pickaxe_sound, 20, TRUE)
+
+		var/successfully_sculpted = FALSE
+		while(do_after(user, 2 SECONDS) && sculpture_process_check(choice, user))
+			if(times_carved <= 9)
+				times_carved++
+				playsound(loc, /decl/sound_category/pickaxe_sound, 20, TRUE)
+				continue
+			successfully_sculpted = TRUE
+			break
+
+		busy_sculpting = FALSE
+
+		if(!successfully_sculpted)
+			return
+
+		user.visible_message(SPAN_NOTICE("\The [user] finishes sculpting their magnum opus!"), SPAN_NOTICE("You finish sculpting a masterpiece."))
+		sculpted = finish_sculpture(choice, user)
+		if(sculpted == TRUE_QDEL)
+			qdel(src)
+
+/obj/structure/sculpting_block/proc/sculpture_options(var/choice, var/mob/user)
+	switch(choice)
+		if("sculpture")
+			var/mob/living/old_T
+			if(T)
+				old_T = T
+
+			var/list/choices = list()
+			for(var/mob/living/M in view(7,user))
+				choices += M
+			T = input(user, "Who do you wish to sculpt?", "Sculpt Options") as null|anything in choices
 			if(!T)
-				var/list/choices = list()
-				for(var/mob/living/M in view(7,user))
-					choices += M
-				T = input(user,"Who do you wish to sculpt?") as null|anything in choices
-				if(!T)
-					to_chat(user, SPAN_NOTICE("You decide against sculpting for now."))
-				user.visible_message(SPAN_NOTICE("\The [user] begins sculpting."),
-					SPAN_NOTICE("You begin sculpting."))
+				to_chat(user, SPAN_NOTICE("You decide against sculpting for now."))
+				return FALSE
 
-			var/sculpting_coefficient = get_dist(user,T)
-			if(sculpting_coefficient <= 0)
-				sculpting_coefficient = 1
-
+			var/sculpting_coefficient = max(get_dist(user, T), 1)
 			if(sculpting_coefficient >= 7)
 				to_chat(user, SPAN_WARNING("You hardly remember what \the [T] really looks like! Bah!"))
 				T = null
+				return
 
-			user.visible_message(SPAN_NOTICE("\The [user] carves away at the sculpting block!"),
-				SPAN_NOTICE("You continue sculpting."))
+			if(old_T && T != old_T)
+				times_carved = 0
 
-			if(prob(25))
-				playsound(user, 'sound/items/screwdriver.ogg', 20, TRUE)
+			return TRUE
+		if("ladder")
+			var/turf/above = GET_ABOVE(src)
+			if(!above)
+				to_chat(user, SPAN_WARNING("There is nothing above you to make a ladder towards."))
+				return FALSE
+			if(!isopenturf(above))
+				to_chat(user, SPAN_WARNING("The tile above you isn't open and can't accomodate a ladder."))
+				return FALSE
+			return TRUE
+
+/obj/structure/sculpting_block/proc/sculpture_process_check(var/choice, var/mob/user)
+	switch(choice)
+		if("sculpture")
+			if(!QDELETED(T) && get_dist(user, T) < 8)
+				return TRUE
+			return FALSE
+		if("ladder")
+			var/turf/above = GET_ABOVE(src)
+			if(!above)
+				to_chat(user, SPAN_WARNING("There is nothing above you to make a ladder towards."))
+				return FALSE
+			if(!isopenturf(above))
+				to_chat(user, SPAN_WARNING("The tile above you isn't open and can't accomodate a ladder."))
+				return FALSE
+			return TRUE
+
+/obj/structure/sculpting_block/proc/finish_sculpture(var/choice, var/mob/user)
+	switch(choice)
+		if("sculpture")
+			appearance = T
+			appearance_flags = KEEP_TOGETHER
+			color = list( // for anyone interested, this is called a color matrix
+				0.35, 0.3, 0.25,
+				0.35, 0.3, 0.25,
+				0.35, 0.3, 0.25
+			)
+			pixel_y += 8
+
+			var/image/pedestal_underlay = image('icons/obj/mining.dmi', icon_state = "pedestal")
+			pedestal_underlay.appearance_flags = RESET_COLOR
+			pedestal_underlay.pixel_y -= 8
+			underlays += pedestal_underlay
+
+			obj_flags = OBJ_FLAG_ROTATABLE
+
+			var/title = sanitize(input(usr, "If you would like to name your art, do so here.", "Christen Your Sculpture", "") as text|null)
+			if(title)
+				name = title
 			else
-				playsound(user, "sound/weapons/chisel[rand(1,2)].ogg", 20, TRUE)
-				spawn(3)
-					playsound(user, "sound/weapons/chisel[rand(1,2)].ogg", 20, TRUE)
-					spawn(3)
-						playsound(user, "sound/weapons/chisel[rand(1,2)].ogg", 20, TRUE)
+				name = T.name
 
-			last_struck = 1
-			if(do_after(user,(20)))
-				last_struck = 0
-				if(times_carved <= 9)
-					times_carved += 1
-					if(times_carved < 1)
-						to_chat(user, SPAN_NOTICE("You review your work and see there is more to do."))
-					return
-				else
-					sculpted = TRUE
-					user.visible_message(SPAN_NOTICE("\The [user] finishes sculpting their magnum opus!"),
-						SPAN_NOTICE("You finish sculpting a masterpiece."))
-					src.appearance = T
-					src.color = list(
-					    0.35, 0.3, 0.25,
-					    0.35, 0.3, 0.25,
-					    0.35, 0.3, 0.25
-					)
-					src.pixel_y += 8
-					var/image/pedestal_underlay = image('icons/obj/mining.dmi', icon_state = "pedestal")
-					pedestal_underlay.appearance_flags = RESET_COLOR
-					pedestal_underlay.pixel_y -= 8
-					src.underlays += pedestal_underlay
-					var/title = sanitize(input(usr, "If you would like to name your art, do so here.", "Christen Your Sculpture", "") as text|null)
-					if(title)
-						name = title
-					else
-						name = "*[T.name]*"
-					var/legend = sanitize(input(usr, "If you would like to describe your art, do so here.", "Story Your Sculpture", "") as message|null)
-					if(legend)
-						desc = legend
-					else
-						desc = "This is a sculpture of [T.name]. All craftsmanship is of the highest quality. It is decorated with rock and more rock. It is covered with rock. On the item is an image of a rock. The rock is [T.name]."
+			var/legend = sanitize(input(usr, "If you would like to describe your art, do so here.", "Story Your Sculpture", "") as message|null)
+			if(legend)
+				desc = legend
 			else
-				last_struck = 0
-		return
+				desc = "This is a sculpture of [T.name]. All craftsmanship is of the highest quality. It is decorated with rock and more rock. It is covered with rock. On the item is an image of a rock. The rock is [T.name]."
+
+			T = null // null T out, we don't need the ref to them anymore
+
+			return TRUE
+		if("ladder")
+			var/turf/above = GET_ABOVE(src)
+			if(!above)
+				to_chat(user, SPAN_WARNING("There is nothing above you to make a ladder towards."))
+				return FALSE
+			if(!isopenturf(above))
+				to_chat(user, SPAN_WARNING("The tile above you isn't open and can't accomodate a ladder."))
+				return FALSE
+
+			new /obj/structure/ladder/up/mining(get_turf(src))
+			new /obj/structure/ladder/mining(above)
+			return TRUE_QDEL
+
+#undef TRUE_QDEL
 
 /******************************Gains Boroughs*******************************/
 
@@ -1252,12 +1348,11 @@ var/list/total_extraction_beacons = list()
 	icon_state = "punchingbag"
 	anchored = TRUE
 	layer = 5.1
-	var/list/hit_sounds = list("swing_hit", "punch")
 
 /obj/structure/punching_bag/attack_hand(mob/user as mob)
 	user.setClickCooldown(DEFAULT_ATTACK_COOLDOWN)
 	flick("[icon_state]2", src)
-	playsound(get_turf(src), pick(src.hit_sounds), 25, 1, -1)
+	playsound(get_turf(src), /decl/sound_category/swing_hit_sound, 25, 1, -1)
 
 /obj/structure/weightlifter
 	name = "weight machine"
@@ -1355,54 +1450,3 @@ var/list/total_extraction_beacons = list()
 		if(prob(75))
 			M.GetDrilled(1)
 
-/****************Himeo Voidsuit Kit*****************/
-/obj/item/himeo_kit
-	name = "himeo voidsuit kit"
-	contained_sprite = TRUE
-	icon = 'icons/obj/mining_contained.dmi'
-	icon_state = "himeo_kit"
-	item_state = "himeo_kit"
-	desc = "A simple cardboard box containing the requisition forms, permits, and decal kits for a Himean voidsuit."
-	desc_fluff = "As part of a cost-cutting and productivity-enhancing initiative, NanoTrasen has authorized a number of Himean Type-76 'Fish Fur'\
-	for use by miners originating from the planet. Most of these suits are assembled in Cannington and painstakingly optimized on-site by their\
-	individual operator leading to a large trail of red tape as NanoTrasen is forced to inspect these suits to ensure their safety."
-	desc_info = "In order to convert a mining voidsuit into a Himean voidsuit, simply click on this box with a voidsuit or helmet in hand.\
-	The same process can be used to convert a Himean voidsuit back into a regular voidsuit. Make sure not to have a helmet or tank in the suit\
-	or else it will be deleted."
-	w_class = ITEMSIZE_SMALL
-
-/obj/item/himeo_kit/attackby(obj/item/W as obj, mob/user as mob)
-	var/list/suit_options = list(
-		/obj/item/clothing/suit/space/void/mining = /obj/item/clothing/suit/space/void/mining/himeo,
-		/obj/item/clothing/head/helmet/space/void/mining = /obj/item/clothing/head/helmet/space/void/mining/himeo,
-
-		/obj/item/clothing/suit/space/void/engineering = /obj/item/clothing/suit/space/void/engineering/himeo,
-		/obj/item/clothing/head/helmet/space/void/engineering = /obj/item/clothing/head/helmet/space/void/engineering/himeo,
-
-		/obj/item/clothing/suit/space/void/atmos = /obj/item/clothing/suit/space/void/atmos/himeo,
-		/obj/item/clothing/head/helmet/space/void/atmos = /obj/item/clothing/head/helmet/space/void/atmos/himeo
-	)
-	var/reconverting = FALSE
-	var/voidsuit_product = suit_options[W.type]
-	if(!voidsuit_product)
-		for(var/thing in suit_options)
-			if(suit_options[thing] == W.type)
-				voidsuit_product = thing
-				reconverting = TRUE
-				break
-	if(voidsuit_product)
-		if(istype(W, /obj/item/clothing/suit/space/void) && W.contents.len)
-			to_chat(user, SPAN_NOTICE("Remove any accessories, helmets, magboots, or oxygen tanks before attempting to convert this voidsuit."))
-			return
-		user.drop_item(W)
-		qdel(W)
-		playsound(src.loc, 'sound/weapons/blade_open.ogg', 50, 1)
-		var/obj/item/P = new voidsuit_product(user.loc)
-		user.put_in_hands(P)
-		if(!reconverting)
-			to_chat(user, SPAN_NOTICE("Your permit for a [P] has been processed. Enjoy!"))
-		else
-			to_chat(user, SPAN_NOTICE("Your Himean voidsuit part has been reconverted into [P]."))
-		return
-	else
-		return ..()

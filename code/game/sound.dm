@@ -42,12 +42,12 @@
 #define DROP_SOUND_VOLUME 20
 #define THROW_SOUND_VOLUME 90
 
-/proc/playsound(atom/source, soundin, vol, vary, extrarange, falloff, is_global, usepressure = 1, environment = -1, required_preferences = 0, required_asfx_toggles = 0)
+/proc/playsound(atom/source, soundin, vol, vary, extrarange, falloff, is_global, usepressure = 1, environment = -1, required_preferences = 0, required_asfx_toggles = 0, frequency = 0)
 	if (isarea(source))
 		crash_with("[source] is an area and is trying to make the sound: [soundin]")
 		return
 
-	var/sound/original_sound = playsound_get_sound(soundin, vol, falloff, 0, environment)
+	var/sound/original_sound = playsound_get_sound(soundin, vol, falloff, frequency, environment)
 
 	if (!original_sound)
 		crash_with("Could not construct original sound.")
@@ -155,7 +155,7 @@
 		return PSYCHOTIC
 	else if (druggy)
 		return DRUGGED
-	else if (drowsyness)
+	else if (drowsiness)
 		return DIZZY
 	else if (confused)
 		return DIZZY
@@ -163,6 +163,19 @@
 		return UNDERWATER
 	else
 		return ..()
+
+/mob/living/carbon/human/playsound_get_environment(pressure_factor = 1.0)
+	if(protected_from_sound())
+		return PADDED_CELL
+	return ..()
+
+/mob/proc/check_sound_equipment_volume()
+	return 1
+
+/mob/living/carbon/human/check_sound_equipment_volume()
+	if(protected_from_sound())
+		return 0.6
+	return 1
 
 /mob/proc/playsound_to(turf/source_turf, sound/original_sound, use_random_freq, modify_environment = TRUE, use_pressure = TRUE, required_preferences = 0, required_asfx_toggles = 0)
 	var/sound/S = copy_sound(original_sound)
@@ -209,14 +222,14 @@
 	if (modify_environment)
 		S.environment = playsound_get_environment(pressure_factor)
 
-	sound_to(src, S)
+	S.volume *= check_sound_equipment_volume()
 
+	sound_to(src, S)
 	return S.volume
 
 /mob/proc/playsound_simple(source, soundin, volume, use_random_freq = FALSE, frequency = 0, falloff = 0, use_pressure = TRUE, required_preferences = 0, required_asfx_toggles = 0)
 	var/sound/S = playsound_get_sound(soundin, volume, falloff, frequency)
-
-	playsound_to(source ? get_turf(source) : null, S, use_random_freq, use_pressure = use_pressure, required_preferences = required_preferences, required_asfx_toggles = required_asfx_toggles)
+	return playsound_to(source ? get_turf(source) : null, S, use_random_freq, use_pressure = use_pressure, required_preferences = required_preferences, required_asfx_toggles = required_asfx_toggles)
 
 /client/proc/playtitlemusic()
 	if(!SSticker.login_music)
@@ -388,16 +401,18 @@
 		'sound/weapons/punch4.ogg'
 	)
 
+/decl/sound_category/punch_bassy_sound
+	sounds = list(
+		'sound/weapons/punch1_bass.ogg',
+		'sound/weapons/punch2_bass.ogg',
+		'sound/weapons/punch3_bass.ogg',
+		'sound/weapons/punch4_bass.ogg'
+	)
+
 /decl/sound_category/punchmiss_sound
 	sounds = list(
 		'sound/weapons/punchmiss1.ogg',
 		'sound/weapons/punchmiss2.ogg'
-	)
-
-/decl/sound_category/clown_sound
-	sounds = list(
-		'sound/effects/clownstep1.ogg',
-		'sound/effects/clownstep2.ogg'
 	)
 
 /decl/sound_category/swing_hit_sound
@@ -486,6 +501,11 @@
 		'sound/effects/bodyfall2.ogg',
 		'sound/effects/bodyfall3.ogg',
 		'sound/effects/bodyfall4.ogg'
+	)
+
+/decl/sound_category/bodyfall_skrell_sound
+	sounds = list(
+		'sound/effects/bodyfall_skrell1.ogg'
 	)
 
 /decl/sound_category/bodyfall_machine_sound
@@ -659,3 +679,14 @@
 	'sound/weapons/laserdeep.ogg',
 	'sound/weapons/laserstrong.ogg'
 )
+
+/decl/sound_category/quick_arcade // quick punchy arcade sounds
+	sounds = list(
+		'sound/arcade/get_fuel.ogg',
+		'sound/arcade/heal.ogg',
+		'sound/arcade/hit.ogg',
+		'sound/arcade/kill_crew.ogg',
+		'sound/arcade/lose_fuel.ogg',
+		'sound/arcade/mana.ogg',
+		'sound/arcade/steal.ogg'
+	)

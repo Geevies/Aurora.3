@@ -47,7 +47,7 @@
 			amount *= TABLE_BRITTLE_MATERIAL_MULTIPLIER
 	health -= amount
 	if(health <= 0)
-		visible_message("<span class='warning'>\The [src] breaks down!</span>")
+		visible_message(SPAN_WARNING("\The [src] breaks down!"), intent_message = THUNK_SOUND)
 		return break_to_parts() // if we break and form shards, return them to the caller to do !FUN! things with
 
 
@@ -101,7 +101,6 @@
 				to_chat(user, "<span class='notice'>It has a few scrapes and dents.</span>")
 
 /obj/structure/table/attackby(obj/item/W, mob/user)
-
 	if(reinforced && W.isscrewdriver())
 		remove_reinforced(W, user)
 		if(!reinforced)

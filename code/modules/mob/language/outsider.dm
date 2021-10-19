@@ -2,16 +2,18 @@
 	name = LANGUAGE_CHANGELING
 	desc = "Although they are normally wary and suspicious of each other, changelings can commune over a distance."
 	speech_verb = list("says")
+	sing_verb = list("choruses")
 	colour = "changeling"
 	key = "g"
 	flags = RESTRICTED | HIVEMIND
 
 /datum/language/ling/broadcast(var/mob/living/speaker,var/message,var/speaker_mask)
-
-	if(speaker.mind && speaker.mind.changeling)
-		..(speaker,message,speaker.mind.changeling.changelingID)
-	else
-		..(speaker,message)
+	if(speaker.mind)
+		var/datum/changeling/changeling = speaker.mind.antag_datums[MODE_CHANGELING]
+		if(changeling)
+			..(speaker,message, changeling.changelingID)
+			return
+	..(speaker,message)
 
 /datum/language/corticalborer
 	name = LANGUAGE_BORER
@@ -49,6 +51,7 @@
 	speech_verb = list("intones")
 	ask_verb = list("intones")
 	exclaim_verb = list("chants")
+	sing_verb = list("chants")
 	colour = "cult"
 	key = "f"
 	flags = RESTRICTED
@@ -74,6 +77,7 @@
 	speech_verb = list("intones")
 	ask_verb = list("intones")
 	exclaim_verb = list("chants")
+	sing_verb = list("chants")
 	colour = "cult"
 	key = "y"
 	flags = RESTRICTED | HIVEMIND
@@ -84,14 +88,35 @@
 	speech_verb = list("buzzes")
 	ask_verb = list("buzzes")
 	exclaim_verb = list("buzzes")
+	sing_verb = list("buzzes")
 	colour = "bad"
-	key = "#"
+	key = "hd"
 	flags = RESTRICTED | HIVEMIND
 	syllables = list("beep","beep","beep","beep","beep","boop","boop","boop","bop","bop","dee","dee","doo","doo","hiss","hss","buzz","buzz","bzz","ksssh","keey","wurr","wahh","tzzz")
 	space_chance = 10
 
 /datum/language/terminator/get_random_name()
 	return "HK [pick(list("Hera","Zeus","Artemis","Athena","Ares","Hades","Poseidon","Demeter","Apollo","Aphrodite","Hermes","Hestia","Dionysus","Persephone","Kronos","Odysseus","Ajax","Agamemnon","Chiron","Charon"))]-[rand(100, 999)]"
+
+/datum/language/revenant
+	name = LANGUAGE_REVENANT
+	desc = "The language of the forsaken bluespace inhabitants."
+	speech_verb = list("gargles")
+	ask_verb = list("gags")
+	exclaim_verb = list("retches")
+	sing_verb = list("trills")
+	colour = "revenant"
+	key = "c"
+	syllables = list("grhhg", "ghrohg", "grgugh", "grrhh", "hghh", "rghghh", "gghhh", "ggrh", "aghrh")
+	flags = RESTRICTED
+	partial_understanding = list(LANGUAGE_TCB = 80)
+	always_parse_language = TRUE
+
+/datum/language/revenant/hivemind
+	name = LANGUAGE_REVENANT_RIFTSPEAK
+	desc = "A manner of speaking that allows revenants to talk to eachother no matter the distance."
+	key = "rs"
+	flags = RESTRICTED | HIVEMIND
 
 /datum/language/sidewinder
 	name = "Sidewinder Language"
@@ -104,3 +129,4 @@
 	flags = RESTRICTED
 	space_chance = 100
 	syllables = list("ssssss", "Hisss", "hSSSSS", "SSSSSSSSSSSSSS", "his!", "ssssSSSssss", "Sssssshshshshs", "Sss", "Hisss")
+

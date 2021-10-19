@@ -30,7 +30,7 @@
 /obj/machinery/light_switch/update_icon()
 	cut_overlays()
 	if(!(stat & NOPOWER))
-		holographic_overlay(src, icon, "light_switch[on]-overlay")
+		holographic_overlay(src, icon, "light[on]-overlay")
 		if (!light_range || light_color != on ? "#82ff4c" : "#f86060")
 			set_light(2, 0.3, on ? "#82ff4c" : "#f86060")
 	else if (light_range)
@@ -44,6 +44,7 @@
 	playsound(src, /decl/sound_category/switch_sound, 30)
 	on = !on
 	sync_lights()
+	intent_message(BUTTON_FLICK, 5)
 
 /obj/machinery/light_switch/proc/sync_lights()
 	var/area/A = get_area(src)

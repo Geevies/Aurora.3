@@ -29,7 +29,7 @@
 /obj/item/slime_extract/Initialize()
 	. = ..()
 	create_reagents(100)
-	reagents.add_reagent(/datum/reagent/slimejelly, 30)
+	reagents.add_reagent(/decl/reagent/slimejelly, 30)
 
 /obj/item/slime_extract/grey
 	name = "grey slime extract"
@@ -224,7 +224,6 @@
 	icon_state = "golem"
 	unacidable = TRUE
 	layer = TURF_LAYER
-	var/wizardy = FALSE //if this rune can only be used by a wizard or not
 	var/golem_type = "Adamantine Golem"
 
 /obj/effect/golemrune/Initialize()
@@ -269,17 +268,14 @@
 	G.set_species(golem_type)
 	G.name = G.species.get_random_name()
 	G.real_name = G.name
-	if(wizardy)
-		bluespace_golems.add_antagonist(G.mind, TRUE, TRUE, FALSE, TRUE, TRUE)
-	else
-		to_chat(G, SPAN_NOTICE("You are a golem. Serve your master, and assist them in completing their goals at any cost."))
+	G.accent = G.species.default_accent
+	G.preEquipOutfit(/datum/outfit/admin/golem, FALSE)
+	G.equipOutfit(/datum/outfit/admin/golem, FALSE)
+	to_chat(G, SPAN_NOTICE("You are a golem. Serve your master, and assist them in completing their goals at any cost."))
 
 	qdel(src)
 
 	return G
-
-/obj/effect/golemrune/wizard
-	wizardy = TRUE
 
 /mob/living/carbon/slime/has_eyes()
 	return FALSE

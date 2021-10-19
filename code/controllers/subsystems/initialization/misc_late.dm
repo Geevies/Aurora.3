@@ -37,8 +37,9 @@
 	populate_code_phrases()
 
 	// this covers mapped in drone fabs
-	for(var/obj/machinery/drone_fabricator/DF in SSmachinery.all_machines)
-		DF.enable_drone_spawn()
+	for(var/atom/thing as anything in SSatoms.late_misc_firers)
+		thing.do_late_fire()
+		LAZYREMOVE(SSatoms.late_misc_firers, thing)
 
 	if (config.use_forumuser_api)
 		update_admins_from_api(TRUE)

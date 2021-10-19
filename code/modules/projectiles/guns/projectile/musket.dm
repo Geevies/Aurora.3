@@ -8,21 +8,15 @@
 	icon = 'icons/obj/guns/musket.dmi'
 	icon_state = "musket"
 	item_state = "musket"
-	contained_sprite = TRUE
 
 	load_method = SINGLE_CASING
 	handle_casings = DELETE_CASINGS
 
 	max_shells = 1
-
 	caliber = "musket"
 
 	slot_flags = SLOT_BACK
-
 	is_wieldable = TRUE
-
-	needspin = FALSE
-
 	w_class = ITEMSIZE_LARGE
 
 	origin_tech = list(TECH_COMBAT = 3, TECH_MATERIAL = 2)
@@ -34,13 +28,6 @@
 	ammo_type = /obj/item/ammo_casing/musket
 
 	var/has_powder = FALSE
-
-/obj/item/gun/projectile/musket/update_icon()
-	if(wielded)
-		item_state = "musket-wielded"
-	else
-		item_state = "musket"
-	update_held_icon()
 
 /obj/item/gun/projectile/musket/special_check(mob/user)
 	if(!has_powder)
@@ -64,11 +51,11 @@
 			to_chat(user, SPAN_WARNING("\The [src] is already full of gunpowder."))
 			return
 		var/obj/item/reagent_containers/C = W
-		if(C.reagents.has_reagent(/datum/reagent/gunpowder, 5))
+		if(C.reagents.has_reagent(/decl/reagent/gunpowder, 5))
 			if(do_after(user, 15))
 				if(has_powder)
 					return
-				C.reagents.remove_reagent(/datum/reagent/gunpowder, 5)
+				C.reagents.remove_reagent(/decl/reagent/gunpowder, 5)
 				has_powder = TRUE
 				to_chat(user, SPAN_NOTICE("You fill \the [src] with gunpowder."))
 
@@ -82,4 +69,4 @@
 	amount_per_transfer_from_this = 5
 	possible_transfer_amounts = list(5)
 	volume = 30
-	reagents_to_add = list(/datum/reagent/gunpowder = 30)
+	reagents_to_add = list(/decl/reagent/gunpowder = 30)

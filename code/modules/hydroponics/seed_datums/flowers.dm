@@ -3,7 +3,7 @@
 	name = "harebells"
 	seed_name = "harebell"
 	display_name = "harebells"
-	chems = list(/datum/reagent/nutriment = list(1,20))
+	chems = list(/decl/reagent/nutriment = list(1,20))
 
 /obj/item/seeds/harebell
 	seed_type = "harebells"
@@ -23,7 +23,7 @@
 	name = "poppies"
 	seed_name = "poppy"
 	display_name = "poppies"
-	chems = list(/datum/reagent/nutriment = list(1,20), /datum/reagent/bicaridine = list(1,10))
+	chems = list(/decl/reagent/nutriment = list(1,20), /decl/reagent/bicaridine = list(1,10))
 	kitchen_tag = "poppy"
 
 /datum/seed/flower/poppy/setup_traits()
@@ -59,3 +59,23 @@
 
 /obj/item/seeds/sunflowerseed
 	seed_type = "sunflowers"
+
+/datum/seed/flower/vanilla
+	name = "vanilla"
+	seed_name = "vanilla"
+	display_name = "vanilla"
+	chems = list(/decl/reagent/nutriment/vanilla = list(3,10), /decl/reagent/nutriment = list(1,20))
+
+/obj/item/seeds/vanilla
+	seed_type = "vanilla"
+
+/datum/seed/flower/vanilla/setup_traits()
+	..()
+	set_trait(TRAIT_MATURATION,7)
+	set_trait(TRAIT_PRODUCTION,1)
+	set_trait(TRAIT_YIELD,2)
+	set_trait(TRAIT_PRODUCT_ICON,"flower5")
+	set_trait(TRAIT_PRODUCT_COLOUR,"#e8efe5")
+	set_trait(TRAIT_PLANT_COLOUR,"#6B8C5E")
+	set_trait(TRAIT_PLANT_ICON,"flower")
+	set_trait(TRAIT_NUTRIENT_CONSUMPTION, 0.15)

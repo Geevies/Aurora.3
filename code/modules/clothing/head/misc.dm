@@ -228,8 +228,9 @@
 
 /obj/item/clothing/head/fez
 	name = "fez"
-	icon_state = "fez"
 	desc = "You should wear a fez. Fezzes are cool."
+	icon_state = "fez"
+	item_flags = SHOWFLAVORTEXT
 
 //end bs12 hats
 
@@ -248,6 +249,9 @@
 		slot_l_hand_str = "chickensuit",
 		slot_r_hand_str = "chickensuit"
 		)
+	sprite_sheets = list(
+		BODYTYPE_VAURCA_BULWARK = 'icons/mob/species/bulwark/head.dmi'
+	)
 	flags_inv = BLOCKHAIR
 	siemens_coefficient = 0.7
 	body_parts_covered = HEAD|FACE|EYES
@@ -281,6 +285,7 @@
 		)
 	flags_inv = BLOCKHAIR
 	siemens_coefficient = 2.0 //why is it so conductive?!
+
 /obj/item/clothing/head/hijab //It might've taken a year but here's your Hijab's, Dea.
 	name = "hijab"
 	desc = "Encompassing cloth headwear worn by some human cultures and religions."
@@ -290,6 +295,7 @@
 	flags_inv = BLOCKHAIR
 	body_parts_covered = 0
 	contained_sprite = 1
+	slot_flags = SLOT_EARS  | SLOT_HEAD
 
 /obj/item/clothing/head/hijab/grey
 	name = "grey hijab"
@@ -334,6 +340,9 @@
 	name = "sombrero"
 	desc = "You can practically taste the fiesta."
 	icon_state = "sombrero"
+	sprite_sheets = list(
+		BODYTYPE_VAURCA_BULWARK = 'icons/mob/species/bulwark/head.dmi'
+	)
 
 /obj/item/clothing/head/turban
 	name = "turban"
@@ -508,87 +517,6 @@
 	icon_state = "ruby_crest"
 	item_state = "ruby_crest"
 
-
-//ipc 'pins'
-
-/obj/item/clothing/head/antenna
-	name = "curved antennae"
-	desc = "A set of decorative antennae. This particular pair is curved in the middle point, arcing upwards. Unfortunately, it doesn't get FM here."
-	icon_state = "curvedantennae"
-	item_state = "curvedantennae"
-	slot_flags = SLOT_HEAD | SLOT_EARS
-	body_parts_covered = 0
-	matter = list(DEFAULT_WALL_MATERIAL = 10)
-	drop_sound = 'sound/items/drop/component.ogg'
-	pickup_sound = 'sound/items/pickup/component.ogg'
-
-/obj/item/clothing/head/antenna/straight
-	name = "straight antennae"
-	desc = "A set of decorative antennae. This particular pair is straight, jutting out to what is reasonably shoulder width. They don't seem to plug into anything."
-	icon_state = "straightantennae"
-	item_state = "straightantennae"
-
-/obj/item/clothing/head/antenna/spiked
-	name = "spiked chassis mounts"
-	desc = "Two large mounts holding up chassis protrusions on either side of the head. Careful for doorways."
-	icon_state = "horncrown"
-	item_state = "horncrown"
-
-/obj/item/clothing/head/antenna/spiked/small
-	name = "small chassis horns"
-	desc = "Two small mounts holding up chassis protrusions on either side of the head, sans head crown."
-	icon_state = "horn"
-	item_state = "horncrown"
-
-/obj/item/clothing/head/antenna/side
-	name = "side chassis mounts"
-	desc = "Two large mounts holding up chassis protrusions on either side of the head."
-	icon_state = "tusk"
-	item_state = "tusk"
-
-/obj/item/clothing/head/antenna/dish
-	name = "head dishes"
-	desc = "Two tiny dishes intended to hold excess wiring in a very specific manner and mostly end up being used as decoration. If only they picked up holodramas."
-	icon_state = "dish"
-	item_state = "dish"
-
-/obj/item/clothing/head/antenna/double
-	name = "antenna ears"
-	desc = "Despite being commonly seen on Shells, nobody knows what these actually do."
-	icon_state = "dual_robot_antennae"
-	item_state = "dual_robot_antennae"
-
-/obj/item/clothing/head/antenna/double/left/horn
-	name = "left antenna horn"
-	icon_state = "left_horn"
-	item_state = "left_horn"
-
-/obj/item/clothing/head/antenna/double/left
-	name = "left antenna ear"
-	icon_state = "left_robot_antennae"
-	item_state = "left_robot_antennae"
-
-/obj/item/clothing/head/antenna/double/right
-	name = "right antenna ear"
-	icon_state = "right_robot_antennae"
-	item_state = "right_robot_antennae"
-
-/obj/item/clothing/head/antenna/double/right/horn
-	name = "right antenna horn"
-	icon_state = "right_horn"
-	item_state = "right_horn"
-
-/obj/item/clothing/head/antenna/circle
-	name = "circle antenna"
-	icon_state = "circleantenna"
-	item_state = "dish"
-
-/obj/item/clothing/head/antenna/trinary_halo
-	name = "trinary perfection antenna"
-	desc = "A decorative antenna that is commonly worn by IPCs who serve the Trinary Perfection. It resembles a golden gear."
-	icon_state = "trinary_halo"
-	item_state = "trinary_halo"
-
 /obj/item/clothing/head/fake_culthood
 	name = "occultist hood"
 	icon_state = "culthood"
@@ -608,15 +536,36 @@
 	species_restricted = list(BODYTYPE_VAURCA_BREEDER)
 	sprite_sheets = list(BODYTYPE_VAURCA_BREEDER = 'icons/mob/species/breeder/head.dmi')
 
+/obj/item/clothing/head/klax_breeder
+	name = "k'lax represenatitve shroud"
+	desc = "Large shroud used by K'lax representatives."
+	icon = 'icons/mob/species/breeder/inventory.dmi'
+	item_state = "shroud_klax"
+	icon_state = "shroud_klax"
+	contained_sprite = FALSE
+	species_restricted = list(BODYTYPE_VAURCA_BREEDER)
+	sprite_sheets = list(BODYTYPE_VAURCA_BREEDER = 'icons/mob/species/breeder/head.dmi')
+
+/obj/item/clothing/head/cthur_breeder
+	name = "c'thur representative shroud"
+	desc = "Large shroud used by C'thur representatives."
+	icon = 'icons/mob/species/breeder/inventory.dmi'
+	item_state = "shroud_cthur"
+	icon_state = "shroud_cthur"
+	contained_sprite = FALSE
+	species_restricted = list(BODYTYPE_VAURCA_BREEDER)
+	sprite_sheets = list(BODYTYPE_VAURCA_BREEDER = 'icons/mob/species/breeder/head.dmi')
+
 /obj/item/clothing/head/navy
 	name = "sol navy utility cover"
-	desc = "An eight pointed cover issued to Sol Alliance navy members as part of their field uniform."
+	desc = "A military cover issued to Sol Alliance navy members as part of their field uniform."
 	icon = 'icons/obj/sol_uniform.dmi'
 	icon_state = "greyutility"
 	item_state = "greyutility"
 	contained_sprite = 1
-	armor = list(melee = 10, bullet = 10, laser = 10,energy = 0, bomb = 0, bio = 0, rad = 0)
-
+	armor = list(
+		melee = ARMOR_MELEE_MINOR
+		)
 /obj/item/clothing/head/navy/marine
 	name = "sol marine utility cover"
 	desc = "An eight pointed cover issued to Sol Alliance marines as part of their field uniform."
@@ -634,32 +583,32 @@
 	contained_sprite = 1
 
 /obj/item/clothing/head/dress
-	name = "sol navy dress cap"
-	desc = "A white cap issued as part of the Sol Alliance navy dress uniform."
+	name = "sol navy black peaked cap"
+	desc = "A black cap issued as part of the Sol Alliance naval officer uniforms. This one is worn by junior officers."
 	icon = 'icons/obj/sol_uniform.dmi'
 	icon_state = "whitepeakcap"
 	item_state = "whitepeakcap"
 	contained_sprite = 1
 
 /obj/item/clothing/head/dress/marine
-	name = "sol marine dress cap"
-	desc = "A green cap issued as part of the Sol Alliance marine dress uniform."
+	name = "sol marine peaked cap"
+	desc = "A green cap issued as part of the Sol Alliance marine service and dress uniforms."
 	icon = 'icons/obj/sol_uniform.dmi'
 	icon_state = "whitepeakcap"
 	item_state = "whitepeakcap"
 	contained_sprite = 1
 
 /obj/item/clothing/head/dress/officer
-	name = "sol navy officer dress cap"
-	desc = "A white cap issued as part of the Sol Alliance navy officers dress uniform."
+	name = "sol navy officer peaked cap"
+	desc = "A white cap issued as part of the Sol Alliance naval officer uniforms. This one is worn by senior officers."
 	icon = 'icons/obj/sol_uniform.dmi'
 	icon_state = "whitewheelcap"
 	item_state = "whitewheelcap"
 	contained_sprite = 1
 
 /obj/item/clothing/head/dress/admiral
-	name = "sol navy admiral dress cap"
-	desc = "A fancy looking cap issued to a higher member of the Sol Alliance navy."
+	name = "sol navy admiral peaked cap"
+	desc = "A white cap issued as part of the Sol Alliance naval officer uniforms. This one is worn by admirals."
 	icon = 'icons/obj/sol_uniform.dmi'
 	icon_state = "admiral_cap"
 	item_state = "admiral_cap"
@@ -671,7 +620,13 @@
 	icon = 'icons/obj/sol_uniform.dmi'
 	icon_state = "helmet_tac_sol"
 	item_state = "helmet_tac_sol"
-	armor = list(melee = 60, bullet = 60, laser = 60, energy = 40, bomb = 40, bio = 0, rad = 0)
+	armor = list(
+		melee = ARMOR_MELEE_MAJOR,
+		bullet = ARMOR_BALLISTIC_MEDIUM,
+		laser = ARMOR_LASER_MAJOR,
+		energy = ARMOR_ENERGY_SMALL,
+		bomb = ARMOR_BOMB_PADDED
+	)
 	contained_sprite = 1
 
 /obj/item/clothing/head/nonla
@@ -693,3 +648,15 @@
 	sprite_sheets = list(
 		"Tajara" = 'icons/mob/species/tajaran/helmet.dmi'
 		)
+
+/obj/item/clothing/head/papersack
+	name = "paper sack hat"
+	desc = "A paper sack with crude holes cut out for eyes. Useful for hiding one's identity or ugliness."
+	icon_state = "papersack"
+	flags_inv = BLOCKHEADHAIR
+
+/obj/item/clothing/head/papersack/smiley
+	name = "paper sack hat"
+	desc = "A paper sack with crude holes cut out for eyes and a sketchy smile drawn on the front. Not creepy at all."
+	icon_state = "papersack_smile"
+	flags_inv = BLOCKHEADHAIR

@@ -10,7 +10,6 @@
 	mob_size = 1//As a holographic projection, a pAI is massless except for its card device
 	can_pull_size = 2 //max size for an object the pAI can pull
 
-
 	var/network = "SS13"
 	var/obj/machinery/camera/current = null
 	var/ram = 100	// Used as currency to purchase different abilities
@@ -26,8 +25,9 @@
 		"Cat" = "cat",
 		"Rat" = "rat",
 		"Monkey" = "monkey",
-		"Rabbit" = "rabbit"
-
+		"Rabbit" = "rabbit",
+		"Parrot" = "parrot",
+		"Fox" = "fox"
 		)
 
 	var/global/list/pai_holder_types = list(
@@ -35,7 +35,9 @@
 		"Cat" = /obj/item/holder/pai/cat,
 		"Rat" = /obj/item/holder/pai/rat,
 		"Monkey" = /obj/item/holder/pai/monkey,
-		"Rabbit" = /obj/item/holder/pai/rabbit
+		"Rabbit" = /obj/item/holder/pai/rabbit,
+		"Parrot" = /obj/item/holder/pai/parrot,
+		"Fox" = /obj/item/holder/pai/fox
 		)
 
 	var/global/list/possible_say_verbs = list(
@@ -181,6 +183,7 @@
 	verbs += /mob/living/silicon/pai/proc/choose_chassis
 	verbs += /mob/living/silicon/pai/proc/choose_verbs
 	verbs += /mob/living/silicon/proc/computer_interact
+	verbs += /mob/living/silicon/pai/proc/personal_computer_interact
 	verbs += /mob/living/silicon/proc/silicon_mimic_accent
 
 	. = ..()
@@ -371,18 +374,17 @@
 	set category = "pAI Commands"
 	set name = "Choose Chassis"
 
-	var/choice
-	var/finalized = "No"
-	while(finalized == "No" && src.client)
-		set_custom_sprite()
-		choice = input(usr,"What would you like to use for your mobile chassis icon? This decision can only be made once.") as null|anything in possible_chassis
-		if(!choice) return
+	var/list/options = list()
+	for(var/i in possible_chassis)
+		var/image/radial_button = image(icon = src.icon, icon_state = possible_chassis[i])
+		options[i] = radial_button
+	var/choice = show_radial_menu(src, recursive_loc_turf_check(src), options, radius = 42, tooltips = TRUE)
+	if(!choice)
+		return
+	icon_state = possible_chassis[choice]
+	holder_type = pai_holder_types[choice]
+	chassis = icon_state
 
-		icon_state = possible_chassis[choice]
-		holder_type = pai_holder_types[choice]
-		finalized = alert("Look at your sprite. Is this what you wish to use?",,"No","Yes")
-
-	chassis = possible_chassis[choice]
 	verbs -= /mob/living/silicon/pai/proc/choose_chassis
 	verbs += /mob/living/proc/hide
 
@@ -429,15 +431,27 @@
 	canmove = !resting
 
 //Overriding this will stop a number of headaches down the track.
-/mob/living/silicon/pai/attackby(obj/item/W as obj, mob/user as mob)
+/mob/living/silicon/pai/attackby(obj/item/W, mob/user)
+	if(istype(W, /obj/item/stack/nanopaste))
+		var/obj/item/stack/nanopaste/N = W
+		if(getBruteLoss() || getFireLoss())
+			user.setClickCooldown(DEFAULT_ATTACK_COOLDOWN)
+			if(do_mob(user, src, 1 SECOND))
+				adjustBruteLoss(-50) // these numbers are so high to make it so that people don't have to waste nanopaste on basic pAI
+				adjustFireLoss(-50)
+				updatehealth()
+				N.use(1)
+				user.visible_message("<b>[user]</b> applies some [N] at [src]'s damaged areas.", SPAN_NOTICE("You apply some [N] at [src]'s damaged areas."))
+		else
+			to_chat(user, SPAN_NOTICE("All [src]'s systems are nominal."))
+		return
+
 	if(W.force)
 		visible_message("<span class='danger'>[user.name] attacks [src] with [W]!</span>")
 		src.adjustBruteLoss(W.force)
 		src.updatehealth()
 	else
 		visible_message("<span class='warning'>[user.name] bonks [src] harmlessly with [W].</span>")
-
-	return
 
 /mob/living/silicon/pai/AltClick(mob/user as mob)
 	if(!user || user.stat || user.lying || user.restrained() || !Adjacent(user))	return
@@ -514,6 +528,8 @@
 		to_chat(src, "<span class='warning'>You are too small to pull that.</span>")
 		return
 
+/mob/living/silicon/pai/UnarmedAttack(atom/A, proximity)
+	A.attack_pai(src)
 
 /mob/living/silicon/pai/verb/select_card_icon()
 	set category = "pAI Commands"
@@ -524,6 +540,9 @@
 
 	var/selection = input(src, "Choose an icon for you card.") in pai_emotions
 	card.setEmotion(pai_emotions[selection])
+
+/mob/living/silicon/pai/set_respawn_time()
+	set_death_time(MINISYNTH, world.time)
 
 /obj/item/device/radio/pai
 	canhear_range = 0 // only people on their tile

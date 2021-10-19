@@ -157,11 +157,12 @@
 	if(scan_mode == SCANNER_REAGENT)
 		if(!isobj(A) || isnull(A.reagents))
 			return
-		if(A.reagents.reagent_list.len)
-			var/reagents_length = A.reagents.reagent_list.len
+		var/reagents_length = LAZYLEN(A.reagents.reagent_volumes)
+		if(reagents_length)
 			to_chat(user, SPAN_NOTICE("[reagents_length] chemical agent[reagents_length > 1 ? "s" : ""] found."))
-			for(var/re in A.reagents.reagent_list)
-				to_chat(user, SPAN_NOTICE("    [re]"))
+			for(var/_re in A.reagents.reagent_volumes)
+				var/decl/reagent/re = decls_repository.get_decl(_re)
+				to_chat(user, SPAN_NOTICE("    [re.name]"))
 		else
 			to_chat(user, SPAN_NOTICE("No active chemical agents found in [A]."))
 
@@ -187,6 +188,10 @@
 	if(anchored)
 		return attack_self(user)
 	return ..()
+
+// pai can take a look, but they cannot interact with the UI
+/obj/item/modular_computer/attack_pai(mob/user)
+	return attack_self(user)
 
 // On-click handling. Turns on the computer if it's off and opens the GUI.
 /obj/item/modular_computer/attack_self(mob/user)
@@ -314,3 +319,11 @@
 /obj/item/modular_computer/GetID()
 	if(card_slot)
 		return card_slot.stored_card
+
+/obj/item/modular_computer/hear_talk(mob/M, text, verb, datum/language/speaking)
+	if(Adjacent(M))
+		var/datum/computer_file/program/chat_client/P = hard_drive.find_file_by_name("ntnrc_client")
+		if(!P || (P.program_state == PROGRAM_STATE_KILLED && P.service_state == PROGRAM_STATE_KILLED))
+			return
+		if(P.focused_conv)
+			P.focused_conv.cl_send(P, text, M)

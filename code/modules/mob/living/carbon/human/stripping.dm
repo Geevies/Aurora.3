@@ -6,7 +6,18 @@
 		user << browse(null, text("window=mob[src.name]"))
 		return FALSE
 
+	if(ishuman(user))
+		// If you're a human and don't have hands, you shouldn't be able to strip someone.
+		var/mob/living/carbon/human/H = user
+		var/obj/item/organ/external/l_hand = H.get_organ(BP_L_HAND)
+		var/obj/item/organ/external/r_hand = H.get_organ(BP_R_HAND)
+		if(!(l_hand && l_hand.is_usable()) && !(r_hand && r_hand.is_usable()))
+			to_chat(user, SPAN_WARNING("You can't do that without working hands!"))
+			return FALSE
+
 	var/obj/item/target_slot = get_equipped_item(text2num(slot_to_strip))
+	if(istype(target_slot, /obj/item/clothing/ears/offear))
+		target_slot = (l_ear == target_slot ? r_ear : l_ear)
 
 	switch(slot_to_strip)
 		// Handle things that are part of this interface but not removing/replacing a given item.
@@ -47,7 +58,16 @@
 			var/obj/item/clothing/under/suit = w_uniform
 			if(!istype(suit) || !LAZYLEN(suit.accessories))
 				return 0
-			var/obj/item/clothing/accessory/A = suit.accessories[1]
+			var/obj/item/clothing/accessory/A
+			if(LAZYLEN(suit.accessories) > 1)
+				var/list/options = list()
+				for (var/obj/item/clothing/accessory/i in suit.accessories)
+					var/image/radial_button = image(icon = i.icon, icon_state = i.icon_state)
+					options[i] = radial_button
+				A = show_radial_menu(user, user, options, radius = 42, tooltips = TRUE)
+			else
+				A = suit.accessories[1]
+
 			if(!istype(A))
 				return 0
 			visible_message("<span class='danger'>\The [usr] is trying to remove \the [src]'s [A.name]!</span>")
@@ -88,9 +108,12 @@
 
 	if(stripping)
 		admin_attack_log(user, src, "Attempted to remove \a [target_slot]", "Target of an attempt to remove \a [target_slot].", "attempted to remove \a [target_slot] from")
+		if((l_ear == target_slot || r_ear == target_slot) && (target_slot.slot_flags & SLOT_TWOEARS))
+			var/obj/item/clothing/ears/OE = (l_ear == target_slot ? r_ear : l_ear)
+			qdel(OE)
 		unEquip(target_slot)
 	else if(user.unEquip(held))
-		equip_to_slot_if_possible(held, text2num(slot_to_strip), 0, 1, 1)
+		equip_to_slot_if_possible(held, text2num(slot_to_strip), FALSE, TRUE, TRUE, FALSE, TRUE)
 		if(held.loc != src)
 			user.put_in_hands(held)
 	return 1

@@ -19,7 +19,7 @@
 
 	if(can_feel_pain())
 		if(get_shock() >= 10)
-			tally += (get_shock() / 10) //pain shouldn't slow you down if you can't even feel it
+			tally += (get_shock() / 30) //pain shouldn't slow you down if you can't even feel it
 
 	tally += ClothesSlowdown()
 
@@ -36,33 +36,7 @@
 		if (hydration < (max_hydration * 0.1))
 			tally++
 
-	if(istype(buckled, /obj/structure/bed/chair/wheelchair))
-		for(var/organ_name in list(BP_L_HAND,BP_R_HAND,BP_L_ARM,BP_R_ARM))
-			var/obj/item/organ/external/E = get_organ(organ_name)
-			if(!E || E.is_stump())
-				tally += 4
-			else if(E.status & ORGAN_SPLINTED)
-				tally += 0.5
-			else if(E.status & ORGAN_BROKEN)
-				tally += 1.5
-	else
-		if(shoes)
-			tally += shoes.slowdown
-
-		if(species.tail_stance)
-			// If your groin is missing outright, you are dead, so, whatever. No point tallying stump etc. for it.
-			var/obj/item/organ/external/E = get_organ(BP_GROIN)
-			if(E.status & ORGAN_BROKEN)
-				tally += 1.5
-		else
-			for(var/organ_name in list(BP_L_FOOT,BP_R_FOOT,BP_L_LEG,BP_R_LEG))
-				var/obj/item/organ/external/E = get_organ(organ_name)
-				if(!E || E.is_stump())
-					tally += 4
-				else if(E.status & ORGAN_SPLINTED)
-					tally += 0.5
-				else if(E.status & ORGAN_BROKEN)
-					tally += 1.5
+	tally += species.handle_movement_tally(src)
 
 	if (can_feel_pain())
 		if(shock_stage >= 10)
@@ -74,7 +48,7 @@
 	if(aiming && aiming.aiming_at)
 		tally += 5 // Iron sights make you slower, it's a well-known fact.
 
-	if (drowsyness)
+	if (is_drowsy())
 		tally += 6
 
 	if (!(species.flags & IS_MECHANICAL))	// Machines don't move slower when cold.
@@ -93,8 +67,12 @@
 		tally = max(0, tally-3)
 
 	var/turf/T = get_turf(src)
-	if(T && !mind.changeling) // changelings don't get movement costs
-		tally += T.movement_cost
+	if(T) // changelings don't get movement costs
+		var/datum/changeling/changeling
+		if(mind)
+			changeling = mind.antag_datums[MODE_CHANGELING]
+		if(!changeling)
+			tally += T.movement_cost
 
 	tally += config.human_delay
 
@@ -150,12 +128,13 @@
 	var/turf/T = loc
 	var/footsound
 	var/top_layer = 0
-	for(var/obj/structure/S in T)
-		if(S.layer > top_layer && S.footstep_sound)
-			top_layer = S.layer
-			footsound = S.footstep_sound
-	if(!footsound)
-		footsound = T.footstep_sound
+	if(istype(T))
+		for(var/obj/structure/S in T)
+			if(S.layer > top_layer && S.footstep_sound)
+				top_layer = S.layer
+				footsound = S.footstep_sound
+		if(!footsound)
+			footsound = T.footstep_sound
 
 	if (client)
 		var/turf/B = GetAbove(T)
@@ -167,7 +146,7 @@
 			return
 		last_x = x
 		last_y = y
-		if (m_intent == "run")
+		if (m_intent == M_RUN)
 			playsound(src, footsound, 70, 1, required_asfx_toggles = ASFX_FOOTSTEPS)
 		else
 			footstep++
@@ -185,6 +164,7 @@
 /mob/living/carbon/human/proc/ClothesSlowdown()
 	for(var/obj/item/I in list(wear_suit, w_uniform, back, gloves, head, wear_mask, shoes, l_ear, r_ear, glasses, belt))
 		. += I.slowdown
+		. += I.slowdown_accessory
 
 /mob/living/carbon/human/get_pulling_movement_delay()
 	. = ..()

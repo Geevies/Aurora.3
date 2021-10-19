@@ -132,6 +132,10 @@
 	name = "Burglar Hideout"
 	icon_state = "burglar"
 
+/area/antag/loner
+	name = "Loner Basement"
+	icon_state = "loner"
+
 /area/antag/wizard
 	name = "Wizard Mind Palace"
 	icon_state = "wizard"
@@ -294,9 +298,14 @@
 	no_light_control = 1
 
 /area/dungeon/skrell_ship
-    name = "Crashed Skrell Ship"
-    icon_state = "purple"
-    flags = RAD_SHIELDED | SPAWN_ROOF
+	name = "Crashed Skrell Ship"
+	icon_state = "purple"
+	flags = RAD_SHIELDED | SPAWN_ROOF
+
+/area/dungeon/bluespace_outpost
+	name = "Bluespace Outpost"
+	icon_state = "purple"
+	flags = RAD_SHIELDED | SPAWN_ROOF
 
 //Misc
 

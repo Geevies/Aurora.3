@@ -50,18 +50,14 @@ You can set verify to TRUE if you want send() to sleep until the client has the 
 	client.sending |= asset_name
 	var/job = ++client.last_asset_job
 
-	client << browse({"
-	<script>
-		window.location.href="?asset_cache_confirm_arrival=[job]"
-	</script>
-	"}, "window=asset_cache_browser")
+	client << browse("<script>window.location.href=\"?asset_cache_confirm_arrival=[job]\"</script>", "window=asset_cache_browser")
 
 	var/t = 0
 	var/timeout_time = (ASSET_CACHE_SEND_TIMEOUT * client.sending.len) + ASSET_CACHE_SEND_TIMEOUT
 	while(client && !client.completed_asset_jobs.Find(job) && t < timeout_time) // Reception is handled in Topic()
 		sleep(1) // Lock up the caller until this is received.
 		t++
-	
+
 	if(t >= timeout_time)
 		log_admin(SPAN_DANGER("Timeout time [timeout_time] exceeded for asset: [asset_name] for client [client]. Please notify a developer."))
 
@@ -102,11 +98,7 @@ You can set verify to TRUE if you want send() to sleep until the client has the 
 	client.sending |= unreceived
 	var/job = ++client.last_asset_job
 
-	client << browse({"
-	<script>
-		window.location.href="?asset_cache_confirm_arrival=[job]"
-	</script>
-	"}, "window=asset_cache_browser")
+	client << browse("<script>window.location.href=\"?asset_cache_confirm_arrival=[job]\"</script>", "window=asset_cache_browser")
 
 	var/t = 0
 	var/timeout_time = ASSET_CACHE_SEND_TIMEOUT * client.sending.len
@@ -150,7 +142,6 @@ var/list/asset_datums = list()
 
 /datum/asset
 	var/_abstract = /datum/asset
-	var/delayed = FALSE
 
 /datum/asset/New()
 	asset_datums[type] = src
@@ -174,25 +165,6 @@ var/list/asset_datums = list()
 
 /datum/asset/simple/send(client)
 	send_asset_list(client,assets,verify)
-
-/datum/asset/chem_master
-	var/list/bottle_sprites = list("bottle-1", "bottle-2", "bottle-3", "bottle-4")
-	var/max_pill_sprite = 20
-	var/list/assets = list()
-
-/datum/asset/chem_master/register()
-	for (var/i = 1 to max_pill_sprite)
-		var/name = "pill[i].png"
-		register_asset(name, icon('icons/obj/chemical.dmi', "pill[i]"))
-		assets += name
-
-	for (var/sprite in bottle_sprites)
-		var/name = "[sprite].png"
-		register_asset(name, icon('icons/obj/chemical.dmi', sprite))
-		assets += name
-
-/datum/asset/chem_master/send(client)
-	send_asset_list(client, assets)
 
 /datum/asset/group
 	_abstract = /datum/asset/group
@@ -402,7 +374,7 @@ var/list/asset_datums = list()
 	)
 
 /datum/asset/simple/goonchat
-	verify = FALSE
+	verify = TRUE
 	assets = list(
 		"json2.min.js"             = 'code/modules/goonchat/browserassets/js/json2.min.js',
 		"browserOutput.js"         = 'code/modules/goonchat/browserassets/js/browserOutput.js',
@@ -438,6 +410,7 @@ var/list/asset_datums = list()
 		"barcode1.png" = 'html/images/barcode1.png',
 		"barcode2.png" = 'html/images/barcode2.png',
 		"barcode3.png" = 'html/images/barcode3.png',
+		"scclogo.png" = 'html/images/scclogo.png',
 		"ntlogo.png" = 'html/images/ntlogo.png',
 		"ntlogo_small.png" = 'html/images/ntlogo_small.png',
 		"zhlogo.png" = 'html/images/zhlogo.png',
@@ -454,7 +427,27 @@ var/list/asset_datums = list()
 		"praflag.png" = 'html/images/praflag.png',
 		"dpraflag.png" = 'html/images/dpraflag.png',
 		"nkaflag.png" = 'html/images/nkaflag.png',
-		"izweskiflag.png" = 'html/images/izweskiflag.png'
+		"izweskiflag.png" = 'html/images/izweskiflag.png',
+		"goldenlogo.png" = 'html/images/goldenlogo.png',
+		"bluebird.woff" = 'html/fonts/OFL/Bluebird.woff',
+		"grandhotel.woff" = 'html/fonts/OFL/GrandHotel.woff',
+		"lashema.woff" = 'html/fonts/OFL/Lashema.woff',
+		"sourcecodepro.woff" = 'html/fonts/OFL/SourceCodePro.woff',
+		"sovjetbox.woff" = 'html/fonts/OFL/SovjetBox.woff',
+		"torsha.woff" = 'html/fonts/OFL/Torsha.woff',
+		"web3of9ascii.woff" = 'html/fonts/OFL/Web3Of9ASCII.woff',
+		"zeshit.woff" = 'html/fonts/OFL/zeshit.woff',
+		"bilboinc.woff" = 'html/fonts/OFL/BilboINC.woff',
+		"fproject.woff" = 'html/fonts/OFL/FProject.woff',
+		"gelasio.woff" = 'html/fonts/OFL/Gelasio.woff',
+		"mo5v56.woff" = 'html/fonts/OFL/Mo5V56.woff',
+		"runasans.woff" = 'html/fonts/OFL/RunaSans.woff',
+		"classica.woff" = 'html/fonts/OFL/Classica.woff',
+		"stormning.woff" = 'html/fonts/OFL/Stormning.woff',
+		"copt-b.woff" = 'html/fonts/OFL/Copt-B.woff',
+		"ducados.woff" = 'html/fonts/OFL/Ducados.woff',
+		"kawkabmono.woff" = 'html/fonts/OFL/KawkabMono.woff',
+		"kaushanscript.woff" = 'html/fonts/OFL/KaushanScript.woff'
 	)
 
 /datum/asset/simple/changelog
@@ -482,7 +475,6 @@ var/list/asset_datums = list()
 
 /datum/asset/spritesheet/vending
 	name = "vending"
-	delayed = TRUE
 
 /datum/asset/spritesheet/vending/register()
 	var/list/vending_products = list()
@@ -517,9 +509,12 @@ var/list/asset_datums = list()
 		if(istype(O, /obj/item/seeds))
 			// thanks seeds for being overlays defined at runtime
 			var/obj/item/seeds/S = O
+			if(!S.seed && S.seed_type && !isnull(SSplants.seeds) && SSplants.seeds[S.seed_type])
+				S.seed = SSplants.seeds[S.seed_type]
 			I = S.update_appearance(TRUE)
 			Insert(imgid, I, forced=I)
 		else
+			O.update_icon()
 			if(O.overlay_queued)
 				O.compile_overlays()
 			if(O.overlays.len)
@@ -527,4 +522,17 @@ var/list/asset_datums = list()
 				Insert(imgid, I, forced=I)
 			else
 				Insert(imgid, I)
+	return ..()
+
+/datum/asset/spritesheet/chem_master
+	name = "chemmaster"
+	var/list/bottle_sprites = list("bottle-1", "bottle-2", "bottle-3", "bottle-4")
+	var/max_pill_sprite = 20
+
+/datum/asset/spritesheet/chem_master/register()
+	for (var/i = 1 to max_pill_sprite)
+		Insert("pill[i]", 'icons/obj/chemical.dmi', "pill[i]")
+
+	for (var/sprite in bottle_sprites)
+		Insert(sprite, icon('icons/obj/chemical.dmi', sprite))
 	return ..()
