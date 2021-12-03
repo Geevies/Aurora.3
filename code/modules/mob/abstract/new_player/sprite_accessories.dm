@@ -1792,6 +1792,12 @@ Follow by example and make good judgement based on length which list to include 
 		icon_state = "blank"
 		species_allowed = list(/datum/species/bug/type_e)
 
+	breeder_default
+		name = "Breeder Gradient"
+		icon = "icons/mob/base_48.dmi"
+		icon_state = "blank"
+		species_allowed = list(/datum/species/bug/type_c)
+
 /*
 ///////////////////////////////////
 /  =---------------------------=  /
@@ -1809,7 +1815,7 @@ Follow by example and make good judgement based on length which list to include 
 		icon_state = "bald"
 		gender = NEUTER
 		species_allowed = list(/datum/species/human,/datum/species/human/offworlder,/datum/species/machine/shell,/datum/species/machine/shell/rogue,/datum/species/zombie,/datum/species/unathi,/datum/species/zombie/unathi,
-		/datum/species/tajaran,/datum/species/tajaran/zhan_khazan,/datum/species/tajaran/m_sai,/datum/species/zombie/tajara,/datum/species/skrell,/datum/species/skrell/axiori,/datum/species/zombie/skrell,/datum/species/diona, 
+		/datum/species/tajaran,/datum/species/tajaran/zhan_khazan,/datum/species/tajaran/m_sai,/datum/species/zombie/tajara,/datum/species/skrell,/datum/species/skrell/axiori,/datum/species/zombie/skrell,/datum/species/diona,
 		/datum/species/diona/coeu, /datum/species/bug/type_b)
 
 	threeOclock
@@ -2571,7 +2577,7 @@ Follow by example and make good judgement based on length which list to include 
 			icon_state = "hair_swoop"
 			length = 2
 			chatname = "styled mane"
-			
+
 		taj_ears_swoop_alt
 			name = "Tajara Swoop Alt"
 			icon_state = "hair_swoop_alt"
@@ -2950,6 +2956,30 @@ Follow by example and make good judgement based on length which list to include 
 			chatname = "antennae"
 			length = 2
 
+	breeder
+		icon = 'icons/mob/human_face/breeder_hair.dmi'
+		name = "Breeder Standard Antennae"
+		icon_state = "breeder"
+		species_allowed = list(/datum/species/bug/type_c)
+		gender = NEUTER
+		chatname = "antennae"
+
+		crowned_crest
+			name = "Breeder Crowned Crest"
+			icon_state = "breeder_crowned_crest"
+
+		princess
+			name = "Breeder Princess Antennae"
+			icon_state = "breeder_princess"
+
+		quad
+			name = "Breeder Quad Antennae"
+			icon_state = "breeder_quad"
+
+		hammerhead
+			name = "Breeder Hammerhead"
+			icon_state = "breeder_hammerhead"
+
 //Bulwark antennae
 	bulwark_classic
 		icon = 'icons/mob/human_face/bulwark_hair.dmi'
@@ -2964,14 +2994,14 @@ Follow by example and make good judgement based on length which list to include 
 			icon_state = "bully_inj_left"
 			chatname = "antenna"
 			length = 1
-		
-		bulwark_damaged_right 
+
+		bulwark_damaged_right
 			name = "Bulwark Injured Antenna, Right"
 			icon_state = "bully_inj_right"
 			chatname = "antenna"
 			length = 1
 
-		bulwark_knight 
+		bulwark_knight
 			name = "Bulwark Knight Antennae"
 			icon_state = "bully_knight"
 			chatname = "antennae"
@@ -3535,11 +3565,11 @@ Follow by example and make good judgement based on length which list to include 
 			name = "Bulldog Mandibles"
 			icon_state = "vaurca_bulldog"
 
-		mantis 
+		mantis
 			name = "Mantis Mandibles"
 			icon_state = "vaurca_mantis"
 
-		stag 
+		stag
 			name = "Stag Mandibles"
 			icon_state = "vaurca_stag"
 
@@ -3547,11 +3577,11 @@ Follow by example and make good judgement based on length which list to include 
 			name = "Ectatomma Mandibles"
 			icon_state = "vaurca_ectatomma"
 
-		horridus 
+		horridus
 			name = "Horridus Mandibles"
 			icon_state = "vaurca_horridus"
 
-		tusks 
+		tusks
 			name = "Tusk Mandibles"
 			icon_state = "vaurca_tusks"
 
@@ -3559,7 +3589,7 @@ Follow by example and make good judgement based on length which list to include 
 			name = "Acanthognathus Mandibles"
 			icon_state = "vaurca_acanthognathus"
 
-		myrmoteras 
+		myrmoteras
 			name = "Myrmoteras Mandibles"
 			icon_state = "vaurca_myrmoteras"
 

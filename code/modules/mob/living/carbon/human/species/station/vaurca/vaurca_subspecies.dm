@@ -94,7 +94,7 @@
 		/mob/living/carbon/human/proc/bugbite
 		)
 
-	default_h_style = "Bald"
+	default_h_style = "Breeder Standard Antennae"
 
 /datum/species/bug/type_c/New()
 	..()

@@ -500,43 +500,45 @@
 	empty_delay = 0.8 SECOND
 
 /obj/item/storage/backpack/typec
-	icon = 'icons/mob/species/breeder/inventory.dmi'
 	name = "type c zo'ra wings"
 	desc = "The wings of a CB Caste Vaurca. They are far too small at this stage to permit sustained periods of flight in most situations."
-	icon_state = "wings"
-	item_state = "wings"
+	icon = 'icons/mob/species/breeder/inventory.dmi'
+	icon_state = "wings_zora"
+	item_state = "wings_zora"
 	w_class = ITEMSIZE_HUGE
 	slot_flags = SLOT_BACK
 	max_storage_space = 12
-	canremove = 0
+	canremove = FALSE
 	species_restricted = list(BODYTYPE_VAURCA_BREEDER)
 	sprite_sheets = list(BODYTYPE_VAURCA_BREEDER = 'icons/mob/species/breeder/back.dmi')
 
-/obj/item/storage/backpack/typec_klax
-	icon = 'icons/mob/species/breeder/inventory.dmi'
+	var/wings_open = FALSE
+
+/obj/item/storage/backpack/typec/verb/toggle_wings_open()
+	set name = "Toggle Wings"
+	set desc = "Toggle your wings open and closed."
+	set category = "Object"
+	set src in usr
+
+	if(use_check_and_message(usr))
+		return FALSE
+
+	wings_open = !wings_open
+	icon_state = "[initial(icon_state)][wings_open ? "_open" : ""]"
+	item_state = "[initial(item_state)][wings_open ? "_open" : ""]"
+	to_chat(usr, SPAN_NOTICE("You [wings_open ? "open" : "close"] your wings."))
+	var/mob/living/carbon/human/H = loc
+	H.update_inv_back()
+
+/obj/item/storage/backpack/typec/klax
 	name = "type c k'lax wings"
-	desc = "The wings of a CB Caste Vaurca. They are far too small at this stage to permit sustained periods of flight in most situations."
 	icon_state = "wings_klax"
 	item_state = "wings_klax"
-	w_class = ITEMSIZE_HUGE
-	slot_flags = SLOT_BACK
-	max_storage_space = 12
-	canremove = 0
-	species_restricted = list(BODYTYPE_VAURCA_BREEDER)
-	sprite_sheets = list(BODYTYPE_VAURCA_BREEDER = 'icons/mob/species/breeder/back.dmi')
 
-/obj/item/storage/backpack/typec_cthur
-	icon = 'icons/mob/species/breeder/inventory.dmi'
+/obj/item/storage/backpack/typec/cthur
 	name = "type c c'thur wings"
-	desc = "The wings of a CB Caste Vaurca. They are far too small at this stage to permit sustained periods of flight in most situations."
 	icon_state = "wings_cthur"
 	item_state = "wings_cthur"
-	w_class = ITEMSIZE_HUGE
-	slot_flags = SLOT_BACK
-	max_storage_space = 12
-	canremove = 0
-	species_restricted = list(BODYTYPE_VAURCA_BREEDER)
-	sprite_sheets = list(BODYTYPE_VAURCA_BREEDER = 'icons/mob/species/breeder/back.dmi')
 
 /obj/item/storage/backpack/service
 	name = "idris service backpack"
@@ -667,7 +669,7 @@
 	set src in usr
 	if(use_check_and_message(usr))
 		return 0
-	hooded = !hooded 
+	hooded = !hooded
 	to_chat(usr, "You [hooded ? "raise" : "lower"] \the [src] hood.")
 	icon_state = "[initial(icon_state)][hooded ? "_up" : ""]"
 	item_state = "icon_state"
@@ -687,7 +689,7 @@
 	icon_state = "medcape"
 	item_state = "medcape"
 
-/obj/item/storage/backpack/cloak/engi 
+/obj/item/storage/backpack/cloak/engi
 	name = "engineering tunnel cloak"
 	desc = "A Vaurca cloak with storage pockets. This one has the engineering department design."
 	icon_state = "engicape"

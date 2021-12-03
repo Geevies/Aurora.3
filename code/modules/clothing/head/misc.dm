@@ -529,35 +529,32 @@
 	cold_protection = HEAD
 	min_cold_protection_temperature = SPACE_HELMET_MIN_COLD_PROTECTION_TEMPERATURE
 
-/obj/item/clothing/head/vaurca_breeder
+/obj/item/clothing/head/breeder_shroud
 	name = "zo'ra representative shroud"
 	desc = "Large shroud used by Zo'ra representatives."
 	icon = 'icons/mob/species/breeder/inventory.dmi'
-	item_state = "shroud"
-	icon_state = "shroud"
-	contained_sprite = FALSE
+	item_state = "shroud_zora"
+	icon_state = "shroud_zora"
 	species_restricted = list(BODYTYPE_VAURCA_BREEDER)
 	sprite_sheets = list(BODYTYPE_VAURCA_BREEDER = 'icons/mob/species/breeder/head.dmi')
 
-/obj/item/clothing/head/klax_breeder
+/obj/item/clothing/head/breeder_shroud/klax
 	name = "k'lax represenatitve shroud"
 	desc = "Large shroud used by K'lax representatives."
-	icon = 'icons/mob/species/breeder/inventory.dmi'
 	item_state = "shroud_klax"
 	icon_state = "shroud_klax"
-	contained_sprite = FALSE
-	species_restricted = list(BODYTYPE_VAURCA_BREEDER)
-	sprite_sheets = list(BODYTYPE_VAURCA_BREEDER = 'icons/mob/species/breeder/head.dmi')
 
-/obj/item/clothing/head/cthur_breeder
+/obj/item/clothing/head/breeder_shroud/cthur
 	name = "c'thur representative shroud"
 	desc = "Large shroud used by C'thur representatives."
-	icon = 'icons/mob/species/breeder/inventory.dmi'
 	item_state = "shroud_cthur"
 	icon_state = "shroud_cthur"
-	contained_sprite = FALSE
-	species_restricted = list(BODYTYPE_VAURCA_BREEDER)
-	sprite_sheets = list(BODYTYPE_VAURCA_BREEDER = 'icons/mob/species/breeder/head.dmi')
+
+/obj/item/clothing/head/breeder_shroud/jargon
+	name = "jargon representative shroud"
+	desc = "Large shroud used by Jargon representatives."
+	item_state = "shroud_jargon"
+	icon_state = "shroud_jargon"
 
 /obj/item/clothing/head/navy
 	name = "sol navy utility cover"
