@@ -52,12 +52,15 @@
 
 	var/turf/targloc = get_turf(target)
 	if(!isfloor(targloc))
-		to_chat(user, span("warning", "You cannot request this on unstable flooring!"))
+		to_chat(user, SPAN_WARNING("You cannot request this on unstable flooring!"))
 		return
 	if(!emagged)
-		for(var/turf/t in block(locate(targloc.x + safety_check_radius, targloc.y + safety_check_radius, targloc.z), locate(targloc.x - safety_check_radius, targloc.y - safety_check_radius, targloc.z)))
-			if (isStationLevel(targloc.z))
-				to_chat(user, SPAN_WARNING("You can't request this orbital drop on the ship!"))
+		if(isStationLevel(targloc.z))
+			to_chat(user, SPAN_WARNING("You can't request this orbital drop on the ship!"))
+			return
+		for(var/turf/surrounding_turf as anything in map.get_affected_turfs(targloc, TRUE))
+			if(!isfloor(surrounding_turf))
+				to_chat(user, SPAN_WARNING("You need to clear the surrounding area or lay a lattice on any holes before you can call this in!"))
 				return
 	if(!(user in (viewers(paint_distance, target))) )
 		to_chat(user, SPAN_WARNING("You can't paint the target that far away!"))

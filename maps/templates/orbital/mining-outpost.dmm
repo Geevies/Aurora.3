@@ -1607,7 +1607,7 @@
 /turf/simulated/floor/plating,
 /area/outpost/mining_main/forward_outpost)
 "ZO" = (
-/obj/structure/bed/chair/office/bridge{
+/obj/structure/bed/stool/chair/office/bridge{
 	dir = 8;
 	name = "paperwork chair"
 	},
