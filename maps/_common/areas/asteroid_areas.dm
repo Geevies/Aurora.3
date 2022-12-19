@@ -57,6 +57,9 @@
 /area/outpost/mining_main/refinery
 	name = "Mining Refinery"
 
+/area/outpost/mining_main/forward_outpost
+	name = "Mining Forward Outpost"
+
 // Engineering
 /area/outpost/engineering
 	icon_state = "outpost_engine"

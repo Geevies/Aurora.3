@@ -76,3 +76,16 @@
 	log_and_message_admins("[key_name_admin(user)] has used a [src] at <A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[target.x];Y=[target.y];Z=[target.z]'>JMP</a>.")
 	for(var/i = 1, i <= num_of_drones, i++)
 		new /mob/living/simple_animal/hostile/icarus_drone(get_random_turf_in_range(target, 4, 2, TRUE))
+
+/obj/item/device/orbital_dropper/mining_outpost
+	name = "mining outpost dropper"
+	desc = "A device used to paint a target, which will then promptly orbitally drop the requested items. Watch your head with this one!"
+
+	can_be_emagged = FALSE
+	does_explosion = FALSE
+	drop_amount = 1
+	safety_check_radius = 10
+
+	drop_message = "Mining outpost inbound! Watch your heads!"
+
+	map = new /datum/map_template/mining_outpost

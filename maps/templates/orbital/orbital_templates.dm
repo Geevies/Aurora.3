@@ -25,3 +25,7 @@
 /datum/map_template/minecart
 	name = "Minecart Drop"
 	mappath = 'maps/templates/orbital/minecart.dmm'
+
+/datum/map_template/mining_outpost
+	name = "Mining Outpost Drop"
+	mappath = 'maps/templates/orbital/mining-outpost.dmm'
