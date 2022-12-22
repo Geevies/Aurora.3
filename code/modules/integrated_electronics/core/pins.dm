@@ -24,8 +24,9 @@ D [1]/  ||
 	var/datum/weakref/data = null // This is a weakref, to reduce typecasts.  Note that oftentimes numbers and text may also occupy this.
 	var/list/linked = list()
 	var/io_type = DATA_CHANNEL
+	var/pin_type
 
-/datum/integrated_io/New(var/newloc, var/name, var/new_data)
+/datum/integrated_io/New(var/newloc, var/name, var/new_data, var/new_pin_type)
 	..()
 	src.name = name
 	if(new_data)
@@ -34,6 +35,7 @@ D [1]/  ||
 	if(!istype(holder))
 		message_admins("ERROR: An integrated_io ([src.name]) spawned without a valid holder!  This is a bug.")
 		log_debug("ERROR: An integrated_io ([src.name]) spawned without a valid holder!  This is a bug.")
+	pin_type = new_pin_type
 
 /datum/integrated_io/Destroy()
 	disconnect()
@@ -131,6 +133,10 @@ list[](
 	if(linked.len)
 		return "the [english_list(linked)]"
 	return "nothing"
+
+/datum/integrated_io/proc/connect_pin(datum/integrated_io/pin)
+	pin.linked |= src
+	linked |= pin
 
 /datum/integrated_io/proc/disconnect()
 	//First we iterate over everything we are linked to.

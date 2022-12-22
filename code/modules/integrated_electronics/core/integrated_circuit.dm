@@ -36,9 +36,9 @@ a creative player the means to solve many problems.  Circuits are held inside an
 		size = w_class
 	if(size == -1)
 		size = 0
-	setup_io(inputs, /datum/integrated_io, inputs_default)
-	setup_io(outputs, /datum/integrated_io, outputs_default)
-	setup_io(activators, /datum/integrated_io/activate)
+	setup_io(inputs, /datum/integrated_io, inputs_default, IC_INPUT)
+	setup_io(outputs, /datum/integrated_io, outputs_default, IC_OUTPUT)
+	setup_io(activators, /datum/integrated_io/activate, pin_type = IC_ACTIVATOR)
 	. = ..()
 
 /obj/item/integrated_circuit/proc/on_data_written() //Override this for special behaviour when new data gets pushed to the circuit.
@@ -300,6 +300,7 @@ a creative player the means to solve many problems.  Circuits are held inside an
 		disconnect_all()
 		var/turf/T = get_turf(src)
 		forceMove(T)
+		LAZYREMOVE(assembly.assembly_components, src)
 		assembly = null
 		playsound(T, 'sound/items/crowbar_pry.ogg', 50, 1)
 		to_chat(usr, "<span class='notice'>You pop \the [src] out of the case, and slide it out.</span>")

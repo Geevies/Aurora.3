@@ -10,7 +10,8 @@
 
 	var/upgraded = FALSE  // When hit with an upgrade disk, will turn true, allowing it to print the higher tier circuits.
 	var/can_clone = FALSE // Same for above, but will allow the printer to duplicate a specific assembly.
-	var/obj/item/device/electronic_assembly/assembly_to_clone
+
+	var/saved_assembly_clone_data
 
 /obj/item/device/integrated_circuit_printer/upgraded
 	upgraded = TRUE
@@ -30,7 +31,7 @@
 				SSvueui.check_uis_for_change(src)
 				return TRUE
 
-	if(istype(O,/obj/item/integrated_circuit))
+	else if(istype(O,/obj/item/integrated_circuit))
 		to_chat(user, "<span class='notice'>You insert the circuit into \the [src]. </span>")
 		user.unEquip(O)
 		metal = min(metal + O.w_class, max_metal)
@@ -38,7 +39,22 @@
 		SSvueui.check_uis_for_change(src)
 		return TRUE
 
-	if(istype(O,/obj/item/disk/integrated_circuit/upgrade/advanced))
+	else if(istype(O, /obj/item/device/electronic_assembly))
+		if(!can_clone)
+			to_chat(user, SPAN_WARNING("This printer isn't set up for circuit cloning!"))
+			return
+
+		var/obj/item/device/electronic_assembly/assembly = O
+		var/clone_data = save_electronic_assembly(assembly)
+		message_admins(clone_data)
+		if(clone_data)
+			saved_assembly_clone_data = clone_data
+			to_chat(user, SPAN_NOTICE("\The [src] saves the configuration details of \the [assembly]."))
+		else
+			to_chat(user, SPAN_WARNING("Something went wrong while saving the assembly details."))
+		load_electronic_assembly(get_turf(src), json_decode(saved_assembly_clone_data))
+
+	else if(istype(O,/obj/item/disk/integrated_circuit/upgrade/advanced))
 		if(upgraded)
 			to_chat(user, "<span class='warning'>\The [src] already has this upgrade. </span>")
 			return TRUE
@@ -47,7 +63,7 @@
 		SSvueui.check_uis_for_change(src)
 		return TRUE
 
-	if(istype(O,/obj/item/disk/integrated_circuit/upgrade/clone))
+	else if(istype(O,/obj/item/disk/integrated_circuit/upgrade/clone))
 		if(can_clone)
 			to_chat(user, "<span class='warning'>\The [src] already has this upgrade. </span>")
 			return TRUE
@@ -75,8 +91,7 @@
 	data["metal_max"] = max_metal / metal_per_sheet
 	data["upgraded"] = upgraded
 	data["can_clone"] = can_clone
-	data["assembly_to_clone"] = assembly_to_clone ? assembly_to_clone.name : FALSE
-	
+
 	if(upgraded)
 		data["circuits"] = SSelectronics.printer_recipe_list_upgraded
 	else

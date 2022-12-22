@@ -1,4 +1,4 @@
-/obj/item/integrated_circuit/proc/setup_io(list/io_list, io_type, list/io_default_list)
+/obj/item/integrated_circuit/proc/setup_io(list/io_list, io_type, list/io_default_list, var/pin_type)
 	var/list/io_list_copy = io_list.Copy()
 	io_list.Cut()
 	var/i = 0
@@ -14,9 +14,9 @@
 			io_type_override = io_list_copy[io_entry]
 
 		if(io_type_override)
-			io_list += new io_type_override(src, io_entry, default_data)
+			io_list += new io_type_override(src, io_entry, default_data, pin_type)
 		else
-			io_list += new io_type(src, io_entry, default_data)
+			io_list += new io_type(src, io_entry, default_data, pin_type)
 
 /obj/item/integrated_circuit/proc/set_pin_data(pin_type, pin_number, datum/new_data)
 	if (istype(new_data) && !isweakref(new_data))
@@ -44,6 +44,34 @@
 		return data.resolve()
 	return data
 
+// Returns a list of parameters necessary to locate a pin in the assembly: component number, pin type and pin number
+// Components list can be supplied from the outside, for use in savefiles
+/datum/integrated_io/proc/get_pin_parameters(list/components)
+	if(!holder)
+		return
+
+	if(!components)
+		if(!holder.assembly)
+			return
+		components = holder.assembly.assembly_components
+
+	var/component_number = components.Find(holder)
+
+	var/list/pin_holder_list
+	switch(pin_type)
+		if(IC_INPUT)
+			pin_holder_list = holder.inputs
+		if(IC_OUTPUT)
+			pin_holder_list = holder.outputs
+		if(IC_ACTIVATOR)
+			pin_holder_list = holder.activators
+		else
+			return
+
+	var/pin_number = pin_holder_list.Find(src)
+
+	return list(component_number, pin_type, pin_number)
+
 /obj/item/integrated_circuit/proc/get_pin_ref(pin_type, pin_number)
 	switch(pin_type)
 		if(IC_INPUT)
@@ -59,6 +87,36 @@
 				return null
 			return activators[pin_number]
 	return null
+
+// Locates a pin in the assembly when given component number, pin type and pin number
+// Components list can be supplied from the outside, for use in savefiles
+/obj/item/device/electronic_assembly/proc/get_pin_ref(component_number, pin_type, pin_number, list/components)
+	if(!components)
+		components = assembly_components
+
+	if(component_number > components.len)
+		return
+
+	var/obj/item/integrated_circuit/component = components[component_number]
+	return component.get_pin_ref(pin_type, pin_number)
+
+// Same as get_pin_ref, but takes in a list of 3 parameters (same format as get_pin_parameters)
+// and performs extra sanity checks on parameters list and index numbers
+/obj/item/device/electronic_assembly/proc/get_pin_ref_list(list/parameters, list/components)
+	if(!components)
+		components = assembly_components
+
+	if(!islist(parameters) || parameters.len != 3)
+		return
+
+	// Those are supposed to be list indexes, check them for sanity
+	if(!isnum(parameters[1]) || parameters[1] % 1 || parameters[1] < 1)
+		return
+
+	if(!isnum(parameters[3]) || parameters[3] % 1 || parameters[3] < 1)
+		return
+
+	return get_pin_ref(parameters[1], parameters[2], parameters[3], components)
 
 /obj/item/integrated_circuit/proc/handle_wire(datum/integrated_io/pin, obj/item/device/integrated_electronics/tool)
 	if(istype(tool, /obj/item/device/integrated_electronics/wirer))

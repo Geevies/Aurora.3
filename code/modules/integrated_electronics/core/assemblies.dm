@@ -12,6 +12,7 @@
 	var/max_complexity = IC_COMPLEXITY_BASE
 	var/opened = 0
 	var/can_anchor = FALSE // If true, wrenching it will anchor it.
+	var/list/assembly_components
 	var/obj/item/cell/device/battery // Internal cell which most circuits need to work.
 	var/detail_color = COLOR_ASSEMBLY_BLACK
 	var/obj/item/card/id/access_card
@@ -192,6 +193,11 @@
 		if(opened)
 			interact(user)
 
+//This only happens when this EA is loaded via the printer
+/obj/item/device/electronic_assembly/proc/post_load()
+	for(var/obj/item/integrated_circuit/IC as anything in assembly_components)
+		IC.on_data_written()
+
 /obj/item/device/electronic_assembly/proc/get_part_complexity()
 	. = 0
 	for(var/obj/item/integrated_circuit/part in contents)
@@ -226,6 +232,7 @@
 		return FALSE
 
 	IC.assembly = src
+	LAZYADD(assembly_components, IC)
 
 	return TRUE
 
@@ -233,6 +240,7 @@
 /obj/item/device/electronic_assembly/proc/force_add_circuit(var/obj/item/integrated_circuit/IC)
 	IC.forceMove(src)
 	IC.assembly = src
+	LAZYADD(assembly_components, IC)
 
 /obj/item/device/electronic_assembly/afterattack(atom/target, mob/user, proximity)
 	for(var/obj/item/integrated_circuit/input/sensor/S in contents)
