@@ -215,6 +215,9 @@
 /datum/species/human/shell/sanitize_name(var/new_name)
 	return sanitizeName(new_name, allow_numbers = TRUE)
 
+/datum/species/human/shell/handle_temperature_warning(var/mob/living/carbon/human/human, var/override_base_temperature)
+	return ..(human, T0C + 37)
+
 /datum/species/human/shell/rogue
 	name = SPECIES_IPC_SHELL_ROGUE
 	short_name = "roguejak"

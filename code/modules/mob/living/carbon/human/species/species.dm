@@ -890,3 +890,35 @@
 			query_details["status"] = status
 			var/DBQuery/update_query = dbcon.NewQuery("UPDATE ss13_ipc_tracking SET tag_status = :status: WHERE player_ckey = :ckey: AND character_name = :character_name:")
 			update_query.Execute(query_details)
+
+/datum/species/proc/handle_temperature_warning(var/mob/living/carbon/human/human, var/override_base_temperature)
+	var/base_temperature = override_base_temperature || body_temperature
+	if(base_temperature == null) //some species don't have a set metabolic temperature
+		base_temperature = (heat_level_1 + cold_level_1) / 2
+
+	var/temp_step
+	if(human.bodytemperature >= base_temperature)
+		temp_step = (heat_level_1 - base_temperature) / 4
+
+		if(human.bodytemperature >= heat_level_1)
+			return "temp4"
+		else if(human.bodytemperature >= base_temperature + temp_step * 3)
+			return "temp3"
+		else if(human.bodytemperature >= base_temperature + temp_step * 2)
+			return "temp2"
+		else if(human.bodytemperature >= base_temperature + temp_step * 1)
+			return "temp1"
+
+	else if(human.bodytemperature < base_temperature)
+		temp_step = (base_temperature - cold_level_1) / 4
+
+		if(human.bodytemperature <= cold_level_1)
+			return "temp-4"
+		else if(human.bodytemperature <= base_temperature - temp_step * 3)
+			return "temp-3"
+		else if(human.bodytemperature <= base_temperature - temp_step * 2)
+			return "temp-2"
+		else if(human.bodytemperature <= base_temperature - temp_step * 1)
+			return "temp-1"
+
+	return "temp0"

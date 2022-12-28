@@ -835,7 +835,7 @@ mob/living/carbon/human/proc/change_monitor()
 			earpain(3, TRUE, 1)
 		else if (T in range(src, 2))
 			earpain(2, TRUE, 2)
-	
+
 	for (var/mob/living/carbon/human/T in hearers(2, src) - src)
 		if(T.protected_from_sound())
 			continue
@@ -1084,11 +1084,12 @@ mob/living/carbon/human/proc/change_monitor()
 
 		output += "Internal Temperature: [convert_k2c(bodytemperature)] Degrees Celsius\n"
 
-		var/obj/item/organ/internal/cell/C = internal_organs_by_name[BP_CELL]
-		if(!C || !C.cell)
-			output += SPAN_DANGER("ERROR: NO BATTERY DETECTED")
-		else
-			output += "Current Charge Level: [C.percent()]\n"
+		if(BP_CELL in species.has_organ)
+			var/obj/item/organ/internal/cell/C = internal_organs_by_name[BP_CELL]
+			if(!C || !C.cell)
+				output += SPAN_DANGER("ERROR: NO BATTERY DETECTED")
+			else
+				output += "Current Charge Level: [C.percent()]\n"
 
 		var/toxDam = getToxLoss()
 		if(toxDam)
@@ -1263,7 +1264,7 @@ mob/living/carbon/human/proc/change_monitor()
 	if(!istype(M))
 		to_chat(usr, SPAN_WARNING("You aren't allowed to rename \the [src]."))
 		return
-	 
+
 	if(usr == src)
 		to_chat(usr, SPAN_WARNING("You're a simple creature, you can't rename yourself!"))
 		return

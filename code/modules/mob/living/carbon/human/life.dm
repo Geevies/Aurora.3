@@ -1032,40 +1032,7 @@
 					else
 						new_temp = "temp-4"
 			else
-				//TODO: precalculate all of this stuff when the species datum is created
-				var/base_temperature = species.body_temperature
-				if(base_temperature == null) //some species don't have a set metabolic temperature
-					base_temperature = (species.heat_level_1 + species.cold_level_1)/2
-
-				var/temp_step
-				if (bodytemperature >= base_temperature)
-					temp_step = (species.heat_level_1 - base_temperature)/4
-
-					if (bodytemperature >= species.heat_level_1)
-						new_temp = "temp4"
-					else if (bodytemperature >= base_temperature + temp_step*3)
-						new_temp = "temp3"
-					else if (bodytemperature >= base_temperature + temp_step*2)
-						new_temp = "temp2"
-					else if (bodytemperature >= base_temperature + temp_step*1)
-						new_temp = "temp1"
-					else
-						new_temp = "temp0"
-
-				else if (bodytemperature < base_temperature)
-					temp_step = (base_temperature - species.cold_level_1)/4
-
-					if (bodytemperature <= species.cold_level_1)
-						new_temp = "temp-4"
-					else if (bodytemperature <= base_temperature - temp_step*3)
-						new_temp = "temp-3"
-					else if (bodytemperature <= base_temperature - temp_step*2)
-						new_temp = "temp-2"
-					else if (bodytemperature <= base_temperature - temp_step*1)
-						new_temp = "temp-1"
-					else
-						new_temp = "temp0"
-
+				new_temp = species.handle_temperature_warning(src)
 			if (bodytemp.icon_state != new_temp)
 				bodytemp.icon_state = new_temp
 
