@@ -417,6 +417,11 @@
 	name = "integrated fuel cell"
 	organ_tag = BP_AUG_FUEL_CELL
 
+/obj/item/organ/internal/augment/pain_relay
+	name = BP_AUG_PAIN_RELAY
+	organ_tag = BP_AUG_PAIN_RELAY
+	parent_organ = BP_HEAD
+
 // Geeves!
 /obj/item/organ/internal/augment/language
 	name = "language processor"

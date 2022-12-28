@@ -140,6 +140,13 @@
 	path = /obj/item/organ/internal/augment/fuel_cell
 	cost = 2
 
+/datum/gear/augment/shell_pain_relay
+	display_name = "positronic pain relay"
+	description = "An augment that allows a shell to feel pain."
+	path = /obj/item/organ/internal/augment/pain_relay
+	cost = 0
+	whitelisted = list(SPECIES_IPC_SHELL)
+
 /datum/gear/augment/psiaug
 	display_name = "psionic receiver"
 	description = "An augment installed into the head that functions as a surrogate for a missing zona bovinae, also functioning as a filter for the psionically-challenged."

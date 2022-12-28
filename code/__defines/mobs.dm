@@ -171,6 +171,7 @@
 #define BP_AUG_CORRECTIVE_LENS "corrective lenses"
 #define BP_AUG_GLARE_DAMPENER "glare dampeners"
 #define BP_AUG_ACC_CORDS       "modified synthetic vocal cords"
+#define BP_AUG_PAIN_RELAY      "positronic pain relay"
 
 //Organ defines
 #define PROCESS_ACCURACY 10

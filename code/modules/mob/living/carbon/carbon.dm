@@ -439,7 +439,7 @@
 	return metabolism
 
 /mob/living/carbon/proc/can_feel_pain()
-	if (species && (species.flags & NO_PAIN))
+	if (species && HAS_FLAG(species.flags, NO_PAIN) && !internal_organs_by_name[BP_AUG_PAIN_RELAY])
 		return FALSE
 	if (is_berserk())
 		return FALSE
