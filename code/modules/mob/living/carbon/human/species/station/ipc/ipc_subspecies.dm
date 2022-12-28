@@ -1,121 +1,3 @@
-/datum/species/machine/shell
-	name = SPECIES_IPC_SHELL
-	hide_name = TRUE
-	short_name = "jak"
-	name_plural = "Shells"
-	bodytype = BODYTYPE_HUMAN
-	default_genders = list(MALE, FEMALE)
-	selectable_pronouns = list(MALE, FEMALE, PLURAL, NEUTER)
-
-	burn_mod = 1.2
-	grab_mod = 1
-
-	blurb = "IPCs with humanlike properties. Their focus is on service, civilian, and medical, but there are no \
-	job restrictions. Created in the late days of 2450, the Shell is a controversial IPC model equipped with a synthskin weave applied over its metal chassis \
-	to create an uncannily close approximation of the organic form. Early models of Shell had the advantage of being able to compose themselves of a wide \
-	 variety of organic parts, but contemporary models have been restricted to a single species for the sake of prosthetic integrity. The additional weight of \
-	 the synthskin on the original Hephaestus frame reduces the efficacy of the unit's already strained coolant systems, and increases charge consumption."
-
-	num_alternate_languages = 3
-
-	icobase = 'icons/mob/human_races/human/r_human.dmi'
-	deform = 'icons/mob/human_races/ipc/robotic.dmi'
-	preview_icon = 'icons/mob/human_races/ipc/shell_preview.dmi'
-
-	light_range = 0
-	light_power = 0
-	unarmed_types = list(
-		/datum/unarmed_attack/punch/ipc,
-		/datum/unarmed_attack/stomp/ipc,
-		/datum/unarmed_attack/kick/ipc,
-		/datum/unarmed_attack/bite
-	)
-
-	eyes = "eyes_s"
-	show_ssd = "completely quiescent"
-
-	heat_level_1 = 500
-	heat_level_2 = 1000
-	heat_level_3 = 2000
-
-	heat_discomfort_level = 400
-	heat_discomfort_strings = list(
-		"Your CPU temperature probes warn you that you are approaching critical heat levels!",
-		"Your synthetic flesh crawls in the heat, swelling into a disgusting morass of plastic."
-		)
-
-	appearance_flags = HAS_HAIR_COLOR | HAS_SKIN_TONE | HAS_EYE_COLOR | HAS_FBP | HAS_SKIN_PRESET | HAS_UNDERWEAR | HAS_SOCKS | HAS_LIPS
-
-	has_limbs = list(
-		BP_CHEST =  list("path" = /obj/item/organ/external/chest/ipc/shell),
-		BP_GROIN =  list("path" = /obj/item/organ/external/groin/ipc/shell),
-		BP_HEAD =   list("path" = /obj/item/organ/external/head/ipc/shell),
-		BP_L_ARM =  list("path" = /obj/item/organ/external/arm/ipc/shell),
-		BP_R_ARM =  list("path" = /obj/item/organ/external/arm/right/ipc/shell),
-		BP_L_LEG =  list("path" = /obj/item/organ/external/leg/ipc/shell),
-		BP_R_LEG =  list("path" = /obj/item/organ/external/leg/right/ipc/shell),
-		BP_L_HAND = list("path" = /obj/item/organ/external/hand/ipc/shell),
-		BP_R_HAND = list("path" = /obj/item/organ/external/hand/right/ipc/shell),
-		BP_L_FOOT = list("path" = /obj/item/organ/external/foot/ipc/shell),
-		BP_R_FOOT = list("path" = /obj/item/organ/external/foot/right/ipc/shell)
-		)
-
-	base_color = "#25032"
-	character_color_presets = list("Dark" = "#000000", "Warm" = "#250302", "Cold" = "#1e1e29")
-
-	sprint_temperature_factor = 1.3
-	move_charge_factor = 0.85
-
-	inherent_verbs = list(
-		/mob/living/carbon/human/proc/self_diagnostics,
-		/mob/living/carbon/human/proc/check_tag,
-		/mob/living/carbon/human/proc/tie_hair)
-
-	bodyfall_sound = /decl/sound_category/bodyfall_sound
-
-/datum/species/machine/shell/get_species(var/reference, var/mob/living/carbon/human/H, var/records)
-	if(reference)
-		return src
-	// it's illegal for shells in Tau Ceti space to not have tags, so their records would have to be falsified
-	if(records && !H.internal_organs_by_name[BP_IPCTAG])
-		return "Human"
-	return name
-
-/datum/species/machine/shell/get_light_color()
-	return
-
-/datum/species/machine/shell/handle_death(var/mob/living/carbon/human/H)
-	return
-
-/datum/species/machine/shell/rogue
-	name = SPECIES_IPC_SHELL_ROGUE
-	short_name = "roguejak"
-	name_plural = "Rogue Shells"
-
-	spawn_flags = IS_RESTRICTED
-
-	break_cuffs = TRUE
-
-	has_organ = list(
-		BP_BRAIN   = /obj/item/organ/internal/mmi_holder/posibrain,
-		BP_CELL    = /obj/item/organ/internal/cell,
-		BP_EYES  = /obj/item/organ/internal/eyes/optical_sensor,
-		"surge"   = /obj/item/organ/internal/surge/advanced
-	)
-
-	unarmed_types = list(
-		/datum/unarmed_attack/stomp/ipc,
-		/datum/unarmed_attack/kick/ipc,
-		/datum/unarmed_attack/terminator,
-		/datum/unarmed_attack/bite/strong)
-
-	inherent_verbs = list(
-		/mob/living/carbon/human/proc/self_diagnostics
-		)
-
-/datum/species/machine/shell/rogue/check_tag(var/mob/living/carbon/human/new_machine, var/client/player)
-	return
-
 /datum/species/machine/industrial
 	name = SPECIES_IPC_G1
 	short_name = "ind"
@@ -363,11 +245,11 @@
 	brute_mod = 0.9
 	grab_mod = 0.9
 	resist_mod = 8
-	
+
 	cold_level_1 = -1 //RaceDefault 50 Default -1
 	cold_level_2 = -1 //RaceDefault -1 Default -1
 	cold_level_3 = -1  //RaceDefault -1 Default -1
-	
+
 	heat_level_1 = 700  //RaceDefault 600 Default 700
 	heat_level_2 = 1400  //RaceDefault 1200 Default 1400
 	heat_level_3 = 2800  //RaceDefault 2400 Default 2800

@@ -163,7 +163,7 @@
 	dat += "<b>Age:</b> <a href='?src=\ref[src];age=1'>[pref.age]</a><br>"
 	dat += "<b>Spawn Point</b>: <a href='?src=\ref[src];spawnpoint=1'>[pref.spawnpoint]</a><br>"
 	dat += "<b>Floating Chat Color:</b> <a href='?src=\ref[src];select_floating_chat_color=1'><b>[pref.floating_chat_color]</b></a><br>"
-	if(istype(S, /datum/species/machine))
+	if(BP_IPCTAG in S.has_organ)
 		if(pref.can_edit_ipc_tag)
 			dat += "<b>Has Tag:</b> <a href='?src=\ref[src];ipc_tag=1'>[pref.machine_tag_status ? "Yes" : "No"]</a><br>"
 		else

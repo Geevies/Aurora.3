@@ -442,15 +442,16 @@
 
 /proc/fluid_color_type_map(var/supplied_color)
 	var/static/list/color_map = list(
-					COLOR_HUMAN_BLOOD = "blood",
-					COLOR_DIONA_BLOOD = "blood",
-					COLOR_SKRELL_BLOOD = "blood",
-					COLOR_VAURCA_BLOOD = "blood",
-					COLOR_IPC_BLOOD = "oil",
-					COLOR_OIL = "oil",
-					COLOR_SNOW = "snow",
-					COLOR_ASH = "ash",
-						)
+		COLOR_HUMAN_BLOOD = "blood",
+		COLOR_DIONA_BLOOD = "blood",
+		COLOR_SKRELL_BLOOD = "blood",
+		COLOR_VAURCA_BLOOD = "blood",
+		COLOR_SYNTH_BLOOD = "synthblood",
+		COLOR_IPC_BLOOD = "oil",
+		COLOR_OIL = "oil",
+		COLOR_SNOW = "snow",
+		COLOR_ASH = "ash"
+	)
 
 	var/output_text = color_map[supplied_color] || "fluid"
 	return output_text

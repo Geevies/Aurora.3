@@ -371,16 +371,16 @@ var/global/list/additional_antag_types = list()
 	for(var/mob/M in player_list)
 		if(M.client)
 			clients++
-			if(M.stat != DEAD && isipc(M))
-				var/mob/living/carbon/human/H = M
-				var/datum/species/machine/machine = H.species
-				machine.update_tag(H, H.client)
 			if(M.stat != DEAD)
 				var/turf/playerTurf = get_turf(M)
 				var/area/playerArea = get_area(playerTurf)
 				surviving_total++
 				if(isStationLevel(playerTurf.z) && is_station_area(playerArea))
 					escaped_total++
+				if(ishuman(M))
+					var/mob/living/carbon/human/H = M
+					if(BP_IPCTAG in H.species.has_organ)
+						H.species.update_tag(H, H.client)
 			if(isobserver(M))
 				ghosts++
 

@@ -341,7 +341,8 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 		return TOPIC_REFRESH_UPDATE_PREVIEW
 
 	else if(href_list["blood_type"])
-		var/new_b_type = input(user, "Choose your character's blood-type:", "Character Preference") as null|anything in valid_bloodtypes
+		var/list/blood_type_options = mob_species.blood_type_overrides ? mob_species.blood_type_overrides : valid_bloodtypes
+		var/new_b_type = input(user, "Choose your character's blood-type:", "Character Preference") as null|anything in blood_type_options
 		if(new_b_type && CanUseTopic(user))
 			pref.b_type = new_b_type
 			return TOPIC_REFRESH
@@ -447,6 +448,9 @@ var/global/list/valid_bloodtypes = list("A+", "A-", "B+", "B-", "AB+", "AB-", "O
 
 			if(!(pref.g_style in valid_gradients[mob_species.type]))
 				pref.g_style = hair_gradient_styles_list["None"]
+
+			if(length(mob_species.blood_type_overrides))
+				pref.b_type = pick(mob_species.blood_type_overrides)
 
 			return TOPIC_REFRESH_UPDATE_PREVIEW
 

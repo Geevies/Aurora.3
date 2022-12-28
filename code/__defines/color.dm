@@ -102,6 +102,7 @@
 #define COLOR_IPC_BLOOD        "#1F181F"
 #define COLOR_SKRELL_BLOOD     "#0081CD"
 #define COLOR_VAURCA_BLOOD     "#E6E600"
+#define COLOR_SYNTH_BLOOD      "#cecece"
 
 
 // Wood Colours

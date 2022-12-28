@@ -177,26 +177,32 @@
 	..()
 
 proc/blood_incompatible(donor,receiver,donor_species,receiver_species)
-	if(!donor || !receiver) return 0
+	if(!donor || !receiver)
+		return FALSE
 
-	if(donor_species && receiver_species)
-		if(donor_species != receiver_species)
-			return 1
+	if(donor_species && receiver_species && donor_species != receiver_species)
+		return TRUE
 
-	var/donor_antigen = copytext(donor,1,length(donor))
-	var/receiver_antigen = copytext(receiver,1,length(receiver))
-	var/donor_rh = (findtext(donor,"+")>0)
-	var/receiver_rh = (findtext(receiver,"+")>0)
+	var/donor_antigen = copytext(donor, 1, length(donor))
+	var/receiver_antigen = copytext(receiver, 1, length(receiver))
+	var/donor_rh = findtext(donor, "+") > 0
+	var/receiver_rh = findtext(receiver, "+") > 0
 
-	if(donor_rh && !receiver_rh) return 1
+	if(donor_rh && !receiver_rh)
+		return TRUE
+	// AB is a universal receiver.
 	switch(receiver_antigen)
 		if("A")
-			if(donor_antigen != "A" && donor_antigen != "O") return 1
+			if(donor_antigen != "A" && donor_antigen != "O")
+				return TRUE
 		if("B")
-			if(donor_antigen != "B" && donor_antigen != "O") return 1
+			if(donor_antigen != "B" && donor_antigen != "O")
+				return TRUE
 		if("O")
-			if(donor_antigen != "O") return 1
-		//AB is a universal receiver.
+			if(donor_antigen != "O")
+				return TRUE
+	if(donor_antigen == "X" && donor_antigen != receiver_antigen)
+		return TRUE
 	return 0
 
 /mob/living/carbon/proc/get_blood_data()

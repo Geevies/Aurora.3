@@ -42,6 +42,7 @@
 	var/eyes_icons = 'icons/mob/human_face/eyes.dmi'     // DMI file for eyes, mostly for none 32x32 species.
 	var/has_floating_eyes                                // Eyes will overlay over darkness (glow)
 	var/eyes_icon_blend = ICON_ADD                       // The icon blending mode to use for eyes.
+	var/list/blood_type_overrides
 	var/blood_type = "blood"
 	var/blood_color = "#A10808"                          // Red.
 	var/flesh_color = "#FFC896"                          // Pink.
@@ -243,6 +244,7 @@
 		BP_APPENDIX = /obj/item/organ/internal/appendix,
 		BP_EYES =     /obj/item/organ/internal/eyes
 		)
+
 	var/vision_organ              // If set, this organ is required for vision. Defaults to BP_EYES if the species has them.
 	var/breathing_organ           // If set, this organ is required to breathe. Defaults to BP_LUNGS if the species has them.
 
@@ -286,6 +288,8 @@
 
 	var/list/alterable_internal_organs = list(BP_HEART, BP_EYES, BP_LUNGS, BP_LIVER, BP_KIDNEYS, BP_STOMACH, BP_APPENDIX) //what internal organs can be changed in character setup
 	var/list/possible_external_organs_modifications = list("Normal","Amputated","Prosthesis")
+
+	var/robotize_internal_organs = FALSE
 
 /datum/species/proc/get_eyes(var/mob/living/carbon/human/H)
 	return
@@ -358,7 +362,8 @@
 	return species_language.get_random_name(gender)
 
 /datum/species/proc/before_equip(mob/living/carbon/human/H, visualsOnly = FALSE, datum/job/J)
-	return
+	if(BP_IPCTAG in has_organ)
+		check_tag(H, H.client)
 
 /datum/species/proc/after_equip(mob/living/carbon/human/H, visualsOnly = FALSE, datum/job/J)
 	return
@@ -400,14 +405,16 @@
 			E.robotize(E.robotize_type)
 		for(var/obj/item/organ/I in H.internal_organs)
 			I.robotize(I.robotize_type)
-
-	if(isvaurca(H))
+	else if(isvaurca(H))
 		for (var/obj/item/organ/external/E in H.organs)
 			if ((E.status & ORGAN_CUT_AWAY) || (E.status & ORGAN_DESTROYED))
 				continue
 			E.status |= ORGAN_ADV_ROBOT
 		for(var/obj/item/organ/I in H.internal_organs)
 			I.status |= ORGAN_ADV_ROBOT
+	else if(robotize_internal_organs)
+		for(var/obj/item/organ/I in H.internal_organs)
+			I.robotize(I.robotize_type)
 
 	if(natural_armor)
 		H.AddComponent(/datum/component/armor, natural_armor)
@@ -462,6 +469,8 @@
 	if(!H.client || !H.client.prefs || !H.client.prefs.gender)
 		H.gender = pick(default_genders)
 		H.pronouns = H.gender
+	if(BP_IPCTAG in has_organ)
+		check_tag(H, H.client)
 
 /datum/species/proc/handle_death(var/mob/living/carbon/human/H, var/gibbed = 0) //Handles any species-specific death events (such as dionaea nymph spawns).
 	return
@@ -838,3 +847,46 @@
 /datum/species/proc/drain_stamina(var/mob/living/carbon/human/human, var/stamina_cost)
 	human.stamina -= stamina_cost
 	human.hud_used.move_intent.update_move_icon(human)
+
+/datum/species/proc/check_tag(var/mob/living/carbon/human/new_machine, var/client/player)
+	if(!new_machine || !player)
+		var/obj/item/organ/internal/ipc_tag/tag = new_machine.internal_organs_by_name[BP_IPCTAG]
+		if(tag)
+			tag.serial_number = uppertext(dd_limittext(md5(new_machine.real_name), 12))
+			tag.ownership_info = IPC_OWNERSHIP_COMPANY
+			tag.citizenship_info = CITIZENSHIP_BIESEL
+		return
+
+	var/obj/item/organ/internal/ipc_tag/tag = new_machine.internal_organs_by_name[BP_IPCTAG]
+
+	if(player.prefs.machine_tag_status)
+		tag.serial_number = player.prefs.machine_serial_number
+		tag.ownership_info = player.prefs.machine_ownership_status
+		tag.citizenship_info = new_machine.citizenship
+	else
+		new_machine.internal_organs_by_name -= BP_IPCTAG
+		new_machine.internal_organs -= tag
+		qdel(tag)
+
+/datum/species/proc/update_tag(var/mob/living/carbon/human/target, var/client/player)
+	if (!target || !player)
+		return
+
+	if (establish_db_connection(dbcon))
+		var/status = FALSE
+		var/sql_status = FALSE
+		if (target.internal_organs_by_name[BP_IPCTAG])
+			status = TRUE
+
+		var/list/query_details = list("ckey" = player.ckey, "character_name" = target.real_name)
+		var/DBQuery/query = dbcon.NewQuery("SELECT tag_status FROM ss13_ipc_tracking WHERE player_ckey = :ckey: AND character_name = :character_name:")
+		query.Execute(query_details)
+
+		if (query.NextRow())
+			sql_status = text2num(query.item[1])
+			if (sql_status == status)
+				return
+
+			query_details["status"] = status
+			var/DBQuery/update_query = dbcon.NewQuery("UPDATE ss13_ipc_tracking SET tag_status = :status: WHERE player_ckey = :ckey: AND character_name = :character_name:")
+			update_query.Execute(query_details)

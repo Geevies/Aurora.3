@@ -140,7 +140,6 @@
 
 /datum/species/machine/handle_post_spawn(var/mob/living/carbon/human/H)
 	. = ..()
-	check_tag(H, H.client)
 	var/obj/item/organ/internal/cell/C = H.internal_organs_by_name[BP_CELL]
 	if(C)
 		C.move_charge_factor = move_charge_factor
@@ -177,49 +176,6 @@
 
 /datum/species/machine/sanitize_name(var/new_name)
 	return sanitizeName(new_name, allow_numbers = 1)
-
-/datum/species/machine/proc/check_tag(var/mob/living/carbon/human/new_machine, var/client/player)
-	if(!new_machine || !player)
-		var/obj/item/organ/internal/ipc_tag/tag = new_machine.internal_organs_by_name[BP_IPCTAG]
-		if(tag)
-			tag.serial_number = uppertext(dd_limittext(md5(new_machine.real_name), 12))
-			tag.ownership_info = IPC_OWNERSHIP_COMPANY
-			tag.citizenship_info = CITIZENSHIP_BIESEL
-		return
-
-	var/obj/item/organ/internal/ipc_tag/tag = new_machine.internal_organs_by_name[BP_IPCTAG]
-
-	if(player.prefs.machine_tag_status)
-		tag.serial_number = player.prefs.machine_serial_number
-		tag.ownership_info = player.prefs.machine_ownership_status
-		tag.citizenship_info = new_machine.citizenship
-	else
-		new_machine.internal_organs_by_name -= BP_IPCTAG
-		new_machine.internal_organs -= tag
-		qdel(tag)
-
-/datum/species/machine/proc/update_tag(var/mob/living/carbon/human/target, var/client/player)
-	if (!target || !player)
-		return
-
-	if (establish_db_connection(dbcon))
-		var/status = FALSE
-		var/sql_status = FALSE
-		if (target.internal_organs_by_name[BP_IPCTAG])
-			status = TRUE
-
-		var/list/query_details = list("ckey" = player.ckey, "character_name" = target.real_name)
-		var/DBQuery/query = dbcon.NewQuery("SELECT tag_status FROM ss13_ipc_tracking WHERE player_ckey = :ckey: AND character_name = :character_name:")
-		query.Execute(query_details)
-
-		if (query.NextRow())
-			sql_status = text2num(query.item[1])
-			if (sql_status == status)
-				return
-
-			query_details["status"] = status
-			var/DBQuery/update_query = dbcon.NewQuery("UPDATE ss13_ipc_tracking SET tag_status = :status: WHERE player_ckey = :ckey: AND character_name = :character_name:")
-			update_query.Execute(query_details)
 
 /datum/species/machine/get_light_color(mob/living/carbon/human/H)
 	if (!istype(H))
@@ -362,10 +318,6 @@
 
 		if ("trinary perfection IPC screen")
 			return LIGHT_COLOR_RED
-
-/datum/species/machine/before_equip(var/mob/living/carbon/human/H)
-	. = ..()
-	check_tag(H, H.client)
 
 /datum/species/machine/has_psi_potential()
 	return FALSE

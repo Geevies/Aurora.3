@@ -596,7 +596,10 @@ datum/preferences
 	real_name = random_name(gender,species)
 	var/generated_serial = uppertext(dd_limittext(md5(real_name), 12))
 	machine_serial_number = generated_serial
-	b_type = pick(4;"O-", 36;"O+", 3;"A-", 28;"A+", 1;"B-", 20;"B+", 1;"AB-", 5;"AB+")
+	var/datum/species/current_species
+	if(species)
+		current_species = all_species[species]
+	b_type = current_species?.blood_type_overrides ? pick(current_species.blood_type_overrides) : pick(4;"O-", 36;"O+", 3;"A-", 28;"A+", 1;"B-", 20;"B+", 1;"AB-", 5;"AB+")
 	signature = "<i>[real_name]</i>"
 	signfont = "Verdana"
 
