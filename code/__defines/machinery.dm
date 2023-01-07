@@ -148,3 +148,8 @@ var/list/restricted_camera_networks = list(NETWORK_ERT,NETWORK_MERCENARY,"Secret
 #define INIT_MACHINERY_PROCESS_SELF         0x1
 #define INIT_MACHINERY_PROCESS_COMPONENTS   0x2
 #define INIT_MACHINERY_PROCESS_ALL          0x3
+
+#define EMITTER_DAMAGE_POWER_TRANSFER 450 //used to transfer power to containment field generators
+#define EMITTER_LOOSE 0
+#define EMITTER_BOLTED 1
+#define EMITTER_WELDED 2

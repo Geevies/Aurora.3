@@ -74,3 +74,89 @@
 	restricted_hardpoints = list(HARDPOINT_LEFT_HAND, HARDPOINT_RIGHT_HAND)
 	restricted_software = list(MECH_SOFTWARE_ENGINEERING)
 
+// A shoulder mounted emitter, it isn't a mounted system so mechs are forced to fire in cardinal directions like normal emitters
+/obj/item/mecha_equipment/emitter
+	name = "shoulder-mounted exosuit emitter"
+	desc = "An exosuit-mounted emitter."
+	icon_state = "mech_floodlight"
+	restricted_hardpoints = list(HARDPOINT_LEFT_SHOULDER, HARDPOINT_RIGHT_SHOULDER)
+	restricted_software = list(MECH_SOFTWARE_ENGINEERING)
+	origin_tech = list(TECH_POWER = 5, TECH_ENGINEERING = 4)
+
+	active_power_use = 30 KILOWATTS
+
+	var/is_active = FALSE
+
+	var/fire_delay = 100
+	var/max_burst_delay = 100
+	var/min_burst_delay = 20
+	var/burst_shots = 3
+	var/last_shot = 0
+	var/shot_number = 0
+
+/obj/item/mecha_equipment/emitter/update_icon()
+	// if(is_active)
+	// 	icon_state = "[initial(icon_state)]-on"
+	// 	set_light(brightness_on, 1)
+	// else
+	// 	icon_state = "[initial(icon_state)]"
+	// 	set_light(0)
+
+/obj/item/mecha_equipment/emitter/attack_self(var/mob/user)
+	. = ..()
+	if(.)
+		set_state(!is_active)
+		to_chat(user, "You switch \the [src] [is_active ? "on" : "off"].")
+
+/obj/item/mecha_equipment/emitter/proc/set_state(var/set_active)
+	is_active = set_active
+	update_icon()
+	owner.update_icon()
+	if(is_active)
+		START_PROCESSING(SSprocessing, src)
+	else
+		STOP_PROCESSING(SSprocessing, src)
+
+/obj/item/mecha_equipment/emitter/process()
+	if(last_shot + fire_delay > world.time)
+		return
+
+	var/obj/item/cell/cell = owner.get_cell()
+	var/charge_usage = active_power_use * CELLRATE
+	if(!(cell?.check_charge(charge_usage)))
+		set_state(FALSE)
+		return
+
+	last_shot = world.time
+	if(shot_number < burst_shots)
+		fire_delay = 2
+		shot_number++
+	else
+		fire_delay = rand(min_burst_delay, max_burst_delay)
+		shot_number = 0
+
+	var/burst_time = (min_burst_delay + max_burst_delay) / 2 + 2 * (burst_shots - 1)
+	var/power_per_shot = active_power_use * (burst_time / 10) / burst_shots
+
+	var/turf/our_turf = get_turf(src)
+
+	playsound(our_turf, 'sound/weapons/emitter.ogg', 15, TRUE, 2, 0.5, TRUE)
+	if(prob(35))
+		spark(our_turf, 3)
+
+	var/obj/item/projectile/beam/emitter/A = new /obj/item/projectile/beam/emitter(our_turf)
+	A.damage = round(power_per_shot / EMITTER_DAMAGE_POWER_TRANSFER)
+	A.launch_projectile(get_step(owner, owner.dir))
+
+	cell.use(charge_usage)
+
+
+/obj/item/mecha_equipment/emitter/deactivate()
+	if(is_active)
+		set_state(FALSE)
+	return ..()
+
+/obj/item/mecha_equipment/emitter/uninstalled()
+	if(is_active)
+		set_state(FALSE)
+	return ..()
