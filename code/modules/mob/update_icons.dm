@@ -7,6 +7,9 @@
 /mob/proc/update_hud()
 	return
 
+/mob/proc/update_water()
+	return
+
 /mob/proc/update_inv_handcuffed()
 	return
 

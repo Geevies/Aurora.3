@@ -919,6 +919,7 @@
 
 //Updates canmove, lying and icons. Could perhaps do with a rename but I can't think of anything to describe it.
 /mob/proc/update_canmove()
+	var/old_lying = lying
 	if(in_neck_grab())
 		lying = FALSE
 		for(var/obj/item/grab/G in grabbed_by)
@@ -971,6 +972,9 @@
 		if(G.state >= GRAB_AGGRESSIVE)
 			canmove = 0
 			break
+
+	if(lying != old_lying)
+		update_water()
 
 	//Temporarily moved here from the various life() procs
 	//I'm fixing stuff incrementally so this will likely find a better home.

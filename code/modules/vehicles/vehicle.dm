@@ -315,11 +315,13 @@
 
 /obj/vehicle/buckle(var/atom/movable/C, mob/user)
 	. = ..()
-	if(. && buckling_sound)
-		playsound(src, buckling_sound, 20)
+	if(.)
+		user.update_water()
+		if(buckling_sound) playsound(src, buckling_sound, 20)
 
 /obj/vehicle/user_unbuckle(var/mob/user, var/direction)
 	..()
+	user.update_water()
 	unload(user, direction)
 	return
 

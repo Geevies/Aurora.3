@@ -26,8 +26,8 @@
 	footstep_sound = /singleton/sound_category/water_footstep
 	movement_cost = 2
 	var/watertype = "water5"
-	var/obj/effect/water_effect/water_overlay
 	var/numobjects = 0
+	var/depth = 1
 
 /turf/simulated/floor/beach/water/alt
 	name = "water"
@@ -43,6 +43,7 @@
 	name = "ocean"
 	icon_state = "seadeep"
 	movement_cost = 4
+	depth = 2
 
 /turf/simulated/floor/beach/water/ocean/abyss
 	name = "abyss"
@@ -63,16 +64,7 @@
 
 /turf/simulated/floor/beach/water/Initialize()
 	. = ..()
-	var/obj/effect/water_effect/W = new /obj/effect/water_effect(src)
-	W.icon_state = watertype
-	water_overlay = W
 	create_reagents(2)
-
-/turf/simulated/floor/beach/water/Destroy()
-	if(water_overlay)
-		qdel(water_overlay)
-		water_overlay = null
-	return ..()
 
 /turf/simulated/floor/beach/water/return_air_for_internal_lifeform(var/mob/living/carbon/L)
 	if(L && L.lying)
@@ -107,6 +99,7 @@
 	else if(istype(AM, /mob/living))
 		numobjects += 1
 		var/mob/living/L = AM
+		L.update_water()
 		if(!istype(oldloc, /turf/simulated/floor/beach/water))
 			to_chat(L, "<span class='warning'>You get drenched in water from entering \the [src]!</span>")
 		wash(L)
@@ -123,6 +116,7 @@
 		if(numobjects)
 			numobjects -= 1
 		var/mob/living/L = AM
+		L.update_water()
 		if(!istype(newloc, /turf/simulated/floor/beach/water))
 			to_chat(L, "<span class='warning'>You climb out of \the [src].</span>")
 	..()

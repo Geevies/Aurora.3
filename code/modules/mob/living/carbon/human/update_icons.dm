@@ -121,8 +121,9 @@ There are several things that need to be remembered:
 #define L_HAND_LAYER          34
 #define R_HAND_LAYER          35
 #define WRISTS_LAYER          36
-#define FIRE_LAYER_UPPER      37
-#define TOTAL_LAYERS          37
+#define WATER_LAYER           37
+#define FIRE_LAYER_UPPER      38
+#define TOTAL_LAYERS          38
 ////////////////////////////
 
 #define GET_BODY_TYPE (cached_bodytype || (cached_bodytype = species.get_bodytype()))
@@ -1418,6 +1419,20 @@ There are several things that need to be remembered:
 
 	overlays_raw[FIRE_LAYER_LOWER] = fire_image_lower
 	overlays_raw[FIRE_LAYER_UPPER] = fire_image_upper
+
+	if(update_icons)
+		update_icon()
+
+/mob/living/carbon/human/update_water(var/update_icons = TRUE)
+	if(QDELETED(src))
+		return
+
+	overlays_raw[WATER_LAYER] = null
+
+	var/depth = lying ? 3 : check_submerged()
+	if(depth)
+		var/image/I = image('icons/mob/submerged.dmi', "human_swimming_[depth]", layer = WATER_LAYER)
+		overlays_raw[WATER_LAYER] = I
 
 	if(update_icons)
 		update_icon()

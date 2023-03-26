@@ -1289,3 +1289,13 @@ var/list/intents = list(I_HELP,I_DISARM,I_GRAB,I_HURT)
 
 /mob/get_client()
 	return client
+
+/mob/proc/check_submerged()
+	if(buckled_to)
+		return 0
+	if(locate(/obj/structure/lattice) in loc)
+		return 0
+	var/turf/simulated/floor/beach/water/water_turf = loc
+	if(istype(water_turf))
+		return water_turf.depth
+	return 0
