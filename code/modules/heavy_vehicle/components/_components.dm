@@ -1,9 +1,9 @@
 /obj/item/mech_component
-	icon = 'icons/mecha/mech_parts.dmi'
+	icon = 'icons/mecha/parts/base_frames.dmi'
 	w_class = ITEMSIZE_HUGE
 	pixel_x = -8
 	gender = PLURAL
-	var/on_mech_icon = 'icons/mecha/mech_parts.dmi'
+	var/on_mech_icon = 'icons/mecha/parts/base_frames.dmi'
 	var/decal
 	var/exosuit_desc_string
 	var/total_damage = 0

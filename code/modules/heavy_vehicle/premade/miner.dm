@@ -8,8 +8,9 @@
 	e_legs = /obj/item/mech_component/propulsion/ripley
 	e_color = COLOR_RIPLEY
 
-	h_l_hand = /obj/item/mecha_equipment/drill
-	h_r_hand = /obj/item/mecha_equipment/clamp
+	h_l_utility = /obj/item/mecha_equipment/drill
+	h_r_utility = /obj/item/mecha_equipment/drill
+	h_frame_utility = /obj/item/mecha_equipment/clamp
 
 /mob/living/heavy_vehicle/premade/miner/remote
 	name = "remote mining mecha"

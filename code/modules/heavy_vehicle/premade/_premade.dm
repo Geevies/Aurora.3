@@ -14,12 +14,15 @@
 
 	//hardpoint equipment path vars, which gets added to the mech in the spawn_mech_equipment() proc
 	//h_ means hardpoint, the rest should be sensical, i hope - geeves
-	var/h_head = /obj/item/mecha_equipment/light
-	var/h_back
-	var/h_l_shoulder
-	var/h_r_shoulder
-	var/h_l_hand
-	var/h_r_hand
+	var/h_head_utility = /obj/item/mecha_equipment/light
+	var/h_head_combat
+	var/h_back_utility
+	var/h_back_combat
+	var/h_back_superheavy
+	var/h_l_combat
+	var/h_r_combat
+	var/h_l_utility
+	var/h_r_utility
 
 /mob/living/heavy_vehicle/premade/Initialize()
 	icon = null
@@ -68,19 +71,26 @@
 
 /mob/living/heavy_vehicle/premade/proc/spawn_mech_equipment()
 	if(h_head)
-		install_system(new h_head(src), HARDPOINT_HEAD)
+		if(h_head_utility && (HARDPOINT_HEAD_UTILITY in head.has_hardpoints))
+			install_system(new h_head_utility(src), HARDPOINT_HEAD_UTILITY, color = e_color)
+		if(h_head_combat && (HARDPOINT_HEAD_COMBAT in head.has_hardpoints))
+			install_system(new h_head_combat(src), HARDPOINT_HEAD_COMBAT, color = e_color)
 	if(body)
-		if(h_back && (HARDPOINT_BACK in body.has_hardpoints))
-			install_system(new h_back(src), HARDPOINT_BACK)
-		if(h_l_shoulder && (HARDPOINT_LEFT_SHOULDER in body.has_hardpoints))
-			install_system(new h_l_shoulder(src), HARDPOINT_LEFT_SHOULDER)
-		if(h_r_shoulder && (HARDPOINT_RIGHT_SHOULDER in body.has_hardpoints))
-			install_system(new h_r_shoulder(src), HARDPOINT_RIGHT_SHOULDER)
+		if(h_back_utility && (HARDPOINT_BACK_UTILITY in body.has_hardpoints))
+			install_system(new h_back_utility (src), HARDPOINT_BACK_UTILITY, color = e_color)
+		if(h_back_combat && (HARDPOINT_BACK_COMBAT in body.has_hardpoints))
+			install_system(new h_back_combat(src), HARDPOINT_BACK_COMBAT, color = e_color)
+		if(h_back_superheavy && (HARDPOINT_BACK_SUPERHEAVY in body.has_hardpoints))
+			install_system(new h_back_superheavy(src), HARDPOINT_BACK_SUPERHEAVY, color = e_color)
 	if(arms)
-		if(h_l_hand && (HARDPOINT_LEFT_HAND in arms.has_hardpoints))
-			install_system(new h_l_hand(src), HARDPOINT_LEFT_HAND)
-		if(h_r_hand && (HARDPOINT_LEFT_HAND in arms.has_hardpoints))
-			install_system(new h_r_hand(src), HARDPOINT_RIGHT_HAND)
+		if(h_l_utility && (HARDPOINT_LEFT_UTILITY in arms.has_hardpoints))
+			install_system(new h_l_utility(src), HARDPOINT_LEFT_UTILITY, color = e_color)
+		if(h_r_utility && (HARDPOINT_LEFT_UTILITY in arms.has_hardpoints))
+			install_system(new h_r_utility(src), HARDPOINT_RIGHT_UTILITY, color = e_color)
+		if(h_l_combat && (HARDPOINT_LEFT_COMBAT in arms.has_hardpoints))
+			install_system(new h_l_combat(src), HARDPOINT_LEFT_COMBAT, color = e_color)
+		if(h_r_combat && (HARDPOINT_RIGHT_COMBAT in arms.has_hardpoints))
+			install_system(new h_r_combat(src), HARDPOINT_RIGHT_COMBAT, color = e_color)
 
 /mob/living/heavy_vehicle/premade/random
 	name = "mismatched exosuit"
@@ -209,18 +219,16 @@
 /mob/living/heavy_vehicle/premade/random/spawn_mech_equipment()
 	if(prob(25))
 		if(MECH_SOFTWARE_UTILITY in head.software.installed_software)
-			h_l_hand = /obj/item/mecha_equipment/clamp
+			h_frame_utility = /obj/item/mecha_equipment/clamp
 			if(prob(20))
-				h_back = /obj/item/mecha_equipment/autolathe
+				h_back_utility = /obj/item/mecha_equipment/autolathe
 		if(MECH_SOFTWARE_MEDICAL in head.software.installed_software)
-			if(HARDPOINT_LEFT_SHOULDER in body.has_hardpoints)
-				h_l_shoulder = /obj/item/mecha_equipment/crisis_drone
+			if(HARDPOINT_LEFT_UTILITY in body.has_hardpoints)
+				h_l_utility = /obj/item/mecha_equipment/crisis_drone
 			else
-				h_back = /obj/item/mecha_equipment/sleeper
+				h_back_utility = /obj/item/mecha_equipment/sleeper
 		if(MECH_SOFTWARE_ENGINEERING in head.software.installed_software)
-			h_r_hand = /obj/item/mecha_equipment/mounted_system/rfd
-		if(MECH_SOFTWARE_WEAPONS in head.software.installed_software)
-			h_back = /obj/item/mecha_equipment/shield
+			h_r_utility = /obj/item/mecha_equipment/mounted_system/rfd
 	..()
 
 /mob/living/heavy_vehicle/premade/random/boring/Initialize(mapload, var/obj/structure/heavy_vehicle_frame/source_frame)

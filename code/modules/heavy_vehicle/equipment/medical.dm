@@ -91,7 +91,7 @@
 	origin_tech = list(TECH_PHORON = 2, TECH_MAGNET = 3, TECH_BIO = 3, TECH_DATA = 3)
 	active_power_use = 0
 	passive_power_use = 3000
-	restricted_hardpoints = list(HARDPOINT_LEFT_SHOULDER)
+	has_hardpoints = list(HARDPOINT_LEFT_UTILITY, HARDPOINT_RIGHT_UTILITY)
 	restricted_software = list(MECH_SOFTWARE_MEDICAL)
 	equipment_delay = 3
 
@@ -261,13 +261,13 @@
 	name = "mounted health analyzer"
 	icon_state = "mecha_healthyanalyzer"
 	holding_type = /obj/item/device/healthanalyzer/mech
-	restricted_hardpoints = list(HARDPOINT_LEFT_HAND, HARDPOINT_RIGHT_HAND)
+	restricted_hardpoints = list(HARDPOINT_LEFT_UTILITY, HARDPOINT_RIGHT_UTILITY)
 	restricted_software = list(MECH_SOFTWARE_MEDICAL)
 
 /obj/item/device/healthanalyzer/mech //Used to set up the full body scan feature
 	var/obj/machinery/body_scanconsole/internal_bodyscanner = null
 	var/fullScan = FALSE //Toggle whether to do full or basic scan
-	
+
 /obj/item/device/healthanalyzer/mech/Initialize()
 	. = ..()
 	internal_bodyscanner = new /obj/machinery/body_scanconsole(src)

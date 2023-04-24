@@ -16,7 +16,7 @@
 	var/emp_damage = 0
 
 	// Used to offset a non-32x32 icon appropriately.
-	var/offset_x = -8
+	var/offset_x = -10
 	var/offset_y = 0
 
 	var/obj/item/device/radio/exosuit/radio

@@ -9,7 +9,7 @@
 /obj/structure/heavy_vehicle_frame
 	name = "exosuit frame"
 	desc = "The frame for an exosuit, apparently."
-	icon = 'icons/mecha/mech_parts.dmi'
+	icon = 'icons/mecha/parts/base_frames.dmi'
 	icon_state = "backbone"
 	density = 1
 	pixel_x = -8

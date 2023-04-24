@@ -2,7 +2,7 @@
 	name = "mounted rfd"
 	icon_state = "mecha_rfd"
 	holding_type = /obj/item/rfd/construction/mounted/exosuit
-	restricted_hardpoints = list(HARDPOINT_LEFT_HAND, HARDPOINT_RIGHT_HAND)
+	restricted_hardpoints = list(HARDPOINT_LEFT_UTILITY, HARDPOINT_RIGHT_UTILITY)
 	restricted_software = list(MECH_SOFTWARE_ENGINEERING)
 
 /obj/item/mecha_equipment/mounted_system/rfd/CtrlClick(mob/user)
@@ -71,6 +71,6 @@
 	name = "mounted extinguisher"
 	icon_state = "mecha_exting"
 	holding_type = /obj/item/extinguisher/mech
-	restricted_hardpoints = list(HARDPOINT_LEFT_HAND, HARDPOINT_RIGHT_HAND)
+	restricted_hardpoints = list(HARDPOINT_LEFT_UTILITY, HARDPOINT_RIGHT_UTILITY)
 	restricted_software = list(MECH_SOFTWARE_ENGINEERING)
 

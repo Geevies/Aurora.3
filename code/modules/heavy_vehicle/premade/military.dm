@@ -7,7 +7,7 @@
 	action_delay = 15
 	max_damage = 4000
 	power_use = 7500
-	has_hardpoints = list(HARDPOINT_LEFT_SHOULDER, HARDPOINT_RIGHT_SHOULDER)
+	has_hardpoints = list(HARDPOINT_LEFT_COMBAT, HARDPOINT_RIGHT_COMBAT)
 	punch_sound = 'sound/mecha/mech_punch_slow.ogg'
 
 /obj/item/mech_component/propulsion/superheavy
@@ -61,5 +61,5 @@
 	e_legs = /obj/item/mech_component/propulsion/superheavy
 	e_color = COLOR_DARK_GUNMETAL
 
-	h_r_shoulder = /obj/item/mecha_equipment/mounted_system/combat/pulse
-	h_l_shoulder = /obj/item/mecha_equipment/mounted_system/combat/pulse
+	h_r_combat = /obj/item/mecha_equipment/mounted_system/combat/pulse
+	h_l_combat = /obj/item/mecha_equipment/mounted_system/combat/pulse

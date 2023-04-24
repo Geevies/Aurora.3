@@ -2,7 +2,7 @@
 	name = "mounted clamp"
 	desc = "A large, heavy industrial cargo loading clamp."
 	icon_state = "mecha_clamp"
-	restricted_hardpoints = list(HARDPOINT_LEFT_HAND, HARDPOINT_RIGHT_HAND)
+	has_hardpoints = list(HARDPOINT_FRAME_UTILITY)
 	restricted_software = list(MECH_SOFTWARE_UTILITY)
 	w_class = ITEMSIZE_HUGE
 	var/carrying_capacity = 5
@@ -177,7 +177,7 @@
 	desc = "An industrial plasma cutter mounted onto the chassis of the mech. "
 	icon_state = "mecha_plasmacutter"
 	holding_type = /obj/item/gun/energy/plasmacutter/mounted/mech
-	restricted_hardpoints = list(HARDPOINT_LEFT_HAND, HARDPOINT_RIGHT_HAND)
+	restricted_hardpoints = list(HARDPOINT_LEFT_UTILITY, HARDPOINT_RIGHT_UTILITY)
 	restricted_software = list(MECH_SOFTWARE_UTILITY)
 	origin_tech = list(TECH_MATERIAL = 4, TECH_PHORON = 4, TECH_ENGINEERING = 6, TECH_COMBAT = 3)
 
@@ -189,7 +189,7 @@
 	name = "floodlight"
 	desc = "An exosuit-mounted light."
 	icon_state = "mech_floodlight"
-	restricted_hardpoints = list(HARDPOINT_HEAD)
+	restricted_hardpoints = list(HARDPOINT_HEAD_UTILITY)
 	mech_layer = MECH_DECAL_LAYER
 
 	var/on = 0
@@ -236,7 +236,7 @@
 	name = "gravitational catapult"
 	desc = "An exosuit-mounted gravitational catapult."
 	icon_state = "mecha_teleport"
-	restricted_hardpoints = list(HARDPOINT_LEFT_HAND, HARDPOINT_RIGHT_HAND)
+	restricted_hardpoints = list(HARDPOINT_LEFT_UTILITY, HARDPOINT_RIGHT_UTILITY)
 	restricted_software = list(MECH_SOFTWARE_UTILITY)
 	var/mode = CATAPULT_SINGLE
 	var/atom/movable/locked
@@ -322,8 +322,8 @@
 /obj/item/mecha_equipment/drill
 	name = "drill"
 	desc = "This is the drill that'll pierce the heavens!"
-	icon_state = "mecha_drill"
-	restricted_hardpoints = list(HARDPOINT_LEFT_HAND, HARDPOINT_RIGHT_HAND)
+	icon_state = "gun"
+	restricted_hardpoints = list(HARDPOINT_LEFT_UTILITY, HARDPOINT_RIGHT_UTILITY)
 	restricted_software = list(MECH_SOFTWARE_UTILITY)
 	equipment_delay = 10
 
@@ -441,7 +441,7 @@
 	desc = "The SGL-6 Special grenade launcher has been retooled to fire lit flares for emergency illumination."
 	icon_state = "mech_flaregun"
 	holding_type = /obj/item/gun/launcher/mech/flarelauncher
-	restricted_hardpoints = list(HARDPOINT_LEFT_SHOULDER, HARDPOINT_RIGHT_SHOULDER)
+	has_hardpoints = list(HARDPOINT_LEFT_UTILITY, HARDPOINT_RIGHT_UTILITY)
 	restricted_software = list(MECH_SOFTWARE_UTILITY)
 
 /obj/item/gun/launcher/mech/flarelauncher
@@ -481,7 +481,7 @@
 	desc = "An exosuit-mounted passenger compartment that can comfortably hold a single humanoid."
 	icon_state = "mecha_passenger_open"
 	mech_layer = MECH_GEAR_LAYER
-	restricted_hardpoints = list(HARDPOINT_LEFT_HAND, HARDPOINT_RIGHT_HAND)
+	restricted_hardpoints = list(HARDPOINT_LEFT_UTILITY, HARDPOINT_RIGHT_UTILITY)
 	restricted_software = null
 	origin_tech = list(TECH_MATERIAL = 2, TECH_ENGINEERING = 2)
 	passive_power_use = 15
@@ -570,7 +570,7 @@
 	desc = "A vast toolset that's built into an exosuit arm mount. When a power drill just isn't enough."
 	icon_state = "mecha_toolset-screwdriverbit"
 	on_mech_icon_state = "mecha_toolset"
-	restricted_hardpoints = list(HARDPOINT_LEFT_HAND, HARDPOINT_RIGHT_HAND)
+	restricted_hardpoints = list(HARDPOINT_LEFT_UTILITY, HARDPOINT_RIGHT_UTILITY)
 	restricted_software = list(MECH_SOFTWARE_UTILITY)
 	equipment_delay = 8
 
@@ -720,5 +720,5 @@
 	desc = "The SGL-6CL grenade launcher is designed to launch primed cleaner grenades."
 	icon_state = "mech_gl"
 	holding_type = /obj/item/gun/launcher/mech/mountedgl/cl
-	restricted_hardpoints = list(HARDPOINT_LEFT_SHOULDER, HARDPOINT_RIGHT_SHOULDER)
+	has_hardpoints = list(HARDPOINT_LEFT_UTILITY, HARDPOINT_RIGHT_UTILITY)
 	restricted_software = list(MECH_SOFTWARE_UTILITY)

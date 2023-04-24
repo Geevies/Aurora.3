@@ -9,8 +9,8 @@
 	e_legs = /obj/item/mech_component/propulsion/combat
 	e_color = COLOR_DARK_GUNMETAL
 
-	h_r_shoulder = /obj/item/mecha_equipment/mounted_system/combat/smg
-	h_l_shoulder = /obj/item/mecha_equipment/mounted_system/combat/smg
+	h_r_combat = /obj/item/mecha_equipment/mounted_system/combat/smg
+	h_l_combat = /obj/item/mecha_equipment/mounted_system/combat/smg
 
 /obj/item/mech_component/manipulators/combat
 	name = "combat arms"
@@ -21,7 +21,7 @@
 	action_delay = 5
 	max_damage = 130
 	power_use = 5000
-	has_hardpoints = list(HARDPOINT_LEFT_SHOULDER, HARDPOINT_RIGHT_SHOULDER)
+	has_hardpoints = list(HARDPOINT_LEFT_COMBAT, HARDPOINT_RIGHT_COMBAT)
 
 /obj/item/mech_component/propulsion/combat
 	name = "combat legs"

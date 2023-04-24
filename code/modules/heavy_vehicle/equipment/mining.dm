@@ -2,7 +2,7 @@
 	name = "mounted drill loader"
 	desc = "A large back-mounted drill loader, capable of picking up and deploying large industrial drills."
 	icon_state = "mecha_drill_loader"
-	restricted_hardpoints = list(HARDPOINT_BACK)
+	restricted_hardpoints = list(HARDPOINT_BACK_UTILITY)
 	restricted_software = list(MECH_SOFTWARE_UTILITY)
 	w_class = ITEMSIZE_HUGE
 	origin_tech = list(TECH_MATERIAL = 2, TECH_ENGINEERING = 2)

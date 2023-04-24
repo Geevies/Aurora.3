@@ -33,6 +33,8 @@ proc/get_mech_icon(var/list/components = list(), var/overlay_layer = FLOAT_LAYER
 		new_overlays += get_mech_image("[head.icon_state]_eyes", head.on_mech_icon, null, MECH_EYES_LAYER)
 	if(arms)
 		new_overlays += get_mech_image(arms.icon_state, arms.on_mech_icon, arms.color, MECH_ARM_LAYER)
+		var/far_icon_state = "[use_icon_state]_far"
+		new_overlays += get_mech_image(far_icon_state, MECH_BASE_LAYER)
 	if(legs)
 		new_overlays += get_mech_image(legs.icon_state, legs.on_mech_icon, legs.color, MECH_LEG_LAYER)
 

@@ -9,7 +9,7 @@
 	e_legs = /obj/item/mech_component/propulsion/pra_egg
 	e_color = COLOR_STEEL
 	h_head = null
-	h_r_hand = /obj/item/mecha_equipment/mounted_system/combat/smg/pra_egg
+	h_r_combat = /obj/item/mecha_equipment/mounted_system/combat/smg/pra_egg
 
 /obj/item/mech_component/manipulators/pra_egg
 	name = "\improper P'kus-3 arms"
@@ -20,7 +20,7 @@
 	action_delay = 5
 	max_damage = 100
 	power_use = 5000
-	has_hardpoints = list(HARDPOINT_RIGHT_HAND, HARDPOINT_LEFT_HAND)
+	has_hardpoints = list(HARDPOINT_RIGHT_COMBAT)
 
 /obj/item/mech_component/propulsion/pra_egg
 	name = "\improper P'kus-3 legs"

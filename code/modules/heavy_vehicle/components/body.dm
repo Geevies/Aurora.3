@@ -29,7 +29,7 @@
 	var/pilot_coverage = 100
 	var/transparent_cabin = FALSE
 	var/hide_pilot = TRUE
-	has_hardpoints = list(HARDPOINT_BACK, HARDPOINT_LEFT_SHOULDER, HARDPOINT_RIGHT_SHOULDER)
+	has_hardpoints = list(HARDPOINT_BACK_UTILITY, HARDPOINT_FRAME_UTILITY)
 
 /obj/item/mech_component/chassis/Initialize()
 	. = ..()

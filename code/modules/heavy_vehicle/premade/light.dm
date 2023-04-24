@@ -9,8 +9,8 @@
 	e_legs = /obj/item/mech_component/propulsion/light
 	e_color = COLOR_OFF_WHITE
 
-	h_back = /obj/item/mecha_equipment/sleeper
-	h_l_hand = /obj/item/mecha_equipment/catapult
+	h_back_utility = /obj/item/mecha_equipment/sleeper
+	h_l_utility = /obj/item/mecha_equipment/catapult
 
 /obj/item/mech_component/manipulators/light
 	name = "light arms"
@@ -83,12 +83,11 @@
 
 	e_color = COLOR_TCFL
 
-	h_head = /obj/item/mecha_equipment/light
-	h_back = /obj/item/mecha_equipment/sleeper
-	h_l_shoulder = /obj/item/mecha_equipment/crisis_drone
-	h_r_shoulder = /obj/item/mecha_equipment/mounted_system/flarelauncher
-	h_l_hand = /obj/item/mecha_equipment/mounted_system/medanalyzer
-	h_r_hand = /obj/item/mecha_equipment/clamp
+	h_head_utility = /obj/item/mecha_equipment/light
+	h_back_utility = /obj/item/mecha_equipment/sleeper
+	h_l_utility = /obj/item/mecha_equipment/crisis_drone
+	h_r_utility = /obj/item/mecha_equipment/mounted_system/medanalyzer
+	h_frame_utility = /obj/item/mecha_equipment/clamp
 
 /mob/living/heavy_vehicle/premade/light/iac
 	name = "medical exosuit"
@@ -97,12 +96,10 @@
 
 	e_color = COLOR_IAC
 
-	h_head = /obj/item/mecha_equipment/light
-	h_back = /obj/item/mecha_equipment/sleeper
-	h_l_shoulder = /obj/item/mecha_equipment/crisis_drone
-	h_r_shoulder = /obj/item/mecha_equipment/mounted_system/flarelauncher
-	h_l_hand = /obj/item/mecha_equipment/mounted_system/medanalyzer
-	h_r_hand = /obj/item/mecha_equipment/clamp
+	h_head_utility = /obj/item/mecha_equipment/light
+	h_back_utility = /obj/item/mecha_equipment/sleeper
+	h_l_utility = /obj/item/mecha_equipment/crisis_drone
+	h_r_utility = /obj/item/mecha_equipment/mounted_system/medanalyzer
 
 /mob/living/heavy_vehicle/premade/light/kataphract
 	name = "kataphract exosuit"
@@ -110,10 +107,8 @@
 
 	e_color = COLOR_CHESTNUT
 
-	h_back = /obj/item/mecha_equipment/quick_enter
-	h_l_hand = /obj/item/mecha_equipment/clamp
-	h_r_hand = /obj/item/mecha_equipment/catapult
-	h_l_shoulder = /obj/item/mecha_equipment/mounted_system/flarelauncher
+	h_back_utility = /obj/item/mecha_equipment/quick_enter
+	h_r_utility = /obj/item/mecha_equipment/catapult
 
 /mob/living/heavy_vehicle/premade/light/recon
 	name = "gremlin exosuit"
@@ -124,6 +119,5 @@
 	e_head = /obj/item/mech_component/sensors/combat
 	e_legs = /obj/item/mech_component/propulsion/hover/light
 
-	h_back = /obj/item/mecha_equipment/quick_enter
-	h_l_shoulder = /obj/item/mecha_equipment/mounted_system/flarelauncher
-	h_r_shoulder = /obj/item/mecha_equipment/mounted_system/combat/smg
+	h_back_utility = /obj/item/mecha_equipment/quick_enter
+	h_r_combat = /obj/item/mecha_equipment/mounted_system/combat/smg
