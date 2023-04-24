@@ -2,7 +2,8 @@
 	name = "impossible mech"
 	desc = "It seems to be saying 'please let me die'."
 	icon = 'icons/mecha/mecha.dmi'
-	icon_state = "ripley"
+	icon_state = "light"
+	pixel_x = -10
 
 	//equipment path vars, which get added to the mech in the add_parts() proc
 	//e_ means equipment - geeves

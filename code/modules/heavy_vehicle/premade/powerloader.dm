@@ -148,8 +148,8 @@
 	e_legs = /obj/item/mech_component/propulsion/ripley
 	e_color = COLOR_TCFL
 
-	h_l_combat = /obj/item/mecha_equipment/mounted_system/combat/blaster
-	h_r_combat = /obj/item/mecha_equipment/mounted_system/combat/gauss
+//	h_l_combat = /obj/item/mecha_equipment/mounted_system/combat/blaster
+//	h_r_combat = /obj/item/mecha_equipment/mounted_system/combat/gauss
 
 /mob/living/heavy_vehicle/premade/combatripley/Initialize()
 	. = ..()

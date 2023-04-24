@@ -1,7 +1,7 @@
 /mob/living/heavy_vehicle/premade/light
 	name = "light exosuit"
 	desc = "A light and agile exosuit."
-	icon_state = "odysseus"
+	icon_state = "light"
 
 	e_head = /obj/item/mech_component/sensors/light
 	e_body = /obj/item/mech_component/chassis/light
@@ -15,13 +15,12 @@
 /mob/living/heavy_vehicle/premade/light/testing
 	name = "light testing exosuit"
 	desc = "A light and agile exosuit. It looks rather temporary."
-	icon_state = "odysseus"
 
 	e_head = /obj/item/mech_component/sensors/light
 	e_body = /obj/item/mech_component/chassis/light
 	e_arms = /obj/item/mech_component/manipulators/light
 	e_legs = /obj/item/mech_component/propulsion/light
-	e_color = COLOR_RIPLEY
+	e_color = COLOR_CLOSET_GOLD
 
 	h_l_utility = /obj/item/mecha_equipment/drill
 	h_r_utility = /obj/item/mecha_equipment/drill
@@ -94,7 +93,6 @@
 /mob/living/heavy_vehicle/premade/light/legion
 	name = "legion support exosuit"
 	desc = "A light and agile exosuit painted in the colours of the Tau Ceti Foreign Legion."
-	icon_state = "odysseus"
 
 	e_color = COLOR_TCFL
 
@@ -107,7 +105,6 @@
 /mob/living/heavy_vehicle/premade/light/iac
 	name = "medical exosuit"
 	desc = "A light and agile medical oriented exosuit."
-	icon_state = "odysseus"
 
 	e_color = COLOR_IAC
 

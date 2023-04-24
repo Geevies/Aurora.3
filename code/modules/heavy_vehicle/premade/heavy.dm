@@ -1,17 +1,17 @@
 /mob/living/heavy_vehicle/premade/heavy
 	name = "Heavy exosuit"
 	desc = "A heavily armored combat exosuit."
-	icon_state = "durand"
+	icon_state = "heavy"
 
 	e_head = /obj/item/mech_component/sensors/heavy
 	e_body = /obj/item/mech_component/chassis/heavy
 	e_arms = /obj/item/mech_component/manipulators/heavy
 	e_legs = /obj/item/mech_component/propulsion/heavy
-	e_color = COLOR_TITANIUM
+	e_color = COLOR_DARK_GUNMETAL
 
-	h_l_combat = /obj/item/mecha_equipment/mounted_system/combat/laser
-	h_r_combat = /obj/item/mecha_equipment/mounted_system/combat/ion
-	h_back_utility = /obj/item/mecha_equipment/shield
+//	h_l_combat = /obj/item/mecha_equipment/mounted_system/combat/laser
+//	h_r_combat = /obj/item/mecha_equipment/mounted_system/combat/ion
+//	h_back_utility = /obj/item/mecha_equipment/shield
 
 /obj/item/mech_component/manipulators/heavy
 	name = "heavy arms"

@@ -1570,6 +1570,10 @@
 	},
 /turf/simulated/floor/tiled,
 /area/storage/primary)
+"pV" = (
+/mob/living/heavy_vehicle/premade/heavy,
+/turf/simulated/floor/tiled,
+/area/storage/primary)
 "pX" = (
 /obj/structure/cable{
 	d1 = 16;
@@ -10101,7 +10105,7 @@ bB
 bB
 cS
 da
-da
+pV
 dl
 dc
 do
