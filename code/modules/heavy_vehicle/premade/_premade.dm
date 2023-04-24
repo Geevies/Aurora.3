@@ -19,6 +19,7 @@
 	var/h_back_utility
 	var/h_back_combat
 	var/h_back_superheavy
+	var/h_frame_utility
 	var/h_l_combat
 	var/h_r_combat
 	var/h_l_utility
@@ -70,11 +71,9 @@
 		body.prebuild()
 
 /mob/living/heavy_vehicle/premade/proc/spawn_mech_equipment()
-	if(h_head)
+	if(head)
 		if(h_head_utility && (HARDPOINT_HEAD_UTILITY in head.has_hardpoints))
 			install_system(new h_head_utility(src), HARDPOINT_HEAD_UTILITY, color = e_color)
-		if(h_head_combat && (HARDPOINT_HEAD_COMBAT in head.has_hardpoints))
-			install_system(new h_head_combat(src), HARDPOINT_HEAD_COMBAT, color = e_color)
 	if(body)
 		if(h_back_utility && (HARDPOINT_BACK_UTILITY in body.has_hardpoints))
 			install_system(new h_back_utility (src), HARDPOINT_BACK_UTILITY, color = e_color)
@@ -82,6 +81,8 @@
 			install_system(new h_back_combat(src), HARDPOINT_BACK_COMBAT, color = e_color)
 		if(h_back_superheavy && (HARDPOINT_BACK_SUPERHEAVY in body.has_hardpoints))
 			install_system(new h_back_superheavy(src), HARDPOINT_BACK_SUPERHEAVY, color = e_color)
+		if(h_frame_utility && (HARDPOINT_FRAME_UTILITY in body.has_hardpoints))
+			install_system(new h_frame_utility(src), HARDPOINT_FRAME_UTILITY, color = e_color)
 	if(arms)
 		if(h_l_utility && (HARDPOINT_LEFT_UTILITY in arms.has_hardpoints))
 			install_system(new h_l_utility(src), HARDPOINT_LEFT_UTILITY, color = e_color)
@@ -96,7 +97,7 @@
 	name = "mismatched exosuit"
 	desc = "It seems to have been roughly thrown together and then spraypainted a single colour."
 
-	h_head = /obj/item/mecha_equipment/light
+	h_head_utility = /obj/item/mecha_equipment/light
 
 /mob/living/heavy_vehicle/premade/random/Initialize(mapload, var/obj/structure/heavy_vehicle_frame/source_frame, var/super_random = FALSE, var/using_boring_colours = FALSE)
 	var/list/use_colours

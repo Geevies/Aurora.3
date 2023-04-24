@@ -2,7 +2,7 @@
 	name = "\improper exosuit sleeper"
 	desc = "An exosuit-mounted sleeper designed to maintain patients stabilized on their way to medical facilities."
 	icon_state = "mech_sleeper"
-	restricted_hardpoints = list(HARDPOINT_BACK)
+	restricted_hardpoints = list(HARDPOINT_BACK_UTILITY)
 	restricted_software = list(MECH_SOFTWARE_MEDICAL)
 	equipment_delay = 30 //don't spam it on people pls
 	active_power_use = 0 //Usage doesn't really require power. We don't want people stuck inside
@@ -91,7 +91,7 @@
 	origin_tech = list(TECH_PHORON = 2, TECH_MAGNET = 3, TECH_BIO = 3, TECH_DATA = 3)
 	active_power_use = 0
 	passive_power_use = 3000
-	has_hardpoints = list(HARDPOINT_LEFT_UTILITY, HARDPOINT_RIGHT_UTILITY)
+	restricted_hardpoints = list(HARDPOINT_LEFT_UTILITY, HARDPOINT_RIGHT_UTILITY)
 	restricted_software = list(MECH_SOFTWARE_MEDICAL)
 	equipment_delay = 3
 

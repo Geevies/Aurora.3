@@ -4,15 +4,15 @@ var/global/image/hardpoint_bar_empty
 var/global/list/hardpoint_bar_cache = list()
 var/global/list/mecha_damage_overlay_cache = list()
 
-#define HARDPOINT_BACK_UTILITY "back utility mount"
-#define HARDPOINT_BACK_COMBAT "back combat hardpoint"//For missile pods and stuff that doesnt need to face forward
-#define HARDPOINT_BACK_SUPERHEAVY "back superheavy hardpoint"//For very very big equipment and weapons
-#define HARDPOINT_LEFT_UTILITY "left utility mount"
-#define HARDPOINT_RIGHT_UTILITY "right utility mount"
-#define HARDPOINT_LEFT_COMBAT "left combat hardpoint"
-#define HARDPOINT_RIGHT_COMBAT "right combat hardpoint"
-#define HARDPOINT_HEAD_UTILITY "headgear mount"
-#define HARDPOINT_FRAME_UTILITY "frame utility hardpoint"//Clamps and other equipment that take lots of space
+#define HARDPOINT_BACK_UTILITY "back utility"
+#define HARDPOINT_BACK_COMBAT "back combat"//For missile pods and stuff that doesnt need to face forward
+#define HARDPOINT_BACK_SUPERHEAVY "superheavy mount"//For very very big equipment and weapons
+#define HARDPOINT_LEFT_UTILITY "left utility"
+#define HARDPOINT_RIGHT_UTILITY "right utility"
+#define HARDPOINT_LEFT_COMBAT "left combat"
+#define HARDPOINT_RIGHT_COMBAT "right combat"
+#define HARDPOINT_HEAD_UTILITY "head mount"
+#define HARDPOINT_FRAME_UTILITY "frame utility"//Clamps and other equipment that take lots of space
 
 // No software required: taser. light, radio.
 #define MECH_SOFTWARE_UTILITY "utility equipment"                // Plasma torch, clamp, drill.

@@ -11,7 +11,7 @@
 	var/obj/item/robot_parts/robot_component/camera/camera
 	var/obj/item/mech_component/control_module/software
 	var/active_sensors = 0
-	has_hardpoints = list(HARDPOINT_HEAD)
+	has_hardpoints = list(HARDPOINT_HEAD_UTILITY)
 	power_use = 15
 
 /obj/item/mech_component/sensors/Destroy()
@@ -103,7 +103,7 @@
 	name = "exosuit control module"
 	desc = "A clump of circuitry and software chip docks, used to program exosuits."
 	icon_state = "control"
-	icon = 'icons/mecha/mech_equipment.dmi'
+	icon = 'icons/mecha/equipment/mech_equipment.dmi'
 	gender = NEUTER
 	var/list/installed_software = list()
 	var/max_installed_software = 2

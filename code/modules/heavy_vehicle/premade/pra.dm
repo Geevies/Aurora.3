@@ -8,7 +8,7 @@
 	e_arms = /obj/item/mech_component/manipulators/pra_egg
 	e_legs = /obj/item/mech_component/propulsion/pra_egg
 	e_color = COLOR_STEEL
-	h_head = null
+	h_head_utility = null
 	h_r_combat = /obj/item/mecha_equipment/mounted_system/combat/smg/pra_egg
 
 /obj/item/mech_component/manipulators/pra_egg

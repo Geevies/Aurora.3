@@ -10,12 +10,12 @@
 	e_legs = /obj/item/mech_component/propulsion/cult
 	e_color = null // Uses pre-coloured assets
 
-	h_head = /obj/item/mecha_equipment/light/cult
-	h_back = /obj/item/mecha_equipment/quick_enter
-	h_r_hand = /obj/item/mecha_equipment/doomblade
+	h_head_utility = /obj/item/mecha_equipment/light/cult
+	h_back_utility = /obj/item/mecha_equipment/quick_enter
+	h_r_combat = /obj/item/mecha_equipment/doomblade
 
 /mob/living/heavy_vehicle/premade/cult/super
-	h_l_hand = /obj/item/mecha_equipment/mounted_system/soul_javelin
+	h_l_combat = /obj/item/mecha_equipment/mounted_system/soul_javelin
 
 /obj/item/mech_component/manipulators/cult
 	name = "daemon arms"

@@ -2,7 +2,7 @@
 // Used by the mecha HUD to get a 1-10 value representing charge, ammo, etc.
 /obj/item/mecha_equipment
 	name = "exosuit hardpoint system"
-	icon = 'icons/mecha/mech_equipment.dmi'
+	icon = 'icons/mecha/equipment/mech_equipment.dmi'
 	icon_state = ""
 	var/on_mech_icon_state
 	matter = list(DEFAULT_WALL_MATERIAL = 10000, MATERIAL_PLASTIC = 5000, MATERIAL_OSMIUM = 500)
@@ -16,6 +16,11 @@
 	var/active_power_use = 1 KILOWATTS
 	var/require_adjacent = TRUE
 	var/active = FALSE //For gear that has an active state (ie, floodlights)
+
+/obj/item/mecha_equipment/proc/set_colour(new_colour)
+	var/last_colour = color
+	color = new_colour
+	return color != last_colour
 
 /obj/item/mecha_equipment/examine(mob/user, distance)
 	. = ..()

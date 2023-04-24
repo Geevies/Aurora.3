@@ -12,6 +12,21 @@
 	h_back_utility = /obj/item/mecha_equipment/sleeper
 	h_l_utility = /obj/item/mecha_equipment/catapult
 
+/mob/living/heavy_vehicle/premade/light/testing
+	name = "light testing exosuit"
+	desc = "A light and agile exosuit. It looks rather temporary."
+	icon_state = "odysseus"
+
+	e_head = /obj/item/mech_component/sensors/light
+	e_body = /obj/item/mech_component/chassis/light
+	e_arms = /obj/item/mech_component/manipulators/light
+	e_legs = /obj/item/mech_component/propulsion/light
+	e_color = COLOR_RIPLEY
+
+	h_l_utility = /obj/item/mecha_equipment/drill
+	h_r_utility = /obj/item/mecha_equipment/drill
+	h_back_utility = null
+
 /obj/item/mech_component/manipulators/light
 	name = "light arms"
 	exosuit_desc_string = "lightweight, segmented manipulators"

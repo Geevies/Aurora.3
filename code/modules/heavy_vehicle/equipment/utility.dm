@@ -2,7 +2,7 @@
 	name = "mounted clamp"
 	desc = "A large, heavy industrial cargo loading clamp."
 	icon_state = "mecha_clamp"
-	has_hardpoints = list(HARDPOINT_FRAME_UTILITY)
+	restricted_hardpoints = list(HARDPOINT_FRAME_UTILITY)
 	restricted_software = list(MECH_SOFTWARE_UTILITY)
 	w_class = ITEMSIZE_HUGE
 	var/carrying_capacity = 5
@@ -322,7 +322,7 @@
 /obj/item/mecha_equipment/drill
 	name = "drill"
 	desc = "This is the drill that'll pierce the heavens!"
-	icon_state = "gun"
+	icon_state = "mecha_drill"
 	restricted_hardpoints = list(HARDPOINT_LEFT_UTILITY, HARDPOINT_RIGHT_UTILITY)
 	restricted_software = list(MECH_SOFTWARE_UTILITY)
 	equipment_delay = 10
@@ -441,7 +441,7 @@
 	desc = "The SGL-6 Special grenade launcher has been retooled to fire lit flares for emergency illumination."
 	icon_state = "mech_flaregun"
 	holding_type = /obj/item/gun/launcher/mech/flarelauncher
-	has_hardpoints = list(HARDPOINT_LEFT_UTILITY, HARDPOINT_RIGHT_UTILITY)
+	restricted_hardpoints = list(HARDPOINT_LEFT_UTILITY, HARDPOINT_RIGHT_UTILITY)
 	restricted_software = list(MECH_SOFTWARE_UTILITY)
 
 /obj/item/gun/launcher/mech/flarelauncher
@@ -515,7 +515,7 @@
 	desc = "A large, heavy industrial autolathe. Most of the exterior and interior is stripped, relying primarily on the structure of the exosuit."
 	icon_state = "mecha_autolathe"
 	on_mech_icon_state = "mecha_autolathe"
-	restricted_hardpoints = list(HARDPOINT_BACK)
+	restricted_hardpoints = list(HARDPOINT_BACK_UTILITY)
 	restricted_software = list(MECH_SOFTWARE_UTILITY)
 	origin_tech = list(TECH_MATERIAL = 2, TECH_ENGINEERING = 2)
 	var/obj/machinery/autolathe/mounted/lathe
@@ -632,7 +632,7 @@
 	name = "rapid-entry system"
 	desc = "A large back-mounted device with installed hydraulics, capable of quickly lifting the user into their piloting seat."
 	icon_state = "mecha_quickie"
-	restricted_hardpoints = list(HARDPOINT_BACK)
+	restricted_hardpoints = list(HARDPOINT_BACK_UTILITY)
 	w_class = ITEMSIZE_HUGE
 	origin_tech = list(TECH_MATERIAL = 2, TECH_ENGINEERING = 3)
 
@@ -655,7 +655,7 @@
 	desc = "A large back-mounted device that grants the exosuit it's mounted to the ability to semi-shift into bluespace, allowing it to pass through dense objects."
 	desc_info = "It needs an anomaly core to function. You can install some simply by using a core on it."
 	icon_state = "mecha_phazon"
-	restricted_hardpoints = list(HARDPOINT_BACK)
+	restricted_hardpoints = list(HARDPOINT_BACK_UTILITY)
 	w_class = ITEMSIZE_HUGE
 	origin_tech = list(TECH_MATERIAL = 6, TECH_ENGINEERING = 6, TECH_BLUESPACE = 6)
 	active_power_use = 88 KILOWATTS
@@ -720,5 +720,5 @@
 	desc = "The SGL-6CL grenade launcher is designed to launch primed cleaner grenades."
 	icon_state = "mech_gl"
 	holding_type = /obj/item/gun/launcher/mech/mountedgl/cl
-	has_hardpoints = list(HARDPOINT_LEFT_UTILITY, HARDPOINT_RIGHT_UTILITY)
+	restricted_hardpoints = list(HARDPOINT_LEFT_UTILITY, HARDPOINT_RIGHT_UTILITY)
 	restricted_software = list(MECH_SOFTWARE_UTILITY)

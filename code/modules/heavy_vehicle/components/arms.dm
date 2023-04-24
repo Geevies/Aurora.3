@@ -2,7 +2,7 @@
 	name = "arms"
 	pixel_y = -12
 	icon_state = "loader_arms"
-	has_hardpoints = list(HARDPOINT_LEFT_HAND, HARDPOINT_RIGHT_HAND)
+	has_hardpoints = list(HARDPOINT_LEFT_UTILITY, HARDPOINT_RIGHT_UTILITY)
 	power_use = 50
 	var/damagetype = DAMAGE_BRUTE
 

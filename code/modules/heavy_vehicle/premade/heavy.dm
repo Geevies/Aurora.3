@@ -9,9 +9,9 @@
 	e_legs = /obj/item/mech_component/propulsion/heavy
 	e_color = COLOR_TITANIUM
 
-	h_l_hand = /obj/item/mecha_equipment/mounted_system/combat/laser
-	h_r_hand = /obj/item/mecha_equipment/mounted_system/combat/ion
-	h_back = /obj/item/mecha_equipment/shield
+	h_l_combat = /obj/item/mecha_equipment/mounted_system/combat/laser
+	h_r_combat = /obj/item/mecha_equipment/mounted_system/combat/ion
+	h_back_utility = /obj/item/mecha_equipment/shield
 
 /obj/item/mech_component/manipulators/heavy
 	name = "heavy arms"
@@ -56,7 +56,7 @@
 	icon_state = "heavy_body"
 	max_damage = 300
 	mech_health = 1000
-	has_hardpoints = list(HARDPOINT_BACK)
+	has_hardpoints = list(HARDPOINT_BACK_UTILITY)
 	power_use = 5000
 
 /obj/item/mech_component/chassis/heavy/prebuild()

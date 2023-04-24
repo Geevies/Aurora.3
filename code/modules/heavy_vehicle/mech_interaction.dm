@@ -299,8 +299,8 @@
 		if(world.time + legs.turn_delay > next_mecha_move)
 			next_mecha_move = world.time + legs.turn_delay
 		set_dir(direction)
-		if(istype(hardpoints[HARDPOINT_BACK], /obj/item/mecha_equipment/shield))
-			var/obj/item/mecha_equipment/shield/S = hardpoints[HARDPOINT_BACK]
+		if(istype(hardpoints[HARDPOINT_BACK_COMBAT], /obj/item/mecha_equipment/shield))
+			var/obj/item/mecha_equipment/shield/S = hardpoints[HARDPOINT_BACK_COMBAT]
 			if(S.aura)
 				S.aura.dir = direction
 				if(S.aura.dir == NORTH)
@@ -329,8 +329,8 @@
 	update_icon()
 
 /mob/living/heavy_vehicle/Post_Incorpmove()
-	if(istype(hardpoints[HARDPOINT_BACK], /obj/item/mecha_equipment/phazon))
-		var/obj/item/mecha_equipment/phazon/PZ = hardpoints[HARDPOINT_BACK]
+	if(istype(hardpoints[HARDPOINT_BACK_COMBAT], /obj/item/mecha_equipment/phazon))
+		var/obj/item/mecha_equipment/phazon/PZ = hardpoints[HARDPOINT_BACK_COMBAT]
 		use_cell_power(PZ.active_power_use * CELLRATE)
 	return ..()
 

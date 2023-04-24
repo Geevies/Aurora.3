@@ -1584,6 +1584,10 @@
 /obj/effect/landmark/entry_point/aft,
 /turf/simulated/wall/r_wall,
 /area/shuttle/runtime)
+"rX" = (
+/mob/living/heavy_vehicle/premade/light/testing,
+/turf/simulated/floor/tiled,
+/area/storage/primary)
 "tT" = (
 /obj/structure/cable{
 	d1 = 4;
@@ -9583,7 +9587,7 @@ bB
 bB
 cP
 KE
-da
+rX
 dl
 dc
 do
@@ -10868,7 +10872,7 @@ bv
 bv
 bv
 da
-da
+rX
 dl
 dc
 do

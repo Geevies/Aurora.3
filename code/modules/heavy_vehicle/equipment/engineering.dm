@@ -51,7 +51,7 @@
 /obj/item/extinguisher/mech
 	name = "mounted fire extinguisher"
 	max_water = 4000 //Good is gooder
-	icon = 'icons/mecha/mech_equipment.dmi'
+	icon = 'icons/mecha/equipment/mech_equipment.dmi'
 	icon_state = "mecha_exting"
 	safety = FALSE
 

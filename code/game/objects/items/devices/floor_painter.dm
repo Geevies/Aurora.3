@@ -92,10 +92,10 @@
 		MC.set_colour(paint_colour)
 		return
 
-	var/obj/item/mecha_equipment/GC = A
-	if(istype(GC))
+	var/obj/item/mecha_equipment/US = A
+	if(istype(US))
 		playsound(get_turf(src), 'sound/effects/spray3.ogg', 30, 1, -6)
-		GC.set_colour(paint_colour)
+		US.set_colour(paint_colour)
 		return
 
 	var/obj/structure/bed/B = A
