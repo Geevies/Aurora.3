@@ -16,7 +16,6 @@
 	//hardpoint equipment path vars, which gets added to the mech in the spawn_mech_equipment() proc
 	//h_ means hardpoint, the rest should be sensical, i hope - geeves
 	var/h_head_utility = /obj/item/mecha_equipment/light
-	var/h_head_combat
 	var/h_back_utility
 	var/h_back_combat
 	var/h_back_superheavy
@@ -74,25 +73,25 @@
 /mob/living/heavy_vehicle/premade/proc/spawn_mech_equipment()
 	if(head)
 		if(h_head_utility && (HARDPOINT_HEAD_UTILITY in head.has_hardpoints))
-			install_system(new h_head_utility(src), HARDPOINT_HEAD_UTILITY, color = e_color)
+			install_system(new h_head_utility(src), HARDPOINT_HEAD_UTILITY)
 	if(body)
 		if(h_back_utility && (HARDPOINT_BACK_UTILITY in body.has_hardpoints))
-			install_system(new h_back_utility (src), HARDPOINT_BACK_UTILITY, color = e_color)
+			install_system(new h_back_utility (src), HARDPOINT_BACK_UTILITY)
 		if(h_back_combat && (HARDPOINT_BACK_COMBAT in body.has_hardpoints))
-			install_system(new h_back_combat(src), HARDPOINT_BACK_COMBAT, color = e_color)
+			install_system(new h_back_combat(src), HARDPOINT_BACK_COMBAT)
 		if(h_back_superheavy && (HARDPOINT_BACK_SUPERHEAVY in body.has_hardpoints))
-			install_system(new h_back_superheavy(src), HARDPOINT_BACK_SUPERHEAVY, color = e_color)
+			install_system(new h_back_superheavy(src), HARDPOINT_BACK_SUPERHEAVY)
 		if(h_frame_utility && (HARDPOINT_FRAME_UTILITY in body.has_hardpoints))
-			install_system(new h_frame_utility(src), HARDPOINT_FRAME_UTILITY, color = e_color)
+			install_system(new h_frame_utility(src), HARDPOINT_FRAME_UTILITY)
 	if(arms)
 		if(h_l_utility && (HARDPOINT_LEFT_UTILITY in arms.has_hardpoints))
-			install_system(new h_l_utility(src), HARDPOINT_LEFT_UTILITY, color = e_color)
+			install_system(new h_l_utility(src), HARDPOINT_LEFT_UTILITY)
 		if(h_r_utility && (HARDPOINT_LEFT_UTILITY in arms.has_hardpoints))
-			install_system(new h_r_utility(src), HARDPOINT_RIGHT_UTILITY, color = e_color)
+			install_system(new h_r_utility(src), HARDPOINT_RIGHT_UTILITY)
 		if(h_l_combat && (HARDPOINT_LEFT_COMBAT in arms.has_hardpoints))
-			install_system(new h_l_combat(src), HARDPOINT_LEFT_COMBAT, color = e_color)
+			install_system(new h_l_combat(src), HARDPOINT_LEFT_COMBAT)
 		if(h_r_combat && (HARDPOINT_RIGHT_COMBAT in arms.has_hardpoints))
-			install_system(new h_r_combat(src), HARDPOINT_RIGHT_COMBAT, color = e_color)
+			install_system(new h_r_combat(src), HARDPOINT_RIGHT_COMBAT)
 
 /mob/living/heavy_vehicle/premade/random
 	name = "mismatched exosuit"

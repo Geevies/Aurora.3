@@ -112,7 +112,7 @@
 		if(pilot && pilot.client)
 			pilot.client.screen -= module_to_forget
 
-/mob/living/heavy_vehicle/proc/install_system(var/obj/item/system, var/system_hardpoint, var/color, /var/mob/user)
+/mob/living/heavy_vehicle/proc/install_system(var/obj/item/system, var/system_hardpoint, /var/mob/user)
 	if(hardpoints_locked || hardpoints[system_hardpoint])
 		return 0
 
