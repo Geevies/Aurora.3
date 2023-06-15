@@ -1,7 +1,7 @@
 /mob/living/heavy_vehicle/premade/combat
 	name = "combat exosuit"
 	desc = "A sleek, modern combat exosuit."
-	icon_state = "durand"
+	icon_state = "combat-grey"
 
 	e_head = /obj/item/mech_component/sensors/combat
 	e_body = /obj/item/mech_component/chassis/combat

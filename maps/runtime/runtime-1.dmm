@@ -1584,6 +1584,10 @@
 /obj/machinery/atmospherics/pipe/zpipe/up/supply,
 /turf/simulated/floor/plating,
 /area/maintenance/maintcentral)
+"qa" = (
+/mob/living/heavy_vehicle/premade/combat,
+/turf/simulated/floor/tiled,
+/area/storage/primary)
 "qx" = (
 /obj/effect/landmark/entry_point/aft,
 /turf/simulated/wall/r_wall,
@@ -10619,7 +10623,7 @@ bB
 bB
 cS
 da
-da
+rX
 dl
 dc
 do
@@ -10876,7 +10880,7 @@ bv
 bv
 bv
 da
-rX
+da
 dl
 dc
 do
@@ -11133,7 +11137,7 @@ cF
 cG
 bv
 da
-da
+qa
 dl
 dc
 do
