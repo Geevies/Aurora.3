@@ -25,9 +25,9 @@
 			/obj/screen/mecha/toggle/maint,
 			/obj/screen/mecha/eject,
 			/obj/screen/mecha/toggle/hardpoint,
+			/obj/screen/mecha/radio,
 			/obj/screen/mecha/toggle/hatch,
 			/obj/screen/mecha/toggle/hatch_open,
-			/obj/screen/mecha/radio,
 			/obj/screen/mecha/toggle/sensor,
 			/obj/screen/mecha/toggle/megaspeakers,
 			/obj/screen/mecha/rename
@@ -40,7 +40,7 @@
 		var/pos = 7
 		for(var/additional_hud in additional_hud_elements)
 			var/obj/screen/mecha/M = new additional_hud(src)
-			var/y_position = i * -12
+			var/y_position = i * -22
 			if(M.icon_state == "large_base")
 				y_position += 2
 			if(!i)
@@ -50,11 +50,11 @@
 			i++
 
 		hud_health = new /obj/screen/mecha/health(src)
-		hud_health.screen_loc = "EAST-1:28,CENTER-3:11"
+		hud_health.screen_loc = "EAST-1:23,CENTER-3:11"
 		hud_elements |= hud_health
 		hud_open = locate(/obj/screen/mecha/toggle/hatch_open) in hud_elements
 		hud_power = new /obj/screen/mecha/power(src)
-		hud_power.screen_loc = "EAST-1:12,CENTER-4:25"
+		hud_power.screen_loc = "EAST-1:13,CENTER-5:24"
 		hud_elements |= hud_power
 		hud_power_control = locate(/obj/screen/mecha/toggle/power_control) in hud_elements
 
@@ -91,7 +91,7 @@
 
 	if(!body.diagnostics || !body.diagnostics.is_functional() || ((emp_damage>EMP_GUI_DISRUPT) && prob(emp_damage*2)))
 		if(!global.mecha_damage_overlay_cache["critfail"])
-			global.mecha_damage_overlay_cache["critfail"] = image(icon='icons/mecha/mecha_hud.dmi',icon_state="dam_error")
+			global.mecha_damage_overlay_cache["critfail"] = image(icon='icons/mecha/effects/analog_hud.dmi',icon_state="dam_error")
 		hud_health.overlays |= global.mecha_damage_overlay_cache["critfail"]
 		return
 
@@ -105,7 +105,7 @@
 			else
 				state = MC.damage_state
 		if(!global.mecha_damage_overlay_cache["[part]-[state]"])
-			var/image/I = image(icon='icons/mecha/mecha_hud.dmi',icon_state="dam_[part]")
+			var/image/I = image(icon='icons/mecha/effects/analog_hud.dmi',icon_state="dam_[part]")
 			switch(state)
 				if(1)
 					I.color = "#00ff00"
@@ -116,6 +116,6 @@
 				if(4)
 					I.color = "#ff0000"
 				else
-					I.color = "#f5f5f0"
+					I.color = "#2a9ce7"
 			global.mecha_damage_overlay_cache["[part]-[state]"] = I
 		hud_health.overlays |= global.mecha_damage_overlay_cache["[part]-[state]"]
