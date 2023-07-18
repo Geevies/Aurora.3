@@ -1,7 +1,7 @@
 /mob/living/heavy_vehicle/premade/pra_egg
 	name = "\improper P'kus-3 exosuit"
 	desc = "An exosuit developed by the People's Republic of Adhomai for the Division Experimental Exosuit."
-	icon_state = "durand"
+	icon_state = "egg"
 
 	e_head = /obj/item/mech_component/sensors/pra_egg
 	e_body = /obj/item/mech_component/chassis/pra_egg
@@ -9,7 +9,7 @@
 	e_legs = /obj/item/mech_component/propulsion/pra_egg
 	e_color = COLOR_STEEL
 	h_head_utility = null
-	h_r_combat = /obj/item/mecha_equipment/mounted_system/combat/smg/pra_egg
+//	h_r_combat = /obj/item/mecha_equipment/mounted_system/combat/smg/pra_egg
 
 /obj/item/mech_component/manipulators/pra_egg
 	name = "\improper P'kus-3 arms"
@@ -65,7 +65,7 @@
 
 /mob/living/heavy_vehicle/premade/pra_egg/armored
 	desc = "An exosuit developed by the People's Republic of Adhomai for the Division Experimental Exosuit. This one is a heavily armored version."
-	icon_state = "durand"
+	icon_state = "strong_egg"
 
 	e_head = /obj/item/mech_component/sensors/pra_egg/armored
 	e_body = /obj/item/mech_component/chassis/pra_egg/armored
@@ -97,3 +97,24 @@
 /obj/item/mech_component/chassis/pra_egg/armored/prebuild()
 	. = ..()
 	mech_armor = new /obj/item/robot_parts/robot_component/armor/mech/combat(src)
+
+/mob/living/heavy_vehicle/premade/pra_egg/toggle_power(var/mob/user)
+	if(power == MECH_POWER_TRANSITION)
+		to_chat(user, SPAN_NOTICE("Engine startup in progress. Please wait."))
+	else if(power == MECH_POWER_ON) //Turning it off is instant
+		playsound(src, 'sound/mecha/diesel_stop.ogg', 100, 0)
+		power = MECH_POWER_OFF
+	else if(get_cell(TRUE))
+		//Start power up sequence
+		power = MECH_POWER_TRANSITION
+		playsound(src, 'sound/mecha/diesel_start.ogg', 80, 0)
+		shake_animation()
+		if(do_after(user, 1.5 SECONDS) && power == MECH_POWER_TRANSITION)
+			playsound(src, 'sound/mecha/clickbeep.ogg', 80, 0)
+			power = MECH_POWER_ON
+		else
+			to_chat(user, SPAN_WARNING("You abort the engine turnover sequence."))
+			power = MECH_POWER_OFF
+		hud_power_control?.queue_icon_update()
+	else
+		to_chat(user, SPAN_WARNING("Error: No battery was detected."))

@@ -722,3 +722,14 @@
 	holding_type = /obj/item/gun/launcher/mech/mountedgl/cl
 	restricted_hardpoints = list(HARDPOINT_LEFT_UTILITY, HARDPOINT_RIGHT_UTILITY)
 	restricted_software = list(MECH_SOFTWARE_UTILITY)
+
+//Clamp subtypes - varying full-sized arms that attach to shoulder bases for mechs
+//The sprites of these are meant to be colored afterwards in two parts
+/obj/item/mecha_equipment/clamp/appendage
+	name = "gripping appendage"
+	desc = "A large, heavy appendage intended to heft heavy loads where smaller hands can not. Effectively a giant arm for an exosuit."
+	icon_state = "std_arm"
+
+/obj/item/mecha_equipment/clamp/appendage/pra_egg
+	name = "\improper P'kus-3 arm"
+	icon_state = "egg_arm"
