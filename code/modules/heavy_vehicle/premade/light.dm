@@ -20,7 +20,7 @@
 	e_body = /obj/item/mech_component/chassis/light
 	e_arms = /obj/item/mech_component/manipulators/light
 	e_legs = /obj/item/mech_component/propulsion/light
-	e_color = COLOR_CLOSET_GOLD
+	e_color = null
 
 	h_l_utility = /obj/item/mecha_equipment/drill
 	h_r_utility = /obj/item/mecha_equipment/drill

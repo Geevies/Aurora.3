@@ -2,7 +2,7 @@
 	name = "mounted clamp"
 	desc = "A large, heavy industrial cargo loading clamp."
 	icon_state = "mecha_clamp"
-	restricted_hardpoints = list(HARDPOINT_FRAME_UTILITY)
+	restricted_hardpoints = list(HARDPOINT_LEFT_UTILITY, HARDPOINT_RIGHT_UTILITY)
 	restricted_software = list(MECH_SOFTWARE_UTILITY)
 	w_class = ITEMSIZE_HUGE
 	var/carrying_capacity = 5
