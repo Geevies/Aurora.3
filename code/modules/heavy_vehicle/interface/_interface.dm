@@ -60,7 +60,7 @@
 			i++
 
 		hud_health = new /obj/screen/mecha/health(src)
-		hud_health.screen_loc = "EAST-1:23,CENTER-3:11"
+		hud_health.screen_loc = "EAST-1:13,CENTER-3:11"
 		hud_elements |= hud_health
 		hud_open = locate(/obj/screen/mecha/toggle/hatch_open) in hud_elements
 		hud_power = new /obj/screen/mecha/power(src)
@@ -75,21 +75,34 @@
 		var/obj/screen/mecha/hardpoint/H = hardpoint_hud_elements[hardpoint]
 		if(H) H.update_system_info()
 	handle_hud_icons_health()
-	var/obj/item/cell/C = get_cell()
-	if(istype(C))
-		var/power_percentage = round((get_cell()?.charge / get_cell()?.maxcharge) * 100)
-		if(power_percentage >= 100)
-			hud_power.maptext_x = 21
-		else if(power_percentage < 10)
-			hud_power.maptext_x = 25
-		else if(power_percentage < 100)
-			hud_power.maptext_x = 22
-		hud_power.maptext = "<span style=\"font-family: 'Small Fonts'; -dm-text-outline: 1 black; font-size: 8px;\">[power_percentage]%</span>"
-	else
-		hud_power.maptext_x = 13
-		hud_power.maptext = "<span style=\"font-family: 'Small Fonts'; -dm-text-outline: 1 black; font-size: 7px;\">NO CELL</span>"
+	update_power_maptext()
 	refresh_hud()
 
+/mob/living/heavy_vehicle/proc/update_power_maptext()
+	var/obj/item/cell/C = get_cell(TRUE)
+	if(!istype(C))
+		hud_power.maptext_y = 30
+		hud_power.maptext_x = 4
+		hud_power.maptext = "<span style=\"font-family: 'Small Fonts'; -dm-text-outline: 1 black; font-size: 7px;\">NO CELL</span>"
+		return
+	if(power == MECH_POWER_OFF)
+		hud_power.maptext_y = 32
+		hud_power.maptext_x = 4
+		hud_power.maptext = "<span style=\"font-family: 'Small Fonts'; -dm-text-outline: 1 black; font-size: 5px;\">POWER OFF</span>"
+	else if(power == MECH_POWER_TRANSITION)
+		hud_power.maptext_y = 32
+		hud_power.maptext_x = 4
+		hud_power.maptext = "<span style=\"font-family: 'Small Fonts'; -dm-text-outline: 1 black; font-size: 5px;\">STARTING...</span>"
+	else
+		hud_power.maptext_y = 29
+		var/power_percentage = round((C.charge / C.maxcharge) * 100)
+		if(power_percentage >= 100)
+			hud_power.maptext_x = 11
+		else if(power_percentage < 10)
+			hud_power.maptext_x = 17
+		else if(power_percentage < 100)
+			hud_power.maptext_x = 14
+		hud_power.maptext = "<span style=\"font-family: 'Small Fonts'; -dm-text-outline: 1 black; font-size: 8px;\">[power_percentage]%</span>"
 
 /mob/living/heavy_vehicle/handle_hud_icons_health()
 

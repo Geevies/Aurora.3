@@ -176,7 +176,8 @@
 
 /obj/screen/mecha/power
 	name = "power"
-	icon_state = null
+	icon_state = "power"
+	maptext_width = 48
 
 /obj/screen/mecha/toggle
 	name = "toggle"

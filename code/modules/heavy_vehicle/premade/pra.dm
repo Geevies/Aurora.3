@@ -104,17 +104,20 @@
 	else if(power == MECH_POWER_ON) //Turning it off is instant
 		playsound(src, 'sound/mecha/diesel_stop.ogg', 100, 0)
 		power = MECH_POWER_OFF
+		update_power_maptext()
 	else if(get_cell(TRUE))
 		//Start power up sequence
 		power = MECH_POWER_TRANSITION
 		playsound(src, 'sound/mecha/diesel_start.ogg', 80, 0)
 		shake_animation()
+		update_power_maptext()
 		if(do_after(user, 1.5 SECONDS) && power == MECH_POWER_TRANSITION)
 			playsound(src, 'sound/mecha/clickbeep.ogg', 80, 0)
 			power = MECH_POWER_ON
 		else
 			to_chat(user, SPAN_WARNING("You abort the engine turnover sequence."))
 			power = MECH_POWER_OFF
+		update_power_maptext()
 		hud_power_control?.queue_icon_update()
 	else
 		to_chat(user, SPAN_WARNING("Error: No battery was detected."))
