@@ -37,7 +37,7 @@
 /obj/item/mecha_equipment/mounted_system/combat/smg
 	name = "mounted submachinegun"
 	desc = "An exosuit-mounted automatic weapon. Handle with care."
-	icon_state = "mecha_ballistic"
+	icon_state = "ac"
 	holding_type = /obj/item/gun/energy/mountedsmg/mech
 
 /obj/item/mecha_equipment/mounted_system/combat/smg/attack_self(mob/user)

@@ -9,8 +9,8 @@
 	e_legs = /obj/item/mech_component/propulsion/heavy
 	e_color = COLOR_DARK_GUNMETAL
 
-//	h_l_combat = /obj/item/mecha_equipment/mounted_system/combat/laser
-//	h_r_combat = /obj/item/mecha_equipment/mounted_system/combat/ion
+	h_r_combat = /obj/item/mecha_equipment/mounted_system/combat/smg
+	h_l_combat = /obj/item/mecha_equipment/mounted_system/combat/smg
 //	h_back_utility = /obj/item/mecha_equipment/shield
 
 /obj/item/mech_component/manipulators/heavy
@@ -23,6 +23,7 @@
 	max_damage = 200
 	power_use = 7500
 	punch_sound = 'sound/mecha/mech_punch_slow.ogg'
+	has_hardpoints = list(HARDPOINT_LEFT_COMBAT, HARDPOINT_RIGHT_COMBAT)
 
 /obj/item/mech_component/propulsion/heavy
 	name = "heavy legs"

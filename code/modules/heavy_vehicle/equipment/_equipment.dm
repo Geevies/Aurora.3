@@ -4,6 +4,7 @@
 	name = "exosuit hardpoint system"
 	icon = 'icons/mecha/equipment/mech_equipment.dmi'
 	icon_state = ""
+	color = COLOR_DARK_GUNMETAL//so every fresh part is painted. premades override this
 	var/on_mech_icon_state
 	matter = list(DEFAULT_WALL_MATERIAL = 10000, MATERIAL_PLASTIC = 5000, MATERIAL_OSMIUM = 500)
 	force = 10

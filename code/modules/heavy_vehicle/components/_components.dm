@@ -3,6 +3,7 @@
 	w_class = ITEMSIZE_HUGE
 	pixel_x = -8
 	gender = PLURAL
+	color = COLOR_DARK_GUNMETAL//so every fresh part is painted. premades override this
 	var/on_mech_icon = 'icons/mecha/parts/base_frames.dmi'
 	var/decal
 	var/exosuit_desc_string
