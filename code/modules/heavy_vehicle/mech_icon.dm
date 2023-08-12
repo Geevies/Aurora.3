@@ -45,7 +45,7 @@ var/global/list/mecha_icon_cache = list()
 			new_overlays += get_mech_image(decal, 'icons/mecha/mecha_decals.dmi', null, MECH_DECAL_LAYER)
 
 	var/list/mecha_weapon_overlays = list()
-	mecha_weapon_overlays = icon_states('icons/mecha/mecha_weapon_overlays.dmi')
+	mecha_weapon_overlays = icon_states('icons/mecha/equipment/mecha_weapon_overlays.dmi')
 	for(var/hardpoint in hardpoints)
 		var/obj/item/mecha_equipment/hardpoint_object = hardpoints[hardpoint]
 		if(hardpoint_object)
@@ -54,10 +54,10 @@ var/global/list/mecha_icon_cache = list()
 				object_icon_state = hardpoint_object.on_mech_icon_state
 			var/use_icon_state = "[object_icon_state]_[hardpoint]"
 			if(use_icon_state in mecha_weapon_overlays)
-				new_overlays += get_mech_image(use_icon_state, 'icons/mecha/mecha_weapon_overlays.dmi', null, hardpoint_object.mech_layer)
+				new_overlays += get_mech_image(use_icon_state, 'icons/mecha/equipment/mecha_weapon_overlays.dmi', hardpoint_object.color, hardpoint_object.mech_layer)
 				var/far_icon_state = "[use_icon_state]_far"
 				if(far_icon_state in mecha_weapon_overlays)
-					new_overlays += get_mech_image(far_icon_state, 'icons/mecha/mecha_weapon_overlays.dmi', null, MECH_UNDER_LAYER)
+					new_overlays += get_mech_image(far_icon_state, 'icons/mecha/equipment/mecha_weapon_overlays.dmi', hardpoint_object.color, MECH_UNDER_LAYER)
 
 	overlays = new_overlays
 
