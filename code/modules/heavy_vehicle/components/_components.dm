@@ -1,5 +1,5 @@
 /obj/item/mech_component
-	icon = 'icons/mecha/parts/base_frames.dmi'
+	icon = 'icons/mecha/parts/frame_objects.dmi'
 	w_class = ITEMSIZE_HUGE
 	pixel_x = -8
 	gender = PLURAL
