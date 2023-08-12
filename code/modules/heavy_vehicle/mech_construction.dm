@@ -151,7 +151,8 @@
 	var/obj/screen/mecha/hardpoint/H = hardpoint_hud_elements[system_hardpoint]
 	H.holding = system
 
-	system.screen_loc = H.screen_loc
+	// system sprites are 48x48, so we need to center them on the UI like this
+	system.screen_loc = "[H.screen_loc_x_major]:[H.screen_loc_x_minor - 8],[H.screen_loc_y_major]:[H.screen_loc_y_minor - 8]"
 	system.layer = H.layer+0.1
 
 	hud_elements |= system

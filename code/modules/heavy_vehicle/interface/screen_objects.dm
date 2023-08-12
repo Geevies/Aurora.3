@@ -6,6 +6,9 @@
 	var/mob/living/heavy_vehicle/owner
 	maptext_y = 11
 
+	/// two small icons next to eachother will appear side by side in the HUD, like this [] []
+	var/small_icon = FALSE
+
 /obj/screen/mecha/proc/notify_user(var/mob/user, var/text)
 	if(user && user.loc == owner)
 		to_chat(user, text)
@@ -38,14 +41,15 @@
 	maptext_y = 3
 	maptext_width = 120
 
+	var/screen_loc_x_major = 1
+	var/screen_loc_x_minor = 6
+	var/screen_loc_y_major = 0
+	var/screen_loc_y_minor = 0
+
 /obj/screen/mecha/hardpoint/Destroy()
 	owner = null
 	holding = null
 	. = ..()
-
-/obj/screen/mecha/hardpoint/MouseDrop()
-	..()
-	if(holding) holding.screen_loc = screen_loc
 
 /obj/screen/mecha/hardpoint/proc/update_system_info()
 	// No point drawing it if we have no item to use or nobody to see it.
@@ -164,6 +168,7 @@
 /obj/screen/mecha/rename
 	name = "rename"
 	icon_state = "rename"
+	small_icon = TRUE
 
 /obj/screen/mecha/rename/Click()
 	if(..())
@@ -265,6 +270,7 @@
 /obj/screen/mecha/toggle/hatch_open
 	name = "open or close hatch"
 	icon_state = "hatch_status"
+	small_icon = TRUE
 
 /obj/screen/mecha/toggle/hatch_open/toggled(var/notify_user = TRUE)
 	if(owner.hatch_locked && owner.hatch_closed)
@@ -289,6 +295,7 @@
 /obj/screen/mecha/toggle/sensor
 	name = "toggle sensor matrix"
 	icon_state = "camera"
+	small_icon = TRUE
 
 /obj/screen/mecha/toggle/sensor/toggled()
 	if(!owner.head)
@@ -308,6 +315,7 @@
 /obj/screen/mecha/toggle/megaspeakers
 	name = "toggle integrated megaspeakers"
 	icon_state = "volume"
+	small_icon = TRUE
 
 /obj/screen/mecha/toggle/megaspeakers/toggled()
 	toggled = !toggled

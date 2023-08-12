@@ -15,7 +15,8 @@
 		var/i = 1
 		for(var/hardpoint in hardpoints)
 			var/obj/screen/mecha/hardpoint/H = new(src, hardpoint)
-			H.screen_loc = "1:6,[15-i]" //temp
+			H.screen_loc_y_major = 15 - i
+			H.screen_loc = "[H.screen_loc_x_major]:[H.screen_loc_x_minor],[H.screen_loc_y_major]:[H.screen_loc_y_minor]"
 			hud_elements |= H
 			hardpoint_hud_elements[hardpoint] = H
 			i++
@@ -37,15 +38,24 @@
 			additional_hud_elements += /obj/screen/mecha/toggle/air
 
 		i = 0
-		var/pos = 7
+		var/previous_was_small = FALSE // tracks whether we need to adjust the X coordinate instead of the Y coordinate, since we want smalls to be adjacent to eachother
 		for(var/additional_hud in additional_hud_elements)
 			var/obj/screen/mecha/M = new additional_hud(src)
 			var/y_position = i * -22
-			if(M.icon_state == "large_base")
-				y_position += 2
+			var/x_position = 6
+			if(M.small_icon)
+				if(previous_was_small)
+					i--
+					y_position = i * -22
+					x_position += 23
+					previous_was_small = FALSE
+				else
+					previous_was_small = TRUE
+			else
+				previous_was_small = FALSE
 			if(!i)
 				y_position += 2
-			M.screen_loc = "1:6,[pos]:[y_position]"
+			M.screen_loc = "1:[x_position],7:[y_position]"
 			hud_elements |= M
 			i++
 
