@@ -1029,3 +1029,6 @@ default behaviour is:
 
 /mob/living/get_speech_bubble_state_modifier()
 	return isSynthetic() ? "synth" : ..()
+
+/mob/living/proc/get_blood_splatter_color()
+	return "#A10808"

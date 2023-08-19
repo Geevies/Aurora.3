@@ -144,3 +144,18 @@
 
 /mob/living/heavy_vehicle/get_bullet_impact_effect_type(var/def_zone)
 	return BULLET_IMPACT_METAL
+
+/mob/living/heavy_vehicle/bullet_impact_visuals(var/obj/item/projectile/P, var/def_zone, var/damage)
+	..()
+	if(P.damage_type == DAMAGE_BRUTE)
+		var/hit_dir = get_dir(P.starting, src)
+		var/obj/effect/decal/cleanable/blood/B = blood_splatter(get_step(src, hit_dir), src, 1, hit_dir, COLOR_OIL)
+		B.icon_state = pick("dir_splatter_1","dir_splatter_2")
+		B.basecolor = COLOR_OIL
+		var/scale = min(1, round(mob_size / MOB_TINY, 0.1))
+		var/matrix/M = new()
+		B.transform = M.Scale(scale)
+		B.update_icon()
+
+/mob/living/heavy_vehicle/get_blood_splatter_color()
+	return COLOR_OIL

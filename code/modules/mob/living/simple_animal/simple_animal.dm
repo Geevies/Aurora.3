@@ -981,6 +981,8 @@
 /mob/living/simple_animal/get_speech_bubble_state_modifier()
 	return ..() || "rough"
 
+/mob/living/simple_animal/get_blood_splatter_color()
+	return blood_type
 
 #undef BLOOD_NONE
 #undef BLOOD_LIGHT

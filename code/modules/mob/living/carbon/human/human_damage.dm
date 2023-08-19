@@ -479,3 +479,8 @@ This function restores all organs.
 /mob/living/carbon/human/remove_blood_simple(var/blood)
 	if(should_have_organ(BP_HEART))
 		vessel.remove_reagent(/singleton/reagent/blood, blood)
+
+/mob/living/carbon/human/get_blood_splatter_color()
+	if(species?.blood_color)
+		return species.blood_color
+	return ..()
