@@ -112,21 +112,19 @@
 		if(pilot && pilot.client)
 			pilot.client.screen -= module_to_forget
 
-/mob/living/heavy_vehicle/proc/install_system(var/obj/item/system, var/system_hardpoint, /var/mob/user)
+/mob/living/heavy_vehicle/proc/install_system(var/obj/item/system, var/system_hardpoint, var/mob/user)
 	if(hardpoints_locked || hardpoints[system_hardpoint])
 		return 0
 
 	if(user)
-		var/delay = 30
-		if(delay > 0)
-			user.visible_message("<span class='notice'>\The [user] begins trying to install \the [system] into \the [src].</span>")
-			if(!do_after(user, delay, src) || user.get_active_hand() != system)
-				return FALSE
+		user.visible_message("<span class='notice'>\The [user] begins trying to install \the [system] into \the [src].</span>")
+		if(!do_after(user, 3 SECONDS, src) || user.get_active_hand() != system)
+			return FALSE
 
-			if(user.unEquip(system))
-				to_chat(user, "<span class='notice'>You install \the [system] in \the [src]'s [system_hardpoint].</span>")
-				playsound(user.loc, 'sound/items/Screwdriver.ogg', 100, 1)
-			else return FALSE
+		if(user.unEquip(system))
+			to_chat(user, "<span class='notice'>You install \the [system] in \the [src]'s [system_hardpoint].</span>")
+			playsound(user.loc, 'sound/items/Screwdriver.ogg', 100, 1)
+		else return FALSE
 	var/obj/item/mecha_equipment/ME = system
 	if(istype(ME))
 		if(ME.restricted_hardpoints && !(system_hardpoint in ME.restricted_hardpoints))
