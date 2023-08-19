@@ -73,6 +73,29 @@
 	icon_state = "mecha_gauss"
 	holding_type = /obj/item/gun/energy/gauss/mounted/mech
 
+/obj/item/mecha_equipment/mounted_system/combat/shotgun
+	name = "mounted shotgun"
+	desc = "An exosuit-mounted shotgun. Handle with care."
+	icon_state = "ac"
+	holding_type = /obj/item/gun/energy/mounted_shotgun
+
+/obj/item/gun/energy/mounted_shotgun
+	name = "mounted shotgun"
+	desc = "A mounted shotgun. It synthesizes more ammunition over time."
+	icon = 'icons/obj/robot_items.dmi'
+	icon_state = "smg"
+	item_state = "smg"
+	fire_sound = 'sound/weapons/gunshot/cannon.ogg'
+	charge_meter = FALSE
+	max_shots = 5
+	charge_cost = 100
+	projectile_type = /obj/item/projectile/bullet/pellet/shotgun/canister/mech
+	self_recharge = 1
+	use_external_power = 1
+	recharge_time = 5
+	needspin = FALSE
+	has_safety = FALSE
+
 /obj/item/gun/energy/taser/mounted/mech
 	use_external_power = TRUE
 	self_recharge = TRUE

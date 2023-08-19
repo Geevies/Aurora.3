@@ -200,6 +200,32 @@
 	range_step = 3
 	spread_step = 15
 
+/obj/item/projectile/bullet/pellet/shotgun/canister/mech
+	damage = 35
+	var/distance_moved = 0
+
+/obj/item/projectile/bullet/pellet/shotgun/canister/mech/after_move()
+	. = ..()
+	distance_moved++
+
+/obj/item/projectile/bullet/pellet/shotgun/canister/mech/on_hit(atom/target, blocked, def_zone)
+	. = ..()
+	if(ismob(target) && point_blank)
+		var/explode_dir = get_dir(firer, target)
+		var/turf/target_turf = get_turf(target)
+		var/mob/explode_target = target
+		explode_target.gib()
+		for(var/atom/movable/movable in target_turf)
+			movable.throw_at_random_in_dir(FALSE, 3, THROWNOBJ_KNOCKBACK_SPEED, explode_dir)
+	else if(distance_moved < 2 && !QDELETED(target) && istype(target, /obj/machinery/door))
+		var/obj/machinery/door/explode_door = target
+		var/explode_dir = get_dir(firer, target)
+		var/turf/target_turf = get_turf(target)
+		explode_door.disintegrate(src)
+		for(var/atom/movable/movable in target_turf)
+			movable.throw_at_random_in_dir(FALSE, 3, THROWNOBJ_KNOCKBACK_SPEED, explode_dir)
+
+
 /* "Rifle" rounds */
 
 /obj/item/projectile/bullet/rifle

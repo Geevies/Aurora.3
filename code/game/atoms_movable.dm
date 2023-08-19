@@ -230,6 +230,20 @@
 		turfs -= get_turf(src)
 	src.throw_at(pick(turfs), maxrange, speed)
 
+/atom/movable/proc/throw_at_random_in_dir(var/include_own_turf, var/maxrange, var/speed, var/direction)
+	var/list/turfs = RANGE_TURFS(maxrange, src)
+	if(!maxrange)
+		maxrange = 1
+
+	if(!include_own_turf)
+		turfs -= get_turf(src)
+
+	for(var/turf/throw_turf in turfs)
+		if(!(get_dir(src, throw_turf) & direction))
+			turfs -= throw_turf
+
+	src.throw_at(pick(turfs), maxrange, speed)
+
 //Overlays
 /atom/movable/overlay
 	var/atom/master = null

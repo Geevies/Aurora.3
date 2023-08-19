@@ -246,19 +246,20 @@
 	if (damage > 90)
 		destroy_hits--
 		if (destroy_hits <= 0)
-			visible_message("<span class='danger'>\The [src.name] disintegrates!</span>")
-			switch (Proj.damage_type)
-				if(DAMAGE_BRUTE)
-					new /obj/item/stack/material/steel(src.loc, 2)
-					new /obj/item/stack/rods(src.loc, 3)
-				if(DAMAGE_BURN)
-					new /obj/effect/decal/cleanable/ash(src.loc) // Turn it to ashes!
-			qdel(src)
-
+			disintegrate(Proj)
 	if(damage)
 		//cap projectile damage so that there's still a minimum number of hits required to break the door
 		take_damage(min(damage, 100))
 
+/obj/machinery/door/proc/disintegrate(var/obj/item/projectile/Proj)
+	visible_message("<span class='danger'>\The [src.name] disintegrates!</span>")
+	switch (Proj.damage_type)
+		if(DAMAGE_BRUTE)
+			new /obj/item/stack/material/steel(src.loc, 2)
+			new /obj/item/stack/rods(src.loc, 3)
+		if(DAMAGE_BURN)
+			new /obj/effect/decal/cleanable/ash(src.loc) // Turn it to ashes!
+	qdel(src)
 
 /obj/machinery/door/hitby(AM as mob|obj, var/speed=5)
 	..()
