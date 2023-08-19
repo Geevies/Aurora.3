@@ -119,12 +119,14 @@
 // common trait sources
 #define TRAIT_GENERIC "generic"
 #define GENERIC_ITEM_TRAIT "generic_item"
+#define TRAIT_MECHA "mecha"
 
 /// cannot be removed without admin intervention
 #define ROUNDSTART_TRAIT "roundstart"
 #define CULTURE_TRAIT "culture"
 
 #define INNATE_TRAIT "innate"
+#define SETTING_TRAIT "setting"
 
 //important_recursive_contents traits
 /*
@@ -147,6 +149,9 @@
 
 /// when mobs are viewing something via a computer, currently used for the helm computer
 #define TRAIT_COMPUTER_VIEW "computer_view"
+
+/// trait that hides the HUD
+#define TRAIT_HUD_HIDDEN "hud_hidden"
 
 // IPC OVERLOADER OVERDOSE STATES
 #define TRAIT_SOURCE_OVERLOADER "overloader"

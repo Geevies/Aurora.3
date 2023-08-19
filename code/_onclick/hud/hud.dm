@@ -184,9 +184,10 @@ var/list/global_huds
 	if(!mymob) return
 	if(ishuman(mymob))
 		var/mob/living/carbon/human/H = mymob
+		var/hud_hidden = !hud_shown || HAS_TRAIT(H, TRAIT_HUD_HIDDEN)
 		for(var/gear_slot in H.species.hud.gear)
 			var/list/hud_data = H.species.hud.gear[gear_slot]
-			if(inventory_shown && hud_shown)
+			if(inventory_shown && !hud_hidden)
 				switch(hud_data["slot"])
 					if(slot_head)
 						if(H.head)
@@ -211,13 +212,13 @@ var/list/global_huds
 							H.w_uniform.screen_loc = hud_data["loc"]
 					if(slot_wear_suit)
 						if(H.wear_suit)
-							H.wear_suit.screen_loc =hud_data["loc"]
+							H.wear_suit.screen_loc = hud_data["loc"]
 					if(slot_wear_mask)
 						if(H.wear_mask)
-							H.wear_mask.screen_loc =hud_data["loc"]
+							H.wear_mask.screen_loc = hud_data["loc"]
 					if(slot_wrists)
 						if(H.wrists)
-							H.wrists.screen_loc =	hud_data["loc"]
+							H.wrists.screen_loc = hud_data["loc"]
 			else
 				switch(hud_data["slot"])
 					if(slot_head)
@@ -257,9 +258,10 @@ var/list/global_huds
 
 	if(ishuman(mymob))
 		var/mob/living/carbon/human/H = mymob
+		var/hud_hidden = !hud_shown || HAS_TRAIT(H, TRAIT_HUD_HIDDEN)
 		for(var/gear_slot in H.species.hud.gear)
 			var/list/hud_data = H.species.hud.gear[gear_slot]
-			if(hud_shown)
+			if(!hud_hidden)
 				switch(hud_data["slot"])
 					if(slot_s_store)
 						if(H.s_store)
@@ -314,7 +316,7 @@ var/list/global_huds
 	return
 
 //Triggered when F12 is pressed (Unless someone changed something in the DMF)
-/mob/verb/button_pressed_F12(var/full = 0 as null)
+/mob/verb/button_pressed_F12()
 	set name = "F12"
 	set hidden = 1
 
@@ -331,49 +333,52 @@ var/list/global_huds
 		return
 	if(hud_used.hud_shown)
 		hud_used.hud_shown = 0
-		if(src.hud_used.adding)
-			src.client.screen -= src.hud_used.adding
-		if(src.hud_used.other)
-			src.client.screen -= src.hud_used.other
-		if(src.hud_used.hotkeybuttons)
-			src.client.screen -= src.hud_used.hotkeybuttons
-
-		//Due to some poor coding some things need special treatment:
-		//These ones are a part of 'adding', 'other' or 'hotkeybuttons' but we want them to stay
-		if(!full)
-			src.client.screen += src.hud_used.l_hand_hud_object	//we want the hands to be visible
-			src.client.screen += src.hud_used.r_hand_hud_object	//we want the hands to be visible
-			src.client.screen += src.hud_used.action_intent		//we want the intent swticher visible
-			src.hud_used.action_intent.screen_loc = ui_acti_alt	//move this to the alternative position, where zone_select usually is.
-		else
-			src.client.screen -= src.healths
-			src.client.screen -= src.internals
-			src.client.screen -= src.gun_setting_icon
-
-		//These ones are not a part of 'adding', 'other' or 'hotkeybuttons' but we want them gone.
-		src.client.screen -= src.zone_sel	//zone_sel is a mob variable for some reason.
-
+		handle_hide_hud()
 	else
 		hud_used.hud_shown = 1
-		if(src.hud_used.adding)
-			src.client.screen += src.hud_used.adding
-		if(src.hud_used.other && src.hud_used.inventory_shown)
-			src.client.screen += src.hud_used.other
-		if(src.hud_used.hotkeybuttons && !src.hud_used.hotkey_ui_hidden)
-			src.client.screen += src.hud_used.hotkeybuttons
-		if(src.healths)
-			src.client.screen |= src.healths
-		if(src.internals)
-			src.client.screen |= src.internals
-		if(src.gun_setting_icon)
-			src.client.screen |= src.gun_setting_icon
-
-		src.hud_used.action_intent.screen_loc = ui_acti //Restore intent selection to the original position
-		src.client.screen += src.zone_sel				//This one is a special snowflake
+		handle_show_hud()
 
 	hud_used.hidden_inventory_update()
 	hud_used.persistant_inventory_update()
 	update_action_buttons()
+
+/mob/proc/handle_hide_hud(var/hide_hands = FALSE)
+	if(src.hud_used.adding)
+		src.client.screen -= src.hud_used.adding
+	if(src.hud_used.other)
+		src.client.screen -= src.hud_used.other
+	if(src.hud_used.hotkeybuttons)
+		src.client.screen -= src.hud_used.hotkeybuttons
+
+	//Due to some poor coding some things need special treatment:
+	//These ones are a part of 'adding', 'other' or 'hotkeybuttons' but we want them to stay
+	if(!hide_hands)
+		src.client.screen += src.hud_used.l_hand_hud_object	//we want the hands to be visible
+		src.client.screen += src.hud_used.r_hand_hud_object	//we want the hands to be visible
+	src.client.screen += src.hud_used.action_intent		//we want the intent swticher visible
+	src.hud_used.action_intent.screen_loc = ui_acti_alt	//move this to the alternative position, where zone_select usually is.
+
+	//These ones are not a part of 'adding', 'other' or 'hotkeybuttons' but we want them gone.
+	src.client.screen -= src.zone_sel	//zone_sel is a mob variable for some reason.
+	src.client.screen -= src.up_hint
+
+/mob/proc/handle_show_hud()
+	if(src.hud_used.adding)
+		src.client.screen += src.hud_used.adding
+	if(src.hud_used.other && src.hud_used.inventory_shown)
+		src.client.screen += src.hud_used.other
+	if(src.hud_used.hotkeybuttons && !src.hud_used.hotkey_ui_hidden)
+		src.client.screen += src.hud_used.hotkeybuttons
+	if(src.healths)
+		src.client.screen |= src.healths
+	if(src.internals)
+		src.client.screen |= src.internals
+	if(src.gun_setting_icon)
+		src.client.screen |= src.gun_setting_icon
+
+	src.hud_used.action_intent.screen_loc = ui_acti //Restore intent selection to the original position
+	src.client.screen += src.zone_sel				//This one is a special snowflake
+	src.client.screen += src.up_hint
 
 //Similar to button_pressed_F12() but keeps zone_sel, gun_setting_icon, and healths.
 /mob/proc/toggle_zoom_hud()

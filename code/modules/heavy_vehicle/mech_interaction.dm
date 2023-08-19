@@ -243,7 +243,13 @@
 	RegisterSignal(user, COMSIG_MOB_FACEDIR, PROC_REF(handle_user_turn))
 	sync_access()
 	playsound(src, 'sound/machines/windowdoor.ogg', 50, 1)
-	if(user.client) user.client.screen |= hud_elements
+	if(user.client)
+		user.client.screen |= hud_elements
+		ADD_TRAIT(user, TRAIT_HUD_HIDDEN, TRAIT_MECHA)
+		user.handle_hide_hud(TRUE)
+		user.hud_used.hidden_inventory_update()
+		user.hud_used.persistant_inventory_update()
+		user.update_action_buttons()
 	LAZYDISTINCTADD(user.additional_vision_handlers, src)
 	update_icon()
 	walk(src, 0) // stop it from auto moving when the pilot gets in
@@ -276,6 +282,12 @@
 	if(user.client)
 		user.client.screen -= hud_elements
 		user.client.eye = user
+		REMOVE_TRAIT(user, TRAIT_HUD_HIDDEN, TRAIT_MECHA)
+		if(user.hud_used.hud_shown)
+			user.handle_show_hud()
+		user.hud_used.hidden_inventory_update()
+		user.hud_used.persistant_inventory_update()
+		user.update_action_buttons()
 	if(user in pilots)
 		set_intent(I_HURT)
 		LAZYREMOVE(pilots, user)
