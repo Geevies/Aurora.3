@@ -535,7 +535,7 @@
 /atom/movable/proc/get_bullet_impact_effect_type()
 	return BULLET_IMPACT_NONE
 
-/atom/movable/proc/do_pickup_animation(atom/target, var/image/pickup_animation = image(icon, loc, icon_state, ABOVE_ALL_MOB_LAYER, dir, pixel_x, pixel_y))
+/atom/movable/proc/do_pickup_animation(atom/target, var/image/pickup_animation = image(icon, loc, icon_state, ABOVE_ALL_MOB_LAYER, dir, pixel_x, pixel_y), var/do_turn = TRUE, var/pixel_x_offset = 0, var/pixel_y_offset = 0)
 	if(!isturf(loc))
 		return
 	pickup_animation.color = color
@@ -544,8 +544,8 @@
 
 	var/turf/T = get_turf(src)
 	var/direction = get_dir(T, target)
-	var/to_x = target.pixel_x
-	var/to_y = target.pixel_y
+	var/to_x = target.pixel_x + pixel_x_offset
+	var/to_y = target.pixel_y + pixel_y_offset
 
 	if(direction & NORTH)
 		to_y += 32
@@ -561,7 +561,8 @@
 
 	flick_overlay_view(pickup_animation, target, 4)
 	var/matrix/animation_matrix = new(pickup_animation.transform)
-	animation_matrix.Turn(pick(-30, 30))
+	if(do_turn)
+		animation_matrix.Turn(pick(-30, 30))
 	animation_matrix.Scale(0.65)
 
 	animate(pickup_animation, alpha = 175, pixel_x = to_x, pixel_y = to_y, time = 3, transform = animation_matrix, easing = CUBIC_EASING)

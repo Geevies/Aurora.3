@@ -1432,6 +1432,15 @@
 	var/list/data = list()
 	return data
 
+/mob/do_pickup_animation(atom/target, var/image/pickup_animation = image(icon, loc, icon_state, ABOVE_ALL_MOB_LAYER, dir, pixel_x, pixel_y))
+	if(!isturf(loc))
+		return
+	if(overlays.len)
+		pickup_animation.overlays = overlays
+	if(underlays.len)
+		pickup_animation.underlays = underlays
+	return ..()
+
 #undef UNBUCKLED
 #undef PARTIALLY_BUCKLED
 #undef FULLY_BUCKLED

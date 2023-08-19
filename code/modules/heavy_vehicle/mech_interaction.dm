@@ -237,6 +237,7 @@
 		to_chat(user, "<span class='warning'>\The [src] is occupied.</span>")
 		return
 	to_chat(user, "<span class='notice'>You climb into \the [src].</span>")
+	INVOKE_ASYNC(user, TYPE_PROC_REF(/atom/movable, do_pickup_animation), src, image(user.icon, user.loc, user.icon_state, MECH_ABOVE_LAYER + 0.1, user.dir, user.pixel_x, user.pixel_y), FALSE, -pixel_x, -pixel_y)
 	user.forceMove(src)
 	LAZYDISTINCTADD(pilots, user)
 	RegisterSignal(user, COMSIG_MOB_FACEDIR, PROC_REF(handle_user_turn))
