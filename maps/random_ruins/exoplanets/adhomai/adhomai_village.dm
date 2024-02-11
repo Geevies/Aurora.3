@@ -5,6 +5,7 @@
 
 	spawn_weight = 1
 	spawn_cost = 2
+	template_flags = TEMPLATE_FLAG_NO_RUINS|TEMPLATE_FLAG_RUIN_STARTS_DISALLOWED
 	sectors = list(SECTOR_SRANDMARR)
 	suffixes = list("adhomai/adhomai_village.dmm")
 
@@ -15,7 +16,7 @@
 	dynamic_lighting = TRUE
 	no_light_control = FALSE
 	base_turf = /turf/simulated/floor/exoplanet/mineral/adhomai
-	flags = RAD_SHIELDED
+	area_flags = AREA_FLAG_RAD_SHIELDED
 
 //ghost roles
 
@@ -50,9 +51,9 @@
 
 	shoes = list(
 				/obj/item/clothing/shoes/tajara/footwraps,
-				/obj/item/clothing/shoes/tajara/jackboots,
-				/obj/item/clothing/shoes/tajara/workboots,
-				/obj/item/clothing/shoes/tajara/workboots/adhomian_boots
+				/obj/item/clothing/shoes/jackboots/tajara,
+				/obj/item/clothing/shoes/workboots/tajara,
+				/obj/item/clothing/shoes/workboots/tajara/adhomian_boots
 	)
 
 	back = /obj/item/storage/backpack/satchel/leather

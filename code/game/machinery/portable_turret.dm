@@ -19,7 +19,7 @@
 	active_power_usage = 300	//when active, this turret takes up constant 300 Equipment power
 	power_channel = EQUIP	//drains power from the EQUIPMENT channel
 
-	req_one_access = list(access_security, access_heads)
+	req_one_access = list(ACCESS_SECURITY, ACCESS_HEADS)
 
 	light_range = 3
 	light_power = 2
@@ -80,7 +80,7 @@
 	var/old_angle = 0
 
 /obj/machinery/porta_turret/examine(mob/user)
-	..()
+	. = ..()
 	var/msg = ""
 	if(!health)
 		msg += SPAN_DANGER("\The [src] is destroyed!")
@@ -106,7 +106,7 @@
 	check_wildlife = TRUE
 	immobile = TRUE
 	no_salvage = TRUE
-	req_one_access = list(access_cent_specops, access_cent_general)
+	req_one_access = list(ACCESS_CENT_SPECOPS, ACCESS_CENT_GENERAL)
 
 	var/admin_emag_override = FALSE	// Set to true to allow emagging of this turret.
 
@@ -216,16 +216,18 @@
 /obj/machinery/porta_turret/attack_hand(mob/user)
 	ui_interact(user)
 
-/obj/machinery/porta_turret/vueui_data_change(var/list/data, var/mob/user, var/datum/vueui/ui)
-	. = ..()
-	data = . || data
-	if(!data)
-		data = list()
-	VUEUI_SET_CHECK(data["locked"], locked, ., data)
-	VUEUI_SET_CHECK(data["enabled"], enabled, ., data)
-	VUEUI_SET_CHECK(data["is_lethal"], 1, ., data)
-	VUEUI_SET_CHECK(data["lethal"], lethal, ., data)
-	VUEUI_SET_CHECK(data["can_switch"], egun, ., data)
+/obj/machinery/porta_turret/ui_data(mob/user)
+	var/list/data = list()
+	data["locked"] = locked
+	data["enabled"] = enabled
+	data["is_lethal"] = TRUE
+	data["lethal"] = lethal
+	data["can_switch"] = egun
+	data["settings"] = get_settings()
+	return data
+
+/obj/machinery/porta_turret/proc/get_settings()
+	. = list()
 
 	var/usedSettings = list(
 		"check_synth" = "Neutralize All Non-Synthetics",
@@ -236,42 +238,44 @@
 		"check_arrest" = "Check Arrest Status",
 		"check_access" = "Check Access Authorization"
 	)
-	VUEUI_SET_IFNOTSET(data["settings"], list(), ., data)
+
 	for(var/v in usedSettings)
 		var/name = usedSettings[v]
-		VUEUI_SET_IFNOTSET(data["settings"][v], list(), ., data)
-		data["settings"][v]["category"] = name
-		VUEUI_SET_CHECK(data["settings"][v]["value"], vars[v], ., data)
+		. += list(list("category" = name, "value" = vars[v], "variable_name" = v))
 
-
-/obj/machinery/porta_turret/ui_interact(mob/user)
-	var/datum/vueui/ui = SSvueui.get_open_ui(user, src)
-	if (!ui)
-		ui = new(user, src, "turrets-control", 375, 725, "Turret Controls")
-	ui.open()
+/obj/machinery/porta_turret/ui_interact(mob/user, var/datum/tgui/ui)
+	ui = SStgui.try_update_ui(user, src, ui)
+	if(!ui)
+		ui = new(user, src, "TurretControl", "Defense Systems Control Panel", 375, 725)
+		ui.open()
 
 /obj/machinery/porta_turret/proc/HasController()
 	var/area/A = get_area(src)
 	return A && A.turret_controls.len > 0
 
-/obj/machinery/porta_turret/CanUseTopic(var/mob/user)
+/obj/machinery/porta_turret/ui_status(mob/user, datum/ui_state/state)
+	. = ..()
 	if(HasController())
 		to_chat(user, "<span class='notice'>Turrets can only be controlled using the assigned turret controller.</span>")
-		return STATUS_CLOSE
+		return UI_CLOSE
 
 	if(isLocked(user))
-		return STATUS_CLOSE
+		return UI_CLOSE
 
 	if(!anchored)
 		to_chat(usr, "<span class='notice'>\The [src] has to be secured first!</span>")
-		return STATUS_CLOSE
+		return UI_CLOSE
 
 	return ..()
 
-/obj/machinery/porta_turret/Topic(href, href_list)
-	if(href_list["command"] && !isnull(href_list["value"]))
-		var/value = text2num(href_list["value"])
-		if(href_list["command"] == "enable")
+/obj/machinery/porta_turret/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
+	. = ..()
+	if(.)
+		return
+
+	if(action == "command" && !isnull(params["value"]))
+		var/value = text2num(params["value"])
+		if(params["command"] == "enable")
 			enabled = value
 			if (enabled)
 				START_PROCESSING_MACHINE(src, MACHINERY_PROCESS_SELF)
@@ -283,25 +287,24 @@
 			else
 				STOP_PROCESSING_MACHINE(src, MACHINERY_PROCESS_SELF)
 				popDown()
-		else if(href_list["command"] == "lethal")
+		else if(params["command"] == "lethal")
 			lethal = value
 			lethal_icon = value
-		else if(href_list["command"] == "check_synth")
+		else if(params["command"] == "check_synth")
 			check_synth = value
-		else if(href_list["command"] == "target_borgs")
+		else if(params["command"] == "target_borgs")
 			target_borgs = value
-		else if(href_list["command"] == "check_weapons")
+		else if(params["command"] == "check_weapons")
 			check_weapons = value
-		else if(href_list["command"] == "check_records")
+		else if(params["command"] == "check_records")
 			check_records = value
-		else if(href_list["command"] == "check_arrest")
+		else if(params["command"] == "check_arrest")
 			check_arrest = value
-		else if(href_list["command"] == "check_access")
+		else if(params["command"] == "check_access")
 			check_access = value
-		else if(href_list["command"] == "check_wildlife")
+		else if(params["command"] == "check_wildlife")
 			check_wildlife = value
-		SSvueui.check_uis_for_change(src)
-		return 1
+		. = TRUE
 
 /obj/machinery/porta_turret/power_change()
 	..()
@@ -456,6 +459,8 @@
 	take_damage(damage)
 
 /obj/machinery/porta_turret/emp_act(severity)
+	. = ..()
+
 	if(enabled)
 		//if the turret is on, the EMP no matter how severe disables the turret for a while
 		//and scrambles its settings, with a slight chance of having an emag effect
@@ -470,7 +475,6 @@
 		enabled = FALSE
 		addtimer(CALLBACK(src, PROC_REF(post_emp_act)), rand(60, 600))
 
-	..()
 
 /obj/machinery/porta_turret/proc/post_emp_act()
 	enabled = TRUE
@@ -515,7 +519,7 @@
 	targets = list()
 	secondarytargets = list()
 
-	var/list/potentials = get_targets_in_LOS(world.view, src)
+	var/list/potentials = get_hearers_in_LOS(world.view, src)
 
 	if(potentials.len)
 		for(var/mob/living/L in potentials)
@@ -887,7 +891,7 @@
 					to_chat(user, "<span class='notice'>You need more fuel to complete this task.</span>")
 					return TRUE
 
-				playsound(loc, pick('sound/items/welder.ogg', 'sound/items/welder_pry.ogg'), 50, 1)
+				playsound(loc, pick('sound/items/Welder.ogg', 'sound/items/welder_pry.ogg'), 50, 1)
 				if(I.use_tool(src, user, 20, volume = 50))
 					if(!src || !WT.use(5, user)) return TRUE
 					build_step = 1
@@ -976,7 +980,7 @@
 				if(WT.get_fuel() < 5)
 					to_chat(user, "<span class='notice'>You need more fuel to complete this task.</span>")
 
-				playsound(loc, pick('sound/items/welder.ogg', 'sound/items/welder_pry.ogg'), 50, 1)
+				playsound(loc, pick('sound/items/Welder.ogg', 'sound/items/welder_pry.ogg'), 50, 1)
 				if(I.use_tool(src, user, 30, volume = 50))
 					if(!src || !WT.use(5, user))
 						return
@@ -1070,7 +1074,7 @@
 
 	eprojectile = /obj/item/projectile/beam/xray
 	eshot_sound	= 'sound/weapons/laser3.ogg'
-	req_one_access = list(access_syndicate)
+	req_one_access = list(ACCESS_SYNDICATE)
 
 /obj/machinery/porta_turret/ion
 	installation = /obj/item/gun/energy/rifle/ionrifle
@@ -1083,7 +1087,7 @@
 	eprojectile = /obj/item/projectile/ion
 	shot_sound = 'sound/weapons/laser1.ogg'
 	eshot_sound	= 'sound/weapons/laser1.ogg'
-	req_one_access = list(access_syndicate)
+	req_one_access = list(ACCESS_SYNDICATE)
 
 /obj/machinery/porta_turret/crossbow
 	installation = /obj/item/gun/energy/crossbow
@@ -1093,8 +1097,8 @@
 	sprite_set = "crossbow"
 
 	eprojectile = /obj/item/projectile/energy/bolt/large
-	eshot_sound	= 'sound/weapons/genhit.ogg'
-	req_one_access = list(access_syndicate)
+	eshot_sound	= 'sound/weapons/Genhit.ogg'
+	req_one_access = list(ACCESS_SYNDICATE)
 
 /obj/machinery/porta_turret/cannon
 	installation = /obj/item/gun/energy/rifle/laser/heavy
@@ -1105,7 +1109,7 @@
 
 	eprojectile = /obj/item/projectile/beam/heavylaser
 	eshot_sound	= 'sound/weapons/lasercannonfire.ogg'
-	req_one_access = list(access_syndicate)
+	req_one_access = list(ACCESS_SYNDICATE)
 
 /obj/machinery/porta_turret/pulse
 	installation = /obj/item/gun/energy/pulse
@@ -1117,7 +1121,7 @@
 
 	eprojectile = /obj/item/projectile/beam/pulse
 	eshot_sound	= 'sound/weapons/pulse.ogg'
-	req_one_access = list(access_syndicate)
+	req_one_access = list(ACCESS_SYNDICATE)
 
 /obj/machinery/porta_turret/sniper
 	installation = /obj/item/gun/energy/sniperrifle
@@ -1129,7 +1133,7 @@
 
 	eprojectile = /obj/item/projectile/beam/sniper
 	eshot_sound	= 'sound/weapons/marauder.ogg'
-	req_one_access = list(access_syndicate)
+	req_one_access = list(ACCESS_SYNDICATE)
 
 /obj/machinery/porta_turret/net
 	installation = /obj/item/gun/energy/net
@@ -1140,7 +1144,7 @@
 
 	eprojectile = /obj/item/projectile/beam/energy_net
 	eshot_sound	= 'sound/weapons/plasma_cutter.ogg'
-	req_one_access = list(access_syndicate)
+	req_one_access = list(ACCESS_SYNDICATE)
 
 /obj/machinery/porta_turret/thermal
 	installation = /obj/item/gun/energy/vaurca/thermaldrill
@@ -1151,7 +1155,7 @@
 
 	eprojectile = /obj/item/projectile/beam/thermaldrill
 	eshot_sound	= 'sound/magic/lightningbolt.ogg'
-	req_one_access = list(access_syndicate)
+	req_one_access = list(ACCESS_SYNDICATE)
 
 /obj/machinery/porta_turret/meteor
 	installation = /obj/item/gun/energy/meteorgun
@@ -1163,7 +1167,7 @@
 
 	eprojectile = /obj/item/projectile/meteor
 	eshot_sound	= 'sound/weapons/lasercannonfire.ogg'
-	req_one_access = list(access_syndicate)
+	req_one_access = list(ACCESS_SYNDICATE)
 
 /obj/machinery/porta_turret/ballistic
 	installation = /obj/item/gun/energy/mountedsmg
@@ -1176,7 +1180,7 @@
 	eprojectile = /obj/item/projectile/bullet/pistol/medium
 	eshot_sound	= 'sound/weapons/gunshot/gunshot_saw.ogg'
 
-	req_one_access = list(access_syndicate)
+	req_one_access = list(ACCESS_SYNDICATE)
 
 /obj/machinery/porta_turret/legion
 	enabled = 0
@@ -1194,7 +1198,7 @@
 	check_records = 0
 	check_access = 1
 	ailock = 1
-	req_one_access = list(access_legion)
+	req_one_access = list(ACCESS_LEGION)
 
 #undef TURRET_PRIORITY_TARGET
 #undef TURRET_SECONDARY_TARGET

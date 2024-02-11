@@ -29,10 +29,10 @@
 		base_overlay.appearance_flags = RESET_COLOR
 		add_overlay(base_overlay)
 
-obj/item/clothing/mask/chewable/Initialize()
+/obj/item/clothing/mask/chewable/Initialize()
 	create_reagents(chem_volume) // making the cigarrete a chemical holder with a maximum volume of 15
 	. = ..()
-	flags |= NOREACT // so it doesn't react until you light it
+	atom_flags |= ATOM_FLAG_NO_REACT // so it doesn't react until you light it
 	if(wrapped)
 		slot_flags = null
 		update_icon()
@@ -50,7 +50,7 @@ obj/item/clothing/mask/chewable/Initialize()
 	STOP_PROCESSING(SSprocessing, src)
 	..()
 
-obj/item/clothing/mask/chewable/Destroy()
+/obj/item/clothing/mask/chewable/Destroy()
 	. = ..()
 	STOP_PROCESSING(SSprocessing, src)
 
@@ -82,7 +82,7 @@ obj/item/clothing/mask/chewable/Destroy()
 
 /obj/item/clothing/mask/chewable/tobacco
 	name = "wad"
-	desc = "A chewy wad of tobacco. Cut in long strands and treated with syrup so it doesn't taste like an ash-tray when you stuff it into your face."
+	desc = "A chewy wad of tobacco. Cut in long strands and treated with syrup so it doesn't taste like an ashtray when you stuff it into your face."
 	throw_speed = 0.5
 	icon_state = "chew"
 	type_butt = /obj/item/trash/spitwad
@@ -125,17 +125,17 @@ obj/item/clothing/mask/chewable/Destroy()
 
 /obj/item/clothing/mask/chewable/tobacco/bad
 	name = "chewing tobacco"
-	desc = "A chewy wad of cheap tobacco. Cut in long strands and treated with syrup so it tastes less like an ash-tray when you stuff it into your face."
+	desc = "A chewy wad of cheap tobacco. Cut in long strands and treated with syrup so it tastes less like an ashtray when you stuff it into your face."
 	reagents_to_add = list(/singleton/reagent/toxin/tobacco/fake = 2)
 
 /obj/item/clothing/mask/chewable/tobacco/generic
 	name = "chewing tobacco"
-	desc = "A chewy wad of tobacco. Cut in long strands and treated with syrup so it doesn't taste like an ash-tray when you stuff it into your face."
+	desc = "A chewy wad of tobacco. Cut in long strands and treated with syrup so it doesn't taste like an ashtray when you stuff it into your face."
 	reagents_to_add = list(/singleton/reagent/toxin/tobacco = 2)
 
 /obj/item/clothing/mask/chewable/tobacco/fine
 	name = "chewing tobacco"
-	desc = "A chewy wad of fine tobacco. Cut in long strands and treated with syrup so it doesn't taste like an ash-tray when you stuff it into your face."
+	desc = "A chewy wad of fine tobacco. Cut in long strands and treated with syrup so it doesn't taste like an ashtray when you stuff it into your face."
 	reagents_to_add = list(/singleton/reagent/toxin/tobacco/rich = 2)
 
 /obj/item/clothing/mask/chewable/tobacco/nico
@@ -145,6 +145,32 @@ obj/item/clothing/mask/chewable/Destroy()
 	icon_state = "nic_gum"
 	type_butt = /obj/item/trash/spitgum
 	wrapped = TRUE
+
+/obj/item/clothing/mask/chewable/tobacco/sweet
+	name = "chewing tobacco"
+	desc = "A chewy wad of sweet tobacco. Cut in long strands and treated with syrup so it doesn't taste like an ashtray when you stuff it in your face."
+	reagents_to_add = list(/singleton/reagent/toxin/tobacco/sweet = 2)
+
+/obj/item/clothing/mask/chewable/tobacco/dyn
+	name = "dyn chewing tobacco"
+	desc = "A chewy wad of menthol tobacco. Cut in long strands and treated with syrup and menthol so it doesn't taste like an ashtray when you stuff it into your face."
+	reagents_to_add = list(
+		/singleton/reagent/toxin/tobacco/sweet = 1,
+		/singleton/reagent/drink/dynjuice = 1
+	)
+
+/obj/item/clothing/mask/chewable/oracle
+	name = "chewing oracle"
+	desc = "A chewy wad of oracle. Cut in long strands."
+	throw_speed = 0.5
+	icon_state = "chew"
+	type_butt = /obj/item/trash/spitwad
+	w_class = ITEMSIZE_TINY
+	slot_flags = SLOT_EARS | SLOT_MASK
+	chem_volume = 50
+	chewtime = 300
+	brand = "oracle"
+	reagents_to_add = list(/singleton/reagent/toxin/oracle = 2)
 
 /obj/item/clothing/mask/chewable/candy
 	name = "wad"
@@ -171,7 +197,6 @@ obj/item/clothing/mask/chewable/Destroy()
 	name = "chewing gum"
 	desc = "A chewy wad of fine synthetic rubber and artificial flavoring."
 	icon_state = "gum"
-	item_state = "gum"
 	wrapped = TRUE
 
 /obj/item/clothing/mask/chewable/candy/gum/Initialize()
@@ -189,29 +214,6 @@ obj/item/clothing/mask/chewable/Destroy()
 
 /obj/item/clothing/mask/chewable/candy/gum/gumball/medical
 	reagents_to_add = list(/singleton/reagent/tricordrazine = 5)
-
-
-/obj/item/storage/box/fancy/gum
-	name = "\improper Chewy Fruit flavored gum"
-	desc = "A small pack of chewing gum in various flavors."
-	icon = 'icons/obj/food.dmi'
-	icon_state = "gum_pack"
-	item_state = "candy"
-	icon_type = "gum stick"
-	storage_type = "packaging"
-	slot_flags = SLOT_EARS
-	w_class = ITEMSIZE_TINY
-	starts_with = list(/obj/item/clothing/mask/chewable/candy/gum = 5)
-	can_hold = list(/obj/item/clothing/mask/chewable/candy/gum, /obj/item/trash/spitgum)
-	max_storage_space = 5
-
-	use_sound = 'sound/items/storage/wrapper.ogg'
-	drop_sound = 'sound/items/drop/wrapper.ogg'
-	pickup_sound = 'sound/items/pickup/wrapper.ogg'
-
-	trash = /obj/item/trash/gum
-	closable = FALSE
-	icon_overlays = FALSE
 
 /obj/item/clothing/mask/chewable/candy/lolli
 	name = "lollipop"

@@ -94,12 +94,11 @@
 
 /obj/structure/morgue/attackby(obj/P, mob/user)
 	if(P.ispen())
-		var/t = input(user, "What would you like the label to be?", name) as text
+		var/t = tgui_input_text(user, "What would you like the label to be?", "Morgue", "", MAX_NAME_LEN)
 		if(user.get_active_hand() != P)
 			return
 		if((!in_range(src, usr) > 1 && src.loc != user))
 			return
-		t = sanitizeSafe(t, MAX_NAME_LEN)
 		if(t)
 			name = "[initial(name)] - '[t]'"
 		else
@@ -275,9 +274,9 @@
 						desperation = rand(1,5)
 						switch(desperation) //This is messy. A better solution would probably be to make more sounds, but...
 							if(1)
-								playsound(src.loc, 'sound/weapons/genhit.ogg', 45, 1)
+								playsound(src.loc, 'sound/weapons/Genhit.ogg', 45, 1)
 								shake_animation(2)
-								playsound(src.loc, 'sound/weapons/genhit.ogg', 45, 1)
+								playsound(src.loc, 'sound/weapons/Genhit.ogg', 45, 1)
 							if(2)
 								playsound(src.loc, 'sound/effects/grillehit.ogg', 45, 1)
 								shake_animation(3)
@@ -343,7 +342,7 @@
 /obj/machinery/button/switch/crematorium
 	name = "crematorium igniter"
 	desc = "Burn baby burn!"
-	req_access = list(access_crematorium)
+	req_access = list(ACCESS_CREMATORIUM)
 	id = 1
 	var/cremate_dir // something for mappers, setting will make a crematorium in one step in this direction toggle
 

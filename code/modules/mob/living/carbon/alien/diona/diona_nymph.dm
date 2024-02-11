@@ -50,6 +50,37 @@
 
 	var/can_attach = TRUE // Whether they can attach to a host
 
+/mob/living/carbon/alien/diona/Initialize(var/mapload, var/flower_chance = 5)
+	if(prob(flower_chance))
+		flower_color = get_random_colour(1)
+	. = ..(mapload)
+	//species = GLOB.all_species[]
+	ingested = new /datum/reagents/metabolism(500, src, CHEM_INGEST)
+	reagents = ingested
+	set_species(SPECIES_DIONA)
+	setup_dionastats()
+	eat_types |= TYPE_ORGANIC
+	nutrition = 0 //We dont start with biomass
+	update_verbs()
+
+/mob/living/carbon/alien/diona/Destroy()
+	cleanupTransfer()
+	QDEL_NULL(ingested)
+	QDEL_NULL(vessel)
+
+	QDEL_NULL(DS)
+	gestalt = null
+	master_nymph = null
+
+	hat = null
+
+	flower_color = null
+	flower_image = null
+	cut_overlays()
+
+	. = ..()
+	GC_TEMPORARY_HARDDEL
+
 /mob/living/carbon/alien/diona/get_ingested_reagents()
 	return ingested
 
@@ -82,7 +113,7 @@
 		if(M_WALK)
 			. += 3
 		if(M_RUN)
-			species.handle_sprint_cost(src,.+config.walk_speed)
+			species.handle_sprint_cost(src, . + GLOB.config.walk_speed)
 
 /mob/living/carbon/alien/diona/ex_act(severity)
 	if(life_tick < 4)
@@ -91,20 +122,6 @@
 		return
 	else
 		..()
-
-/mob/living/carbon/alien/diona/Initialize(var/mapload, var/flower_chance = 5)
-	if(prob(flower_chance))
-		flower_color = get_random_colour(1)
-	. = ..(mapload)
-	//species = all_species[]
-	ingested = new /datum/reagents/metabolism(500, src, CHEM_INGEST)
-	reagents = ingested
-	set_species(SPECIES_DIONA)
-	setup_dionastats()
-	eat_types |= TYPE_ORGANIC
-	nutrition = 0 //We dont start with biomass
-	update_verbs()
-
 
 /mob/living/carbon/alien/diona/verb/check_light()
 	set category = "Abilities"
@@ -152,7 +169,7 @@
 			dna.species = new_species
 
 	// No more invisible screaming wheelchairs because of set_species() typos.
-	if(!all_species[new_species])
+	if(!GLOB.all_species[new_species])
 		new_species = SPECIES_HUMAN
 
 	if(species)
@@ -166,7 +183,7 @@
 		species.remove_inherent_verbs(src)
 		holder_type = null
 
-	species = all_species[new_species]
+	species = GLOB.all_species[new_species]
 	if(species.language)
 		add_language(species.language)
 
@@ -232,37 +249,36 @@
 //This function makes sure the nymph has the correct split/merge verbs, depending on whether or not its part of a gestalt
 /mob/living/carbon/alien/diona/proc/update_verbs()
 	if(gestalt && !detached)
-		verbs |= /mob/living/carbon/alien/diona/proc/split
-		verbs -= /mob/living/proc/ventcrawl
-		verbs -= /mob/living/proc/hide
-		verbs -= /mob/living/carbon/alien/diona/proc/grow
-		verbs -= /mob/living/carbon/alien/diona/proc/merge
-		verbs -= /mob/living/carbon/proc/absorb_nymph
-		verbs -= /mob/living/carbon/proc/sample
-		verbs -= /mob/living/carbon/alien/diona/proc/remove_hat
-		verbs -= /mob/living/carbon/alien/diona/proc/attach_nymph_limb
-		verbs -= /mob/living/carbon/alien/diona/proc/detach_nymph_limb
+		add_verb(src, /mob/living/carbon/alien/diona/proc/split)
+		remove_verb(src, /mob/living/proc/ventcrawl)
+		remove_verb(src, /mob/living/proc/hide)
+		remove_verb(src, /mob/living/carbon/alien/diona/proc/grow)
+		remove_verb(src, /mob/living/carbon/alien/diona/proc/merge)
+		remove_verb(src, /mob/living/carbon/proc/absorb_nymph)
+		remove_verb(src, /mob/living/carbon/proc/sample)
+		remove_verb(src, /mob/living/carbon/alien/diona/proc/remove_hat)
+		remove_verb(src, /mob/living/carbon/alien/diona/proc/attach_nymph_limb)
+		remove_verb(src, /mob/living/carbon/alien/diona/proc/detach_nymph_limb)
 	else
-		verbs |= /mob/living/carbon/alien/diona/proc/merge
-		verbs |= /mob/living/carbon/proc/absorb_nymph
-		verbs |= /mob/living/carbon/alien/diona/proc/grow
-		verbs |= /mob/living/proc/ventcrawl
-		verbs |= /mob/living/proc/hide
-		verbs |= /mob/living/carbon/proc/sample
-		verbs |= /mob/living/carbon/alien/diona/proc/remove_hat
-		verbs |= /mob/living/carbon/alien/diona/proc/attach_nymph_limb
-		verbs |= /mob/living/carbon/alien/diona/proc/detach_nymph_limb
-		verbs -= /mob/living/carbon/alien/diona/proc/split // we want to remove this one
+		add_verb(src, /mob/living/carbon/alien/diona/proc/merge)
+		add_verb(src, /mob/living/carbon/proc/absorb_nymph)
+		add_verb(src, /mob/living/carbon/alien/diona/proc/grow)
+		add_verb(src, /mob/living/proc/ventcrawl)
+		add_verb(src, /mob/living/proc/hide)
+		add_verb(src, /mob/living/carbon/proc/sample)
+		add_verb(src, /mob/living/carbon/alien/diona/proc/remove_hat)
+		add_verb(src, /mob/living/carbon/alien/diona/proc/attach_nymph_limb)
+		add_verb(src, /mob/living/carbon/alien/diona/proc/detach_nymph_limb)
+		remove_verb(src, /mob/living/carbon/alien/diona/proc/split) // we want to remove this one
 
-	verbs -= /mob/living/carbon/alien/verb/evolve //We don't want the old alien evolve verb
+	remove_verb(src, /mob/living/carbon/alien/verb/evolve) //We don't want the old alien evolve verb
 
 
-/mob/living/carbon/alien/diona/Stat()
-	..()
-	if(statpanel("Status"))
-		stat(null, text("Biomass: [nutrition]/[evolve_nutrition]"))
-		if(nutrition > evolve_nutrition)
-			stat(null, text("You have enough biomass to grow!"))
+/mob/living/carbon/alien/diona/get_status_tab_items()
+	. = ..()
+	. += "Biomass: [nutrition]/[evolve_nutrition]"
+	if(nutrition > evolve_nutrition)
+		. += "You have enough biomass to grow!"
 
 //Overriding this function from /mob/living/carbon/alien/life.dm
 /mob/living/carbon/alien/diona/handle_regular_status_updates()
@@ -321,11 +337,6 @@
 		update_icon()
 
 	return TRUE
-
-/mob/living/carbon/alien/diona/Destroy()
-	walk_to(src, 0)
-	cleanupTransfer()
-	. = ..()
 
 /mob/living/carbon/alien/diona/proc/wear_hat(var/obj/item/new_hat)
 	if(hat)

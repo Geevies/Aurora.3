@@ -21,7 +21,7 @@ var/global/list/navbeacons			// no I don't like putting this in, but it will do 
 	var/list/codes		// assoc. list of transponder codes
 	var/codes_txt = ""	// codes as set on map: "tag1;tag2" or "tag1=value;tag2=value"
 
-	req_access = list(access_engine)
+	req_access = list(ACCESS_ENGINE)
 
 /obj/machinery/navbeacon/Initialize()
 	. = ..()
@@ -60,7 +60,7 @@ var/global/list/navbeacons			// no I don't like putting this in, but it will do 
 	// called when turf state changes
 	// hide the object if turf is intact
 /obj/machinery/navbeacon/hide(var/intact)
-	invisibility = intact ? 101 : 0
+	set_invisibility(intact ? 101 : 0)
 	update_icon()
 
 	// update the icon_state

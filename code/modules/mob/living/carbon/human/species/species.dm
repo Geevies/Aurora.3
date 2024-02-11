@@ -11,6 +11,9 @@
 	var/short_name                                       // Shortened form of the name, for code use. Must be exactly 3 letter long, and all lowercase
 	var/category_name                                    // a name for this overarching species, ie 'Human', 'Skrell', 'IPC'. only used in character creation
 	var/blurb = "A completely nondescript species."      // A brief lore summary for use in the chargen screen.
+	var/species_height = HEIGHT_NOT_USED				 // Average Height of the species
+	var/height_min = 120
+	var/height_max = 350
 	var/bodytype
 	var/age_min = 18
 	var/age_max = 85
@@ -37,7 +40,10 @@
 	var/prone_icon                                       // If set, draws this from icobase when mob is prone.
 	var/icon_x_offset = 0
 	var/icon_y_offset = 0
+	var/typing_indicator_x_offset = 0
+	var/typing_indicator_y_offset = 0
 	var/floating_chat_x_offset = null
+	var/floating_chat_y_offset = null
 	var/eyes = "eyes_s"                                  // Icon for eyes.
 	var/eyes_icons = 'icons/mob/human_face/eyes.dmi'     // DMI file for eyes, mostly for none 32x32 species.
 	var/has_floating_eyes                                // Eyes will overlay over darkness (glow)
@@ -153,8 +159,7 @@
 	var/hazard_low_pressure = HAZARD_LOW_PRESSURE     // Dangerously low pressure.
 	var/light_dam                                     // If set, mob will be damaged in light over this value and heal in light below its negative.
 	var/breathing_sound = 'sound/voice/monkey.ogg'    // If set, this mob will have a breathing sound.
-	var/body_temperature = 310.15	                  // Non-IS_SYNTHETIC species will try to stabilize at this temperature.
-	                                                  // (also affects temperature processing)
+	var/body_temperature = 310.15	                  // Non-IS_SYNTHETIC species will try to stabilize at this temperature. (also affects temperature processing)
 
 	var/heat_discomfort_level = 315                   // Aesthetic messages about feeling warm.
 	var/cold_discomfort_level = 285                   // Aesthetic messages about feeling chilly.
@@ -233,16 +238,16 @@
 	var/max_hydration_factor = 1	//Multiplier on maximum thirst
 	var/hydration_loss_factor = 1	//Multiplier on passive thirst losses
 
-	                              // Determines the organs that the species spawns with and
+	///Determines the organs that the species spawns with and
 	var/list/has_organ = list(    // which required-organ checks are conducted.
+		BP_BRAIN =    /obj/item/organ/internal/brain,
+		BP_EYES =     /obj/item/organ/internal/eyes,
 		BP_HEART =    /obj/item/organ/internal/heart,
 		BP_LUNGS =    /obj/item/organ/internal/lungs,
 		BP_LIVER =    /obj/item/organ/internal/liver,
 		BP_KIDNEYS =  /obj/item/organ/internal/kidneys,
 		BP_STOMACH =  /obj/item/organ/internal/stomach,
-		BP_BRAIN =    /obj/item/organ/internal/brain,
-		BP_APPENDIX = /obj/item/organ/internal/appendix,
-		BP_EYES =     /obj/item/organ/internal/eyes
+		BP_APPENDIX = /obj/item/organ/internal/appendix
 		)
 	var/vision_organ              // If set, this organ is required for vision. Defaults to BP_EYES if the species has them.
 	var/breathing_organ           // If set, this organ is required to breathe. Defaults to BP_LUNGS if the species has them.
@@ -287,8 +292,17 @@
 
 	var/list/alterable_internal_organs = list(BP_HEART, BP_EYES, BP_LUNGS, BP_LIVER, BP_KIDNEYS, BP_STOMACH, BP_APPENDIX) //what internal organs can be changed in character setup
 	var/list/possible_external_organs_modifications = list("Normal","Amputated","Prosthesis")
+	/// These are the prefixes of the icon states in talk.dmi.
+	var/list/possible_speech_bubble_types = list("default")
 
 	var/use_alt_hair_layer = FALSE
+
+	/// Species psionics. FALSE for no psionics. Otherwise, set to the PSI_RANK define you want.
+	var/has_psionics = FALSE
+	/// Number of psi points in character creation.
+	var/character_creation_psi_points = 0
+	/// Is this species psionically deaf?
+	var/psi_deaf = FALSE
 
 /datum/species/proc/get_eyes(var/mob/living/carbon/human/H)
 	return
@@ -353,9 +367,9 @@
 		else
 			return capitalize(pick(first_names_male)) + " " + capitalize(pick(last_names))
 
-	var/datum/language/species_language = all_languages[name_language]
+	var/datum/language/species_language = GLOB.all_languages[name_language]
 	if(!species_language)
-		species_language = all_languages[default_language]
+		species_language = GLOB.all_languages[default_language]
 	if(!species_language)
 		return "unknown"
 	return species_language.get_random_name(gender)
@@ -429,7 +443,7 @@
 /datum/species/proc/remove_inherent_verbs(var/mob/living/carbon/human/H)
 	if(inherent_verbs)
 		for(var/verb_path in inherent_verbs)
-			H.verbs -= verb_path
+			remove_verb(H, verb_path)
 
 	if(inherent_spells)
 		for(var/spell_path in inherent_spells)
@@ -441,7 +455,7 @@
 /datum/species/proc/add_inherent_verbs(var/mob/living/carbon/human/H)
 	if(inherent_verbs)
 		for(var/verb_path in inherent_verbs)
-			H.verbs |= verb_path
+			add_verb(H, verb_path)
 
 	if(inherent_spells)
 		for(var/spell_path in inherent_spells)
@@ -465,6 +479,8 @@
 	if(!H.client || !H.client.prefs || !H.client.prefs.gender)
 		H.gender = pick(default_genders)
 		H.pronouns = H.gender
+	if(has_psionics)
+		H.set_psi_rank(has_psionics)
 
 /datum/species/proc/handle_death(var/mob/living/carbon/human/H, var/gibbed = 0) //Handles any species-specific death events (such as dionaea nymph spawns).
 	return
@@ -515,10 +531,16 @@
 	var/list/vision = H.get_accumulated_vision_handlers()
 	H.update_sight()
 	if(H.machine && H.machine.check_eye(H) >= 0 && H.client.eye != H)
+		var/sight_flags = H.sight
+
 		// we inherit sight flags from the machine
-		H.sight &= ~(get_vision_flags(H))
-		H.sight &= ~(H.equipment_vision_flags)
-		H.sight &= ~(vision[1])
+		sight_flags &= ~(get_vision_flags(H))
+		sight_flags &= ~(H.equipment_vision_flags)
+		sight_flags &= ~(vision[1])
+
+		sight_flags |= H.machine.check_eye(H)
+
+		H.set_sight(sight_flags)
 	else
 		H.set_sight(H.sight|get_vision_flags(H)|H.equipment_vision_flags|vision[1])
 
@@ -526,7 +548,6 @@
 		return 1
 
 	if(!H.druggy)
-		H.set_see_in_dark((H.sight == (SEE_TURFS|SEE_MOBS|SEE_OBJS)) ? 8 : min(darksight + H.equipment_darkness_modifier, 8))
 		if(H.seer)
 			var/obj/effect/rune/R = locate(/obj/effect/rune) in get_turf(H)
 			if(R && R.type == /datum/rune/see_invisible)
@@ -543,7 +564,7 @@
 	H.set_fullscreen(H.eye_blind, "blind", /obj/screen/fullscreen/blind)
 	H.set_fullscreen(H.stat == UNCONSCIOUS, "blackout", /obj/screen/fullscreen/blackout)
 
-	if(config.welder_vision)
+	if(GLOB.config.welder_vision)
 		if(H.equipment_tint_total)
 			H.overlay_fullscreen("welder", /obj/screen/fullscreen/impaired, H.equipment_tint_total, 0.5 SECONDS)
 		else
@@ -562,7 +583,7 @@
 	for(var/overlay in H.equipment_overlays)
 		H.client.screen |= overlay
 
-	var/obj/item/organ/internal/eyes/night/NE = H.internal_organs_by_name[BP_EYES]
+	var/obj/item/organ/internal/eyes/night/NE = H.get_eyes()
 	if(istype(NE) && NE.night_vision && NE.can_change_invisible())
 		H.set_see_invisible(SEE_INVISIBLE_NOLIGHTING)
 
@@ -587,7 +608,7 @@
 	if(H.is_drowsy())
 		cost *= 1.25
 	if (H.stamina == -1)
-		log_debug("Error: Species with special sprint mechanics has not overridden cost function.")
+		LOG_DEBUG("Error: Species with special sprint mechanics has not overridden cost function.")
 		return 0
 
 	var/obj/item/organ/internal/augment/calf_override/C = H.internal_organs_by_name[BP_AUG_CALF_OVERRIDE]
@@ -728,11 +749,8 @@
 /datum/species/proc/get_digestion_product()
 	return /singleton/reagent/nutriment
 
-/datum/species/proc/can_commune()
-	return FALSE
-
-/datum/species/proc/has_psi_potential()
-	return TRUE
+/datum/species/proc/has_psionics()
+	return has_psionics
 
 /datum/species/proc/handle_despawn()
 	return
@@ -847,3 +865,9 @@
 
 /datum/species/proc/handle_middle_mouse_click(var/atom/target)
 	return
+
+/datum/species/proc/can_use_guns()
+	return TRUE
+
+/datum/species/proc/get_species_record_sex(var/mob/living/carbon/human/H)
+	return H.gender

@@ -30,10 +30,8 @@
 	attack_name = "claws"
 
 /datum/unarmed_attack/claws/show_attack(var/mob/living/carbon/human/user, var/mob/living/carbon/human/target, var/zone, var/attack_damage)
-	var/skill = user.skills["combat"]
 	var/obj/item/organ/external/affecting = target.get_organ(zone)
 
-	if(!skill)	skill = 1
 	attack_damage = Clamp(attack_damage, 1, 5)
 
 	if(target == user)
@@ -100,7 +98,7 @@
 	attack_verb = list("jumped on")
 	attack_name = "weak stomp"
 
-/datum/unarmed_attack/stomp/weak/get_unarmed_damage()
+/datum/unarmed_attack/stomp/weak/get_unarmed_damage(var/mob/attacker, var/mob/living/carbon/human/target)
 	return damage
 
 /datum/unarmed_attack/stomp/weak/show_attack(var/mob/living/carbon/human/user, var/mob/living/carbon/human/target, var/zone, var/attack_damage)
@@ -149,7 +147,7 @@
 		playsound(user, 'sound/weapons/push_connect.ogg', 50, 1, -1)
 		user.visible_message("<span class='danger'>[user] shoves hard, sending [target] flying!</span>")
 		var/T = get_turf(user)
-		spark(T, 3, alldirs)
+		spark(T, 3, GLOB.alldirs)
 		step_away(target,user,15)
 		sleep(1)
 		step_away(target,user,15)
@@ -214,6 +212,12 @@
 			var/trioxin_amount = REAGENT_VOLUME(target.reagents, /singleton/reagent/toxin/trioxin)
 			target.reagents.add_reagent(/singleton/reagent/toxin/trioxin, min(10, ZOMBIE_MAX_TRIOXIN - trioxin_amount))
 
+/datum/unarmed_attack/bite/infectious/get_unarmed_damage(var/mob/attacker, var/target)
+	if(istype(target, /mob/living/heavy_vehicle))
+		return damage * 4
+
+	. = ..()
+
 /datum/unarmed_attack/golem
 	attack_verb = list("smashed", "crushed", "rammed")
 	attack_noun = list("fist")
@@ -238,7 +242,7 @@
 	attack_verb = list("scorched", "burned")
 	attack_noun = list("flaming fist")
 	damage = 10
-	attack_sound = 'sound/items/welder.ogg'
+	attack_sound = 'sound/items/Welder.ogg'
 	attack_name = "flaming touch"
 	damage_type = DAMAGE_BURN
 
@@ -247,17 +251,30 @@
 	if(prob(25))
 		target.apply_effect(1, INCINERATE, 0)
 
-/datum/unarmed_attack/claws/vaurca_bulwark
-	attack_verb = list("punched", "clobbered", "lacerated")
-	attack_noun = list("clawed fists")
+/datum/unarmed_attack/vaurca_bulwark
+	attack_verb = list("smashed", "pulverized", "clobbered")
+	attack_noun = list("fists")
+	desc = "Smash into your opponents with the strength the Queens gave you. Not as sharp as other species' claws, but yours hit a hell of a lot harder."
 	eye_attack_text = "claws"
 	eye_attack_text_victim = "claws"
-	attack_name = "clawed fists"
+	attack_name = "bulwark punch"
+	attack_sound = 'sound/weapons/heavysmash.ogg'
 	shredding = TRUE
 
-	damage = 7.5
+	damage = 10
 	attack_door = 20
 	crowbar_door = TRUE
+	sparring_variant_type = /datum/unarmed_attack/pain_strike/heavy
+
+/datum/unarmed_attack/vaurca_bulwark/apply_effects(var/mob/living/carbon/human/user,var/mob/living/carbon/human/target,var/armor,var/zone)
+	..()
+	if(target.species.mob_size < user.species.mob_size)
+		if(prob(25))
+			playsound(user, 'sound/weapons/push_connect.ogg', 50, 1, -1)
+			user.visible_message(SPAN_DANGER("[user] sends \the [target] flying with the impact!"))
+			var/turf/target_turf = get_ranged_target_turf(target, user.dir, 4)
+			target.throw_at(target_turf, 4, 1, user)
+			target.apply_effect(4, WEAKEN, armor)
 
 /datum/unarmed_attack/bite/warrior
 	attack_name = "warrior bite"

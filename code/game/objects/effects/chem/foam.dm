@@ -8,8 +8,8 @@
 	opacity = 0
 	anchored = 1
 	density = 0
-	layer = OBJ_LAYER + 0.9
-	mouse_opacity = 0
+	layer = TURF_LAYER + 0.2
+	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 	animate_movement = 0
 	var/solid_time = 120
 	var/amount = 3
@@ -49,7 +49,7 @@
 	if(--amount < 0)
 		return
 
-	for(var/direction in cardinal)
+	for(var/direction in GLOB.cardinal)
 		var/turf/T = get_step(src, direction)
 		if(!T)
 			continue
@@ -167,7 +167,7 @@
 /obj/structure/foamedmetal/attack_hand(var/mob/user)
 	user.setClickCooldown(DEFAULT_ATTACK_COOLDOWN)
 	user.do_attack_animation(src, FIST_ATTACK_ANIMATION)
-	if (HAS_FLAG(user.mutations, HULK) || (prob(75 - metal * 25)))
+	if ((user.mutations & HULK) || (prob(75 - metal * 25)))
 		user.visible_message(SPAN_WARNING("[user] smashes through the foamed metal."), SPAN_NOTICE("You smash through the metal foam wall."))
 		qdel(src)
 	else

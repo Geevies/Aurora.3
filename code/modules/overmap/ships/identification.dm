@@ -1,8 +1,9 @@
 /obj/machinery/iff_beacon
 	name = "IFF transponder" //This object handles ship identification on sensors.
 	desc = "A complex set of various bluespace and subspace arrays that transmit a ship's identification tags."
-	icon = 'icons/obj/machinery/telecomms.dmi'
-	icon_state = "ntnet"
+	icon = 'icons/obj/machinery/iff_transponder.dmi'
+	icon_state = "iff"
+	anchored = TRUE
 	idle_power_usage = 500
 	var/datum/wires/iff/wires
 	var/disabled = FALSE
@@ -16,8 +17,8 @@
 	return INITIALIZE_HINT_LATELOAD
 
 /obj/machinery/iff_beacon/LateInitialize()
-	if(current_map.use_overmap && !linked)
-		var/my_sector = map_sectors["[z]"]
+	if(SSatlas.current_map.use_overmap && !linked)
+		var/my_sector = GLOB.map_sectors["[z]"]
 		if (istype(my_sector, /obj/effect/overmap/visitable))
 			attempt_hook_up(my_sector)
 
@@ -28,7 +29,7 @@
 	if(panel_open)
 		if(O.ismultitool() || O.iswirecutter())
 			if(panel_open)
-				wires.Interact(user)
+				wires.interact(user)
 			else
 				to_chat(user, SPAN_WARNING("\The [src]'s wires aren't exposed."))
 			return TRUE
@@ -68,6 +69,10 @@
 /obj/machinery/iff_beacon/horizon
 	can_change_class = FALSE
 	can_change_name = FALSE
+
+/obj/machinery/iff_beacon/horizon/shuttle
+	icon = 'icons/obj/spaceship/scc/helm_pieces.dmi'
+	icon_state = "iff"
 
 /obj/machinery/iff_beacon/name_change
 	can_change_name = TRUE

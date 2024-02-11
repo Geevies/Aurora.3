@@ -34,8 +34,9 @@
 	pockets.attackby(W, user)
 
 /obj/item/clothing/suit/storage/emp_act(severity)
+	. = ..()
+
 	pockets.emp_act(severity)
-	..()
 
 /obj/item/clothing/suit/storage/hear_talk(mob/M, var/msg, verb, datum/language/speaking)
 	pockets.hear_talk(M, msg, verb, speaking)
@@ -80,23 +81,24 @@
 /obj/item/clothing/suit/storage/vest
 	var/icon_badge
 	var/icon_nobadge
-	verb/toggle()
-		set name ="Adjust Badge"
-		set category = "Object"
-		set src in usr
-		if(!usr.canmove || usr.stat || usr.restrained())
-			return 0
 
-		if(icon_state == icon_badge)
-			icon_state = icon_nobadge
-			to_chat(usr, "You conceal \the [src]'s badge.")
-		else if(icon_state == icon_nobadge)
-			icon_state = icon_badge
-			to_chat(usr, "You reveal \the [src]'s badge.")
-		else
-			to_chat(usr, "\The [src] does not have a vest badge.")
-			return
-		update_clothing_icon()
+/obj/item/clothing/suit/storage/vest/verb/toggle()
+	set name ="Adjust Badge"
+	set category = "Object"
+	set src in usr
+	if(!usr.canmove || usr.stat || usr.restrained())
+		return 0
+
+	if(icon_state == icon_badge)
+		icon_state = icon_nobadge
+		to_chat(usr, "You conceal \the [src]'s badge.")
+	else if(icon_state == icon_nobadge)
+		icon_state = icon_badge
+		to_chat(usr, "You reveal \the [src]'s badge.")
+	else
+		to_chat(usr, "\The [src] does not have a vest badge.")
+		return
+	update_clothing_icon()
 
 // Corporate Jackets
 

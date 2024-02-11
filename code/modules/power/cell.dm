@@ -29,16 +29,18 @@
 
 /obj/item/cell/update_icon()
 	cut_overlays()
-
-	if(charge < 0.01)
-		return
-	else if(charge/maxcharge >=0.995)
-		add_overlay("cell-o2")
-	else
-		add_overlay("cell-o1")
+	switch(percent())
+		if(95 to 100)
+			add_overlay("cell-o2")
+		if(25 to 94)
+			add_overlay("cell-o1")
+		if(0.05 to 25)
+			add_overlay("cell-o0")
+		if(0 to 0.05)
+			return
 
 /obj/item/cell/proc/percent()		// return % charge of cell
-	return 100.0*charge/maxcharge
+	return maxcharge && (100.0*charge/maxcharge)
 
 /obj/item/cell/proc/fully_charged()
 	return (charge == maxcharge)
@@ -74,16 +76,15 @@
 		explode()
 		return 0
 
-	if(maxcharge < amount)	return 0
 	var/amount_used = min(maxcharge-charge,amount)
 	charge += amount_used
 	return amount_used
 
 
-/obj/item/cell/examine(mob/user)
+/obj/item/cell/examine(mob/user, distance, is_adjacent)
 	. = ..()
 
-	if(get_dist(src, user) > 1)
+	if(distance > 1)
 		return
 
 	if(maxcharge <= 2500)
@@ -167,6 +168,8 @@
 		rigged = 1 //broken batterys are dangerous
 
 /obj/item/cell/emp_act(severity)
+	. = ..()
+
 	//remove this once emp changes on dev are merged in
 	if(isrobot(loc))
 		var/mob/living/silicon/robot/R = loc
@@ -175,7 +178,22 @@
 	charge -= maxcharge / severity
 	if (charge < 0)
 		charge = 0
-	..()
+
+/**
+ * Drains a percentage of the power from the battery
+ *
+ * * divisor - The fraction to remove, after multiplication with `cell_emp_mult` if a robot, calculated as maxcharge / divisor
+ */
+/obj/item/cell/proc/powerdrain(divisor)
+	SHOULD_NOT_SLEEP(TRUE)
+
+	if(isrobot(loc))
+		var/mob/living/silicon/robot/R = loc
+		divisor *= R.cell_emp_mult
+
+	charge -= maxcharge / divisor
+	if (charge < 0)
+		charge = 0
 
 /obj/item/cell/ex_act(severity)
 

@@ -39,7 +39,7 @@
 			if(!src)	return 1
 			if(src.loc != user)	return 1
 
-			var/list/directions = new/list(cardinal)
+			var/list/directions = new/list(GLOB.cardinal)
 			var/i = 0
 			for (var/obj/structure/window/win in user.loc)
 				i++
@@ -47,7 +47,7 @@
 					to_chat(user, "<span class='warning'>There are too many windows in this location.</span>")
 					return 1
 				directions-=win.dir
-				if(!(win.dir in cardinal))
+				if(!(win.dir in GLOB.cardinal))
 					to_chat(user, "<span class='warning'>Can't let you do that.</span>")
 					return 1
 
@@ -138,7 +138,7 @@
 	else if(O.iswirecutter())
 		user.drop_from_inventory(O,get_turf(src))
 		to_chat(user, "<span class='notice'>You detach the wire from the [name].</span>")
-		playsound(src.loc, 'sound/items/wirecutter.ogg', 100, 1)
+		playsound(src.loc, 'sound/items/Wirecutter.ogg', 100, 1)
 		new /obj/item/stack/cable_coil(user.loc, 5)
 		new /obj/item/stack/material/glass(user.loc)
 		use(1)

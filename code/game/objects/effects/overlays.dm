@@ -1,8 +1,10 @@
 /obj/effect/overlay
 	name = "overlay"
 	unacidable = 1
-	var/i_attached //Added for possible image attachments to objects. For hallucinations and the like.
-	var/no_clean = FALSE // Prevents janitorial cyborgs from cleaning this effect
+	/// Added for possible image attachments to objects. For hallucinations and the like.
+	var/i_attached
+	/// Prevents janitorial cyborgs from cleaning this effect.
+	var/no_clean = FALSE
 
 /obj/effect/overlay/Destroy()
 	i_attached = null
@@ -18,7 +20,7 @@
 	var/tmp/atom/BeamSource
 
 /obj/effect/overlay/palmtree_r
-	name = "Palm tree"
+	name = "palm tree"
 	icon = 'icons/misc/beach2.dmi'
 	icon_state = "palm1"
 	density = 1
@@ -27,7 +29,7 @@
 
 
 /obj/effect/overlay/palmtree_l
-	name = "Palm tree"
+	name = "palm tree"
 	icon = 'icons/misc/beach2.dmi'
 	icon_state = "palm2"
 	density = 1
@@ -36,7 +38,7 @@
 
 
 /obj/effect/overlay/coconut
-	name = "Coconuts"
+	name = "coconuts"
 	icon = 'icons/misc/beach.dmi'
 	icon_state = "coconuts"
 
@@ -59,7 +61,7 @@
 	icon_state = "nothing"
 	anchored = 1
 	layer = 5
-	mouse_opacity = 0
+	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 	var/duration = 10 //in deciseconds
 	var/randomdir = TRUE
 	var/timerid
@@ -67,7 +69,7 @@
 /obj/effect/overlay/temp/New()
 	..()
 	if(randomdir)
-		dir = (pick(cardinal))
+		dir = (pick(GLOB.cardinal))
 	flick("[icon_state]", src)
 
 	QDEL_IN(src, duration)

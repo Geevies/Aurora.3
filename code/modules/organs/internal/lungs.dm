@@ -286,7 +286,7 @@
 	return failed_breath
 
 /obj/item/organ/internal/lungs/proc/handle_temperature_effects(datum/gas_mixture/breath)
-	if((breath.temperature < species.cold_level_1 || breath.temperature > species.heat_level_1) && NOT_FLAG(owner.mutations, COLD_RESISTANCE))
+	if((breath.temperature < species.cold_level_1 || breath.temperature > species.heat_level_1) && !(owner.mutations & COLD_RESISTANCE))
 
 		if(breath.temperature <= owner.species.cold_level_1)
 			if(prob(20))
@@ -338,6 +338,9 @@
 
 /obj/item/organ/internal/lungs/listen()
 	if(owner.failed_last_breath)
+		return "no respiration"
+
+	if(owner.status_flags & FAKEDEATH)
 		return "no respiration"
 
 	if(BP_IS_ROBOTIC(src))

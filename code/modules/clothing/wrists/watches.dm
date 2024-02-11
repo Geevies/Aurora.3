@@ -22,7 +22,7 @@
 	icon_state = "watch_gold"
 	item_state = "watch_gold"
 
-/obj/item/clothing/wrists/watch/holo 
+/obj/item/clothing/wrists/watch/holo
 	desc = "It's a GaussIo ZeitMeister with a holographic screen."
 	desc_extended = "The latest Elyran technology!"
 	icon_state = "watch_holo"
@@ -43,9 +43,9 @@
 /obj/item/clothing/wrists/watch/spy/checktime()
 	to_chat(usr, "You check your watch. Unfortunately for you, it's not a real watch, dork.")
 
-/obj/item/clothing/wrists/watch/examine(mob/user)
-	..()
-	if (get_dist(src, user) <= 1)
+/obj/item/clothing/wrists/watch/examine(mob/user, distance, is_adjacent)
+	. = ..()
+	if (distance <= 1)
 		checktime()
 
 /obj/item/clothing/wrists/watch/verb/checktime()
@@ -54,7 +54,7 @@
 	set src in usr
 
 	if(wired && screwed)
-		to_chat(usr, "You check your watch, spotting a digital collection of numbers reading '[worldtime2text()]'. Today's date is '[time2text(world.time, "Month DD")]. [game_year]'.")
+		to_chat(usr, "You check your watch, spotting a digital collection of numbers reading '[worldtime2text()]'. Today's date is '[time2text(world.time, "Month DD")]. [GLOB.game_year]'.")
 		if (evacuation_controller.get_status_panel_eta())
 			to_chat(usr, SPAN_WARNING("Time until Bluespace Jump: [evacuation_controller.get_status_panel_eta()]."))
 	else if(wired && !screwed)
@@ -77,7 +77,7 @@
 /obj/item/clothing/wrists/watch/attackby(obj/item/W, mob/user)
 	if(W.isscrewdriver())
 		user.visible_message(SPAN_NOTICE("<b>[user]</b> [screwed ? "unscrews" : "screws"] the cover of the [src] [screwed ? "open" : "closed"]."), SPAN_NOTICE("You [screwed ? "unscrews" : "screws"] the cover of the [src] [screwed ? "open" : "closed"]."))
-		playsound(src.loc, 'sound/items/screwdriver.ogg', 100, 1)
+		playsound(src.loc, 'sound/items/Screwdriver.ogg', 100, 1)
 		screwed = !screwed
 		return
 	if(wired)
@@ -102,6 +102,7 @@
 		return
 
 /obj/item/clothing/wrists/watch/emp_act(severity)
+	. = ..()
+
 	if(prob(50/severity))
 		wired = FALSE
-	..()

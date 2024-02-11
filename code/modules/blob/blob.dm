@@ -8,7 +8,7 @@
 	light_color = BLOB_COLOR_PULS
 	density = TRUE
 	anchored = TRUE
-	mouse_opacity = 2
+	mouse_opacity = MOUSE_OPACITY_OPAQUE
 
 	layer = BLOB_SHIELD_LAYER
 
@@ -290,7 +290,7 @@
 	process_core_health()
 	regen()
 	for(var/i = 1 to times_to_pulse)
-		pulse(pulse_power, global.cardinal.Copy())
+		pulse(pulse_power, GLOB.cardinal.Copy())
 	blob_may_process = TRUE
 	if(world.time < (attack_time + attack_cooldown))
 		return

@@ -52,12 +52,19 @@ somewhere on that shuttle. Subtypes of these can be then used to perform ship ov
 		user.reset_view(linked)
 	if(user.client)
 		user.client.view = world.view + extra_view
-	moved_event.register(user, src, PROC_REF(unlook))
+	GLOB.moved_event.register(user, src, PROC_REF(unlook))
 	if(user.eyeobj)
-		moved_event.register(user.eyeobj, src, PROC_REF(unlook))
+		GLOB.moved_event.register(user.eyeobj, src, PROC_REF(unlook))
 	LAZYDISTINCTADD(viewers, WEAKREF(user))
 	if(linked)
 		LAZYDISTINCTADD(linked.navigation_viewers, WEAKREF(user))
+	ADD_TRAIT(user, TRAIT_COMPUTER_VIEW, ref(src))
+
+/// Handles disabling the user's overmap view when a signal comes in, primarily used when the TGUI is closed, see helm.dm and sensors.dm
+/obj/machinery/computer/ship/proc/handle_unlook_signal(var/datum/source, var/mob/user)
+	SIGNAL_HANDLER
+
+	unlook(user)
 
 /obj/machinery/computer/ship/proc/unlook(var/mob/user)
 	user.reset_view()
@@ -73,11 +80,11 @@ somewhere on that shuttle. Subtypes of these can be then used to perform ship ov
 		c.pixel_x = 0
 		c.pixel_y = 0
 
-	moved_event.unregister(user, src, PROC_REF(unlook))
+	GLOB.moved_event.unregister(user, src, PROC_REF(unlook))
 
 	if(isEye(user)) // If we're an AI eye, the computer has our AI mob in its viewers list not the eye mob
 		var/mob/abstract/eye/E = user
-		moved_event.unregister(E.owner, src, PROC_REF(unlook))
+		GLOB.moved_event.unregister(E.owner, src, PROC_REF(unlook))
 		LAZYREMOVE(viewers, WEAKREF(E.owner))
 	LAZYREMOVE(viewers, WEAKREF(user))
 	if(linked)
@@ -86,6 +93,8 @@ somewhere on that shuttle. Subtypes of these can be then used to perform ship ov
 	if(linked)
 		for(var/obj/machinery/computer/ship/sensors/sensor in linked.consoles)
 			sensor.hide_contacts(user)
+
+	REMOVE_TRAIT(user, TRAIT_COMPUTER_VIEW, ref(src))
 
 /obj/machinery/computer/ship/proc/viewing_overmap(mob/user)
 	return (WEAKREF(user) in viewers) || (linked && (WEAKREF(user) in linked.navigation_viewers))
@@ -107,7 +116,7 @@ somewhere on that shuttle. Subtypes of these can be then used to perform ship ov
 	if (use_check_and_message(user, flags) || user.blinded || inoperable() || !linked)
 		return -1
 	else
-		return 0
+		return SEE_THRU
 
 /obj/machinery/computer/ship/Destroy()
 	if(linked)
@@ -142,7 +151,7 @@ somewhere on that shuttle. Subtypes of these can be then used to perform ship ov
 
 /obj/machinery/computer/ship/Initialize()
 	. = ..()
-	if(current_map.use_overmap && !linked)
-		var/my_sector = map_sectors["[z]"]
+	if(SSatlas.current_map.use_overmap && !linked)
+		var/my_sector = GLOB.map_sectors["[z]"]
 		if(istype(my_sector, linked_type))
 			attempt_hook_up(my_sector)

@@ -1,7 +1,7 @@
 //This file was auto-corrected by findeclaration.exe on 25.5.2012 20:42:31
 
-var/global/list/priority_air_alarms = list()
-var/global/list/minor_air_alarms = list()
+GLOBAL_LIST_EMPTY(priority_air_alarms)
+GLOBAL_LIST_EMPTY(minor_air_alarms)
 
 
 /obj/machinery/computer/atmos_alert
@@ -18,8 +18,8 @@ var/global/list/minor_air_alarms = list()
 	atmosphere_alarm.register_alarm(src, TYPE_PROC_REF(/atom, update_icon))
 
 /obj/machinery/computer/atmos_alert/Destroy()
-    atmosphere_alarm.unregister_alarm(src)
-    return ..()
+	atmosphere_alarm.unregister_alarm(src)
+	return ..()
 
 /obj/machinery/computer/atmos_alert/attack_hand(mob/user)
 	ui_interact(user)
@@ -73,9 +73,9 @@ var/global/list/minor_air_alarms = list()
 		return 1
 
 
-var/datum/topic_state/air_alarm_topic/air_alarm_topic = new()
+var/datum/ui_state/air_alarm_topic/air_alarm_topic = new()
 
-/datum/topic_state/air_alarm_topic/href_list(var/mob/user)
+/datum/ui_state/air_alarm_topic/href_list(var/mob/user)
 	var/list/extra_href = list()
 	extra_href["remote_connection"] = 1
 	extra_href["remote_access"] = 1

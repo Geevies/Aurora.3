@@ -7,6 +7,8 @@
 	spawn_cost = 2
 	id = "saniorios_smuggler"
 
+	unit_test_groups = list(1)
+
 /singleton/submap_archetype/saniorios_smuggler
 	map = "Sani'Orios"
 	descriptor = "A gas giant composed of ammonia. Its planetary ring is home to several spaceship wrecks and hidden smuggler bases."
@@ -14,7 +16,7 @@
 /obj/effect/overmap/visitable/sector/saniorios_smuggler
 	name = "Sani'Orios"
 	desc = "A gas giant composed of ammonia. Its planetary ring is home to several spaceship wrecks and hidden smuggler bases."
-	icon_state = "globe"
+	icon_state = "globe3"
 	color = COLOR_DARK_BLUE_GRAY
 
 /obj/effect/overmap/visitable/sector/saniorios_smuggler/get_skybox_representation()
@@ -47,4 +49,4 @@
 	dynamic_lighting = TRUE
 	no_light_control = FALSE
 	base_turf = /turf/space
-	flags = RAD_SHIELDED
+	area_flags = AREA_FLAG_RAD_SHIELDED

@@ -168,7 +168,7 @@
 				to_chat(user, SPAN_WARNING("You need more welding fuel to complete this task."))
 				return TRUE
 		else if(I.ismultitool() || I.iswirecutter() || issignaler(I))
-			wires.Interact(user)
+			wires.interact(user)
 			return TRUE
 
 	if(istype(I, /obj/item/melee/energy/blade))
@@ -860,7 +860,7 @@
 // hide called by levelupdate if turf intact status changes
 // change visibility status and force update of icon
 /obj/structure/disposalpipe/hide(var/intact)
-	invisibility = intact ? 101: 0	// hide if floor is intact
+	set_invisibility(intact ? 101: 0)	// hide if floor is intact
 
 	// expel the held objects into a turf
 	// called when there is a break in the pipe
@@ -918,12 +918,12 @@
 // remains : set to leave broken pipe pieces in place
 /obj/structure/disposalpipe/proc/broken(var/remains = 0)
 	if(remains)
-		for(var/D in cardinal)
+		for(var/D in GLOB.cardinal)
 			if(D & dpdir)
 				var/obj/structure/disposalpipe/broken/P = new(src.loc)
 				P.set_dir(D)
 
-	src.invisibility = 101	// make invisible (since we won't delete the pipe immediately)
+	set_invisibility(101)	// make invisible (since we won't delete the pipe immediately)
 	var/obj/disposalholder/H = locate() in src
 	if(H)
 		// holder was present
@@ -1377,16 +1377,18 @@
 	name = "tagged sorting junction"
 	desc = "An underfloor disposal pipe which filters all wrapped and tagged items."
 	subtype = 1
-	divert_check(var/checkTag)
-		return checkTag != ""
+
+/obj/structure/disposalpipe/sortjunction/wildcard/divert_check(var/checkTag)
+	return checkTag != ""
 
 //junction that filters all untagged items
 /obj/structure/disposalpipe/sortjunction/untagged
 	name = "untagged sorting junction"
 	desc = "An underfloor disposal pipe which filters all untagged items."
 	subtype = 2
-	divert_check(var/checkTag)
-		return checkTag == ""
+
+/obj/structure/disposalpipe/sortjunction/untagged/divert_check(var/checkTag)
+	return checkTag == ""
 
 /obj/structure/disposalpipe/sortjunction/flipped //for easier and cleaner mapping
 	icon_state = "pipe-j2s"
@@ -1542,7 +1544,7 @@
 
 
 /proc/disposal_log(thing)
-	log_debug("\[[world.time]] Disposals: [thing]")
+	LOG_DEBUG("\[[world.time]] Disposals: [thing]")
 
 /obj/structure/disposaloutlet/proc/expel(var/obj/disposalholder/H)
 	set waitfor = FALSE
@@ -1656,7 +1658,7 @@
 	if(direction)
 		dirs = list( direction, turn(direction, -45), turn(direction, 45))
 	else
-		dirs = alldirs.Copy()
+		dirs = GLOB.alldirs.Copy()
 
 	src.streak(dirs)
 
@@ -1665,7 +1667,7 @@
 	if(direction)
 		dirs = list( direction, turn(direction, -45), turn(direction, 45))
 	else
-		dirs = alldirs.Copy()
+		dirs = GLOB.alldirs.Copy()
 
 	src.streak(dirs)
 

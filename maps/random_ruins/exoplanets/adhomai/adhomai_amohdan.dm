@@ -5,6 +5,7 @@
 
 	spawn_weight = 1
 	spawn_cost = 2
+	template_flags = TEMPLATE_FLAG_NO_RUINS|TEMPLATE_FLAG_RUIN_STARTS_DISALLOWED
 	sectors = list(SECTOR_SRANDMARR)
 	suffixes = list("adhomai/adhomai_amohdan.dmm")
 
@@ -34,7 +35,7 @@
 	uniform = /obj/item/clothing/under/pants/tajaran
 	head = /obj/item/clothing/head/helmet/amohda
 	suit = /obj/item/clothing/suit/armor/amohda
-	shoes = /obj/item/clothing/shoes/tajara/combat
+	shoes = /obj/item/clothing/shoes/combat
 	belt = /obj/item/material/sword/amohdan_sword
 	accessory = /obj/item/clothing/accessory/storage/bayonet
 	l_ear = null

@@ -8,6 +8,8 @@
 	id = "sfa_patrol_ship"
 	shuttles_to_initialise = list(/datum/shuttle/autodock/overmap/sfa_shuttle)
 
+	unit_test_groups = list(3)
+
 /singleton/submap_archetype/sfa_patrol_ship
 	map = "SFA Corvette"
 	descriptor = "A small ship that appears to be, at its core, a Montevideo-class corvette, a Solarian anti-piracy and patrol corvette designed with ample automation and streamlined equipment which allows for it to be manned by a small crew. This one, however, seems to have been host to a myriad of haphazard and radical modifications, and is scarcely identifiable as the original craft. Beyond the changes made to the ship itself, it also appears to have suffered extensive damage and wear, and seems to be near-derelict"
@@ -64,10 +66,16 @@
 /obj/effect/overmap/visitable/ship/sfa_patrol_ship
 	name = "SFA Corvette"
 	class = "SFAV"
-	desc = "A small ship that appears to be, at its core, a Montevideo-class corvette, a Solarian anti-piracy and patrol corvette designed with ample automation and streamlined equipment which allows for it to be manned by a small crew. This one, however, seems to have been host to a myriad of haphazard and radical modifications, and is scarcely identifiable as the original craft. Beyond the changes made to the ship itself, it also appears to have suffered extensive damage and wear, and seems to be near-derelict"
+	desc = "A small ship that appears to be, at its core, a Montevideo-class corvette, a Solarian anti-piracy and patrol corvette designed with ample automation and streamlined equipment which allows for it to be manned by a small crew. This one, however, seems to have been host to a myriad of haphazard and radical modifications, and is scarcely identifiable as the original craft. Beyond the changes made to the ship itself, it also appears to have suffered extensive damage and wear, and seems to be near-derelict."
 	icon_state = "corvette"
 	moving_state = "corvette_moving"
 	colors = list("#9dc04c", "#52c24c")
+	scanimage = "corvette.png"
+	designer = "Solarian Navy, Southern Fleet Administration field-modified"
+	volume = "41 meters length, 39 meters beam/width, 17 meters vertical height"
+	drive = "Low-Speed Warp Acceleration FTL Drive"
+	weapons = "Dual extruding fore and starboard-mounted medium caliber ballistic armament, fore obscured flight craft bay"
+	sizeclass = "Unidentified-type Retrofitted Montevideo-class Corvette"
 	max_speed = 1/(2 SECONDS)
 	burn_delay = 1 SECONDS
 	vessel_mass = 5000
@@ -82,9 +90,17 @@
 		"nav_sfa_patrol_ship_2"
 	)
 
+	invisible_until_ghostrole_spawn = TRUE
+
 /obj/effect/overmap/visitable/ship/sfa_patrol_ship/New()
 	designation = "[pick("Brigand", "Zheng Yi Sao", "Corruption", "Edward Teach", "Beauchamp's Revenge", "Blackguard", "Viking", "Despoiler", "Wayward Son", "Black Sheep", "Gluttony", "Pride", "Avarice", "Greed", "Envy", "Sloth", "Wrath", "We're The Good Ones", "Reformed", "Repentant", "Recidivist", "Just Following Orders", "Habitual Offender", "Felon", "Misdemeanor", "Conscientious Objector")]"
 	..()
+
+/obj/effect/overmap/visitable/ship/sfa_patrol_ship/get_skybox_representation()
+	var/image/skybox_image = image('icons/skybox/subcapital_ships.dmi', "corvette")
+	skybox_image.pixel_x = rand(0,64)
+	skybox_image.pixel_y = rand(128,256)
+	return skybox_image
 
 /obj/effect/shuttle_landmark/sfa_patrol_ship/nav1
 	name = "SFA Corvette - Port Side"
@@ -122,7 +138,7 @@
 /obj/machinery/computer/shuttle_control/explore/sfa_shuttle
 	name = "shuttle control console"
 	shuttle_tag = "SFA Shuttle"
-	req_access = list(access_sol_ships)
+	req_access = list(ACCESS_SOL_SHIPS)
 
 /datum/shuttle/autodock/overmap/sfa_shuttle
 	name = "SFA Shuttle"

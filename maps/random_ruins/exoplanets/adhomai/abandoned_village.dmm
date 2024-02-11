@@ -119,8 +119,8 @@
 /area/exoplanet/adhomai)
 "kJ" = (
 /obj/structure/closet/crate/freezer,
-/obj/item/reagent_containers/cooking_container/plate,
-/obj/item/reagent_containers/cooking_container/plate,
+/obj/item/reagent_containers/bowl/plate,
+/obj/item/reagent_containers/bowl/plate,
 /turf/simulated/floor/wood{
 	temperature = 268.15
 	},
@@ -311,7 +311,7 @@
 	},
 /area/exoplanet/adhomai)
 "Ic" = (
-/obj/structure/flora/pottedplant/random,
+/obj/random/pottedplant,
 /turf/simulated/floor/wood{
 	temperature = 268.15
 	},

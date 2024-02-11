@@ -5,6 +5,7 @@
 
 	spawn_weight = 1
 	spawn_cost = 2
+	template_flags = TEMPLATE_FLAG_NO_RUINS|TEMPLATE_FLAG_RUIN_STARTS_DISALLOWED
 	sectors = list(SECTOR_SRANDMARR)
 	suffixes = list("adhomai/pra_base.dmm")
 
@@ -15,7 +16,7 @@
 	dynamic_lighting = TRUE
 	no_light_control = FALSE
 	base_turf = /turf/simulated/floor/exoplanet/mineral/adhomai
-	flags = RAD_SHIELDED
+	area_flags = AREA_FLAG_RAD_SHIELDED
 
 //ghost roles
 
@@ -45,7 +46,7 @@
 	head = /obj/item/clothing/head/beret/tajaran/pra
 	suit = /obj/item/clothing/suit/storage/tajaran/pra_jacket/armored
 	back = /obj/item/storage/backpack/rucksack/green
-	shoes = /obj/item/clothing/shoes/tajara/combat
+	shoes = /obj/item/clothing/shoes/combat
 	belt = /obj/item/storage/belt/military
 	accessory = /obj/item/clothing/accessory/badge/hadii_card
 	l_ear = null
@@ -55,7 +56,7 @@
 	l_pocket = /obj/item/device/radio
 
 /datum/outfit/admin/pra_base/get_id_access()
-	return list(access_pra)
+	return list(ACCESS_PRA)
 
 /datum/ghostspawner/human/pra_base/commissar
 	short_name = "pra_base_commissar"

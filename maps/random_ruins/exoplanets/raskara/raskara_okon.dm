@@ -3,8 +3,7 @@
 	id = "raskara_okon"
 	description = "A People's Republic observation outpost on the Moon."
 
-	spawn_weight = 1
-	spawn_cost = 1
+	template_flags = TEMPLATE_FLAG_NO_RUINS|TEMPLATE_FLAG_RUIN_STARTS_DISALLOWED
 	sectors = list(SECTOR_SRANDMARR)
 	suffixes = list("raskara/raskara_okon.dmm")
 
@@ -15,7 +14,7 @@
 	dynamic_lighting = TRUE
 	no_light_control = FALSE
 	base_turf = /turf/simulated/floor/exoplanet/barren/raskara
-	flags = RAD_SHIELDED
+	area_flags = AREA_FLAG_RAD_SHIELDED
 	ambience = AMBIENCE_EXPOUTPOST
 
 /area/raskara_okon/observatory
@@ -79,7 +78,7 @@
 	name = "Okon Crewmember"
 
 	id = /obj/item/card/id
-	shoes = /obj/item/clothing/shoes/tajara/jackboots
+	shoes = /obj/item/clothing/shoes/jackboots/tajara
 
 	uniform = /obj/item/clothing/under/tajaran/database_freighter
 	l_ear = null
@@ -89,4 +88,4 @@
 	r_pocket = /obj/item/storage/wallet/random
 
 /datum/outfit/admin/okon_crew/get_id_access()
-	return list(access_pra, access_external_airlocks)
+	return list(ACCESS_PRA, ACCESS_EXTERNAL_AIRLOCKS)

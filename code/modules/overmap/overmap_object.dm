@@ -3,6 +3,23 @@
 	icon = 'icons/obj/overmap/overmap_effects.dmi'
 	icon_state = "object"
 	color = "#fffffe"
+	mouse_opacity = MOUSE_OPACITY_ICON
+
+//RP fluff details to appear on scan readouts for any object we want to include these details with
+	var/scanimage = "no_data.png"
+	var/designer = "Unknown" 							//The shipyard or designer of the object if applicable
+	var/volume = "Unestimated" 							//Length height width of the object in tiles ingame
+	var/weapons = "Not apparent"						//The expected armament or scale of armament that the design comes with if applicable. Can vary in visibility for obvious reasons
+	var/sizeclass = "Unknown"							//The class of the design if applicable. Not a prefix. Should be things like battlestations or corvettes
+	var/shiptype = "Unknown"							//The designated purpose of the design. Should briefly describe whether it's a combatant or study vessel for example
+
+	var/alignment = "Unknown"							//For landing sites. Allows the crew to know if they're landing somewhere bad or not
+
+	var/generic_object = TRUE //Used to give basic scan descriptions of every generic overmap object that excludes noteworthy locations, ships and exoplanets
+	var/static_vessel = FALSE //Used to expand scan details for visible space stations
+	var/landing_site = FALSE //Used for unique landing sites that occupy the same overmap tile as another - for example, the implementation of Point Verdant and Konyang
+
+	layer = OVERMAP_SECTOR_LAYER
 
 	var/list/map_z = list()
 
@@ -11,10 +28,10 @@
 	var/unknown_id                      // A unique identifier used when this entity is scanned. Assigned in Initialize().
 	var/requires_contact = TRUE //whether or not the effect must be identified by ship sensors before being seen.
 	var/instant_contact  = FALSE //do we instantly identify ourselves to any ship in sensors range?
+	var/sensor_range_override = FALSE //When true, this overmap object will be scanned with range instead of view.
 
 	var/sensor_visibility = 10	 //how likely it is to increase identification process each scan.
 	var/vessel_mass = 10000             // metric tonnes, very rough number, affects acceleration provided by engines
-
 
 	var/image/targeted_overlay
 
@@ -23,21 +40,54 @@
 	return
 
 /obj/effect/overmap/proc/get_scan_data(mob/user)
-	return desc
+	if(static_vessel == TRUE)
+		. += "<hr>"
+		. += "<br><center><large><b>Scan Details</b></large>"
+		. += "<br><large><b>[name]</b></large></center>"
+		. += "<br><small><b>Estimated Mass:</b> [vessel_mass]"
+		. += "<br><b>Projected Volume:</b> [volume]"
+		. += "<hr>"
+		. += "<br><center><b>Native Database Specifications</b>"
+		. += "<br><img src = [scanimage]></center>"
+		. += "<br><small><b>Manufacturer:</b> [designer]"
+		. += "<br><b>Class Designation:</b> [sizeclass]"
+		. += "<br><b>Weapons Estimation:</b> [weapons]</small>"
+		. += "<hr>"
+		. += "<br><center><b>Native Database Notes</b></center>"
+		. += "<br><small>[desc]</small>"
+	if(landing_site == TRUE)
+		. += "<hr>"
+		. += "<br><center><large><b>Designated Landing Zone Details</b></large>"
+		. += "<br><large><b>[name]</b></large></center>"
+		. += "<hr>"
+		. += "<br><center><b>Native Database Specifications</b>"
+		. += "<br><img src = [scanimage]></center>"
+		. += "<br><small><b>Governing Body:</b> [alignment]"
+		. += "<hr>"
+		. += "<br><center><b>Native Database Notes</b></center>"
+		. += "<br><small>[desc]</small>"
+	else if(generic_object == TRUE)
+		return desc
+
+/// Returns the direction the overmap object is moving in, rather than just the way it's facing
+/obj/effect/overmap/proc/get_heading()
+	return dir
 
 /obj/effect/overmap/proc/handle_wraparound()
 	var/nx = x
 	var/ny = y
 	var/low_edge = 1
-	var/high_edge = current_map.overmap_size - 1
+	var/high_edge = SSatlas.current_map.overmap_size - 1
 
-	if((dir & WEST) && x == low_edge)
+	var/heading = get_heading()
+
+	if((heading & WEST) && x == low_edge)
 		nx = high_edge
-	else if((dir & EAST) && x == high_edge)
+	else if((heading & EAST) && x == high_edge)
 		nx = low_edge
-	if((dir & SOUTH)  && y == low_edge)
+	if((heading & SOUTH)  && y == low_edge)
 		ny = high_edge
-	else if((dir & NORTH) && y == high_edge)
+	else if((heading & NORTH) && y == high_edge)
 		ny = low_edge
 	if((x == nx) && (y == ny))
 		return //we're not flying off anywhere
@@ -48,7 +98,7 @@
 
 /obj/effect/overmap/Initialize()
 	. = ..()
-	if(!current_map.use_overmap)
+	if(!SSatlas.current_map.use_overmap)
 		return INITIALIZE_HINT_QDEL
 
 	if(known)
@@ -58,7 +108,7 @@
 	update_icon()
 
 	if(requires_contact)
-		invisibility = INVISIBILITY_OVERMAP // Effects that require identification have their images cast to the client via sensors.
+		set_invisibility(INVISIBILITY_OVERMAP)// Effects that require identification have their images cast to the client via sensors.
 
 /obj/effect/overmap/Crossed(var/obj/effect/overmap/visitable/other)
 	if(istype(other))
@@ -86,7 +136,7 @@
 			if(!istype(GS.linked.loc, /turf/unsimulated/map))
 				to_chat(H, SPAN_WARNING("The safeties won't let you target while you're not on the Overmap!"))
 				return
-			var/my_sector = map_sectors["[H.z]"]
+			var/my_sector = GLOB.map_sectors["[H.z]"]
 			if(istype(my_sector, /obj/effect/overmap/visitable))
 				var/obj/effect/overmap/visitable/V = my_sector
 				if(V != src && length(V.ship_weapons)) //no guns, no lockon
@@ -99,6 +149,26 @@
 							V.detarget(V.targeting, C)
 							V.target(src, H.machine)
 			GS.targeting = FALSE //Extra safety.
+
+/obj/effect/overmap/MouseEntered(location, control, params)
+	. = ..()
+	var/list/modifiers = params2list(params)
+	if(modifiers["shift"])
+		params = replacetext(params, "shift=1;", "") // tooltip doesn't appear unless this is stripped
+		var/description = get_tooltip_description()
+		openToolTip(usr, src, params, name, description)
+
+/obj/effect/overmap/proc/get_tooltip_description()
+	if(!desc)
+		return ""
+	var/description = "<ul>"
+	description += "<li>[desc]</li>"
+	description += "</ul>"
+	return description
+
+/obj/effect/overmap/MouseExited(location, control, params)
+	. = ..()
+	closeToolTip(usr)
 
 /obj/effect/overmap/visitable/proc/target(var/obj/effect/overmap/O, var/obj/machinery/computer/ship/C)
 	C.targeting = TRUE

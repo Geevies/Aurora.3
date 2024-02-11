@@ -5,6 +5,7 @@
 
 	spawn_weight = 1
 	spawn_cost = 2
+	template_flags = TEMPLATE_FLAG_NO_RUINS|TEMPLATE_FLAG_RUIN_STARTS_DISALLOWED
 	sectors = list(SECTOR_SRANDMARR)
 	suffixes = list("adhomai/nka_base.dmm")
 
@@ -15,7 +16,7 @@
 	dynamic_lighting = TRUE
 	no_light_control = FALSE
 	base_turf = /turf/simulated/floor/exoplanet/mineral/adhomai
-	flags = RAD_SHIELDED
+	area_flags = AREA_FLAG_RAD_SHIELDED
 
 
 //ghostroles
@@ -32,7 +33,7 @@
 	max_count = 3
 
 	extra_languages = list(LANGUAGE_SIIK_MAAS)
-	outfit = /datum/outfit/admin/
+	outfit = /datum/outfit/admin/nka_base
 	possible_species = list(SPECIES_TAJARA,SPECIES_TAJARA_MSAI, SPECIES_TAJARA_ZHAN)
 	allow_appearance_change = APPEARANCE_PLASTICSURGERY
 
@@ -47,7 +48,7 @@
 	uniform = /obj/item/clothing/under/tajaran/nka_uniform
 	head = /obj/item/clothing/head/tajaran/nka_cap
 	back = /obj/item/storage/backpack/rucksack/tan
-	shoes = /obj/item/clothing/shoes/tajara/combat
+	shoes = /obj/item/clothing/shoes/combat
 	belt = /obj/item/storage/belt/military
 	l_ear = null
 
@@ -56,7 +57,7 @@
 	l_pocket = /obj/item/device/radio
 
 /datum/outfit/admin/nka_base/get_id_access()
-	return list(access_nka)
+	return list(ACCESS_NKA)
 
 /datum/ghostspawner/human/nka_base/commander
 	short_name = "nka_base_commander"

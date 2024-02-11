@@ -49,7 +49,7 @@
 		harvest()
 
 /obj/structure/reagent_crystal/attack_hand(mob/user)
-	if(HAS_FLAG(user.mutations, HULK))
+	if((user.mutations & HULK))
 		user.visible_message(SPAN_WARNING("\The [user] smashes \the [src] apart!"), SPAN_WARNING("You smash \the [src] apart!"))
 		harvest()
 		return
@@ -86,7 +86,7 @@
 	if(!time_to_dig)
 		time_to_dig = 50
 
-	if(do_after(user, time_to_dig * mine_rate, act_target = src))
+	if(do_after(user, time_to_dig * mine_rate, src))
 		if(!src)
 			return
 		harvest()
@@ -114,7 +114,7 @@
 				return
 			else
 				health -= rand(40,80)
-		else
+
 	if(health <= 0)
 		harvest()
 	return

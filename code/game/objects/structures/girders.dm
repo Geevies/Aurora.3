@@ -276,7 +276,7 @@
 	reinforcing = 0
 
 /obj/structure/girder/attack_hand(mob/user as mob)
-	if(HAS_FLAG(user.mutations, HULK))
+	if((user.mutations & HULK))
 		visible_message("<span class='danger'>[user] smashes [src] apart!</span>")
 		dismantle()
 		return
@@ -301,7 +301,6 @@
 				return
 			else
 				health -= rand(40,80)
-		else
 
 	if(health <= 0)
 		dismantle()

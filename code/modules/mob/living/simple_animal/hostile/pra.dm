@@ -79,6 +79,10 @@
 			var/obj/item/clothing/under/suit = H.w_uniform
 			if((locate(/obj/item/clothing/accessory/hadii_pin) in suit.accessories) || (locate(/obj/item/clothing/accessory/badge/hadii_card) in suit.accessories))
 				return FALSE
+	if(ismech(L))
+		var/mob/living/heavy_vehicle/M = L
+		if(M.body && istype(M.body, /obj/item/mech_component/chassis/pra_egg))
+			return FALSE
 
 	if(!L.stat)
 		var/current_health = INFINITY
@@ -190,7 +194,6 @@
 
 	tameable = FALSE
 	flying = TRUE
-	see_in_dark = 8
 	see_invisible = SEE_INVISIBLE_NOLIGHTING
 
 	emote_sounds = list('sound/effects/creatures/PRA_drone.ogg')
@@ -212,7 +215,7 @@
 	..(null, "blows apart!")
 	var/T = get_turf(src)
 	new /obj/effect/gibspawner/robot(T)
-	spark(T, 1, alldirs)
+	spark(T, 1, GLOB.alldirs)
 	qdel(src)
 
 /mob/living/simple_animal/hostile/retaliate/pra_exploration_drone/Initialize()

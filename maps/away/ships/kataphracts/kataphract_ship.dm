@@ -5,8 +5,10 @@
 	suffixes = list("ships/kataphracts/kataphract_ship.dmm")
 	ship_cost = 1
 	spawn_weight = 1
+	spawn_weight_sector_dependent = list(SECTOR_UUEOAESA=3)
+	sectors = list(SECTOR_ROMANOVICH, SECTOR_TAU_CETI, SECTOR_CORP_ZONE, SECTOR_VALLEY_HALE, SECTOR_BADLANDS, SECTOR_UUEOAESA, SECTOR_WEEPING_STARS)
 	shuttles_to_initialise = list(/datum/shuttle/autodock/overmap/kataphract_transport)
-	sectors = list(SECTOR_ROMANOVICH, SECTOR_TAU_CETI, SECTOR_CORP_ZONE, SECTOR_VALLEY_HALE, SECTOR_BADLANDS, SECTOR_UUEOAESA)
+	unit_test_groups = list(3)
 
 /obj/effect/overmap/visitable/ship/kataphract_ship
 	name = "kataphract chapter ship"
@@ -17,6 +19,13 @@
 	icon_state = "voidbreaker"
 	moving_state = "voidbreaker_moving"
 	colors = list("#e38222", "#f0ba3e")
+	scanimage = "unathi_corvette.png"
+	designer = "Hephaestus Industries, Izweski Hegemonic Naval Guilds"
+	volume = "65 meters length, 45 meters beam/width, 21 meters vertical height"
+	drive = "Low-Speed Warp Acceleration FTL Drive"
+	weapons = "Not apparent, port obscured flight craft bay"
+	sizeclass = "Voidbreaker-class Armored Corvette"
+	shiptype = "Specialist long-distance extended-duration combat utility"
 	vessel_mass = 10000
 	max_speed = 1/(2 SECONDS)
 	fore_dir = NORTH
@@ -33,6 +42,8 @@
 		"Kataphract Transport" = list("nav_hangar_kataphract_shuttle"),
 		"Intrepid" = list("nav_kataphract_ship_dockintrepid")
 	)
+
+	invisible_until_ghostrole_spawn = TRUE
 
 /obj/effect/overmap/visitable/ship/kataphract_ship/New()
 	designation = "[pick("Pious Avenger", "Persistent Conviction", "Solemn Retribution", "Venerable Ironscales", "Blade of Faith", "Glorious Succor", "Sacred Retribution", "Unflinching Soul", "Unrelenting Fervor", "Ascendant Absolution")]"
@@ -89,7 +100,7 @@
 /obj/machinery/computer/shuttle_control/explore/kataphract_transport
 	name = "shuttle control console"
 	shuttle_tag = "Kataphract Transport"
-	req_access = list(access_kataphract)
+	req_access = list(ACCESS_KATAPHRACT)
 
 /datum/shuttle/autodock/overmap/kataphract_transport
 	name = "Kataphract Transport"

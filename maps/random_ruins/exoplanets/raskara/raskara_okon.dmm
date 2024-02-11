@@ -29,7 +29,8 @@
 "aD" = (
 /obj/machinery/door/airlock/engineering{
 	req_access = list(209);
-	name = "Engine"
+	name = "Engine";
+	dir = 1
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
@@ -56,7 +57,8 @@
 "aO" = (
 /obj/machinery/door/airlock{
 	req_access = list(209);
-	name = "Mess Hall"
+	name = "Mess Hall";
+	dir = 4
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
 	dir = 4
@@ -85,7 +87,7 @@
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
 	dir = 4
 	},
-/turf/simulated/floor/tiled/steel{
+/turf/simulated/floor/tiled/rust{
 	temperature = 278.15
 	},
 /area/raskara_okon/mining)
@@ -116,7 +118,7 @@
 /obj/machinery/atmospherics/unary/vent_pump/on{
 	dir = 8
 	},
-/turf/simulated/floor/tiled/steel{
+/turf/simulated/floor/tiled/rust{
 	temperature = 278.15
 	},
 /area/raskara_okon/mining)
@@ -388,10 +390,8 @@
 /obj/machinery/atmospherics/unary/vent_scrubber/on{
 	dir = 8
 	},
-/obj/machinery/alarm/cold{
-	req_one_access = list(209);
-	dir = 8;
-	pixel_x = 32
+/obj/machinery/alarm/cold/east{
+	req_one_access = list(209)
 	},
 /turf/simulated/floor/tiled/dark{
 	temperature = 278.15
@@ -438,16 +438,13 @@
 /area/raskara_okon/mess_hall)
 "fy" = (
 /obj/structure/closet/cabinet,
-/obj/item/clothing/shoes/tajara/jackboots,
+/obj/item/clothing/shoes/jackboots/tajara,
 /obj/item/clothing/under/tajaran/database_freighter,
 /obj/structure/cable/green{
 	d2 = 8;
 	icon_state = "0-8"
 	},
-/obj/machinery/power/apc/high{
-	dir = 4;
-	name = "north bump";
-	pixel_x = 24;
+/obj/machinery/power/apc/high/east{
 	req_access = list(209)
 	},
 /obj/item/clothing/accessory/badge/pra_passport,
@@ -469,7 +466,7 @@
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
 	dir = 4
 	},
-/turf/simulated/floor/tiled/steel{
+/turf/simulated/floor/tiled/rust{
 	temperature = 278.15
 	},
 /area/raskara_okon/mining)
@@ -485,7 +482,7 @@
 "gk" = (
 /obj/effect/floor_decal/industrial/outline/yellow,
 /obj/machinery/mining/drill,
-/turf/simulated/floor/tiled/steel{
+/turf/simulated/floor/tiled/rust{
 	temperature = 278.15
 	},
 /area/raskara_okon/mining)
@@ -551,15 +548,13 @@
 /area/raskara_okon/observatory)
 "ht" = (
 /obj/effect/floor_decal/corner/red{
-	dir = 9;
-	icon_state = "corner_white"
+	dir = 9
 	},
 /obj/machinery/atmospherics/pipe/manifold/hidden/supply{
 	dir = 8
 	},
 /obj/machinery/atmospherics/pipe/manifold/hidden/scrubbers{
-	dir = 8;
-	icon_state = "map-scrubbers"
+	dir = 8
 	},
 /obj/structure/cable/green{
 	d1 = 1;
@@ -611,6 +606,16 @@
 	temperature = 278.15
 	},
 /area/raskara_okon/eva)
+"is" = (
+/obj/structure/table/stone/marble,
+/obj/effect/floor_decal/corner/grey/diagonal,
+/obj/machinery/reagentgrinder{
+	pixel_y = 6
+	},
+/turf/simulated/floor/tiled/white{
+	temperature = 278.15
+	},
+/area/raskara_okon/mess_hall)
 "ix" = (
 /obj/effect/floor_decal/corner/red{
 	dir = 5
@@ -645,6 +650,13 @@
 	temperature = 278.15
 	},
 /area/raskara_okon/eva)
+"iP" = (
+/obj/effect/floor_decal/corner/grey/diagonal,
+/obj/machinery/appliance/cooker/oven,
+/turf/simulated/floor/tiled/white{
+	temperature = 278.15
+	},
+/area/raskara_okon/mess_hall)
 "iS" = (
 /turf/simulated/floor{
 	temperature = 278.15
@@ -724,7 +736,8 @@
 "jJ" = (
 /obj/machinery/door/airlock/glass_medical{
 	req_access = list(209);
-	name = "Medbay"
+	name = "Medbay";
+	dir = 1
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
@@ -758,24 +771,11 @@
 	temperature = 278.15
 	},
 /area/raskara_okon/mess_hall)
-"jY" = (
-/obj/effect/floor_decal/corner/red{
-	dir = 10
-	},
-/obj/structure/cable/green,
-/obj/machinery/power/apc/high{
-	name = "south bump";
-	pixel_y = -24;
-	req_access = list(209)
-	},
-/turf/simulated/floor/tiled/dark{
-	temperature = 278.15
-	},
-/area/raskara_okon/entry)
 "kd" = (
 /obj/machinery/door/airlock/engineering{
 	req_access = list(209);
-	name = "Engineering"
+	name = "Engineering";
+	dir = 1
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
@@ -806,10 +806,7 @@
 	dir = 6
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
-/obj/structure/sign/flag/pra/left{
-	pixel_x = 32;
-	dir = 4
-	},
+/obj/structure/sign/flag/pra/large/east,
 /turf/simulated/floor/tiled/dark{
 	temperature = 278.15
 	},
@@ -838,10 +835,8 @@
 /obj/machinery/atmospherics/unary/vent_pump/on{
 	dir = 1
 	},
-/obj/machinery/alarm/cold{
-	req_one_access = list(209);
-	dir = 1;
-	pixel_y = -32
+/obj/machinery/alarm/cold/south{
+	req_one_access = list(209)
 	},
 /turf/simulated/floor/tiled/dark{
 	temperature = 278.15
@@ -944,8 +939,7 @@
 "lr" = (
 /obj/effect/floor_decal/corner/brown/diagonal,
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
-	dir = 6;
-	pixel_y = 0
+	dir = 6
 	},
 /obj/structure/cable/green{
 	d1 = 4;
@@ -988,14 +982,6 @@
 	temperature = 278.15
 	},
 /area/raskara_okon/entry)
-"md" = (
-/obj/effect/floor_decal/corner/red{
-	dir = 5
-	},
-/turf/simulated/floor/tiled/dark{
-	temperature = 278.15
-	},
-/area/raskara_okon/entry)
 "mf" = (
 /obj/structure/closet/excavation,
 /obj/effect/floor_decal/corner/mauve/full{
@@ -1022,13 +1008,11 @@
 	},
 /area/raskara_okon/engineer)
 "ms" = (
-/obj/machinery/mineral/unloading_machine{
-	dir = 1
-	},
+/obj/machinery/mineral/unloading_machine,
 /obj/effect/floor_decal/industrial/warning/cee{
 	dir = 1
 	},
-/turf/simulated/floor/airless,
+/turf/template_noop,
 /area/raskara_okon/mining)
 "mF" = (
 /obj/machinery/atmospherics/pipe/manifold/hidden/cyan,
@@ -1051,10 +1035,8 @@
 	},
 /area/raskara_okon/medbay)
 "mV" = (
-/obj/machinery/alarm/cold{
-	req_one_access = list(209);
-	dir = 1;
-	pixel_y = -32
+/obj/machinery/alarm/cold/south{
+	req_one_access = list(209)
 	},
 /turf/simulated/floor/tiled/white{
 	temperature = 278.15
@@ -1142,9 +1124,8 @@
 /obj/effect/floor_decal/corner/red{
 	dir = 5
 	},
-/obj/machinery/alarm/cold{
-	req_one_access = list(209);
-	pixel_y = 32
+/obj/machinery/alarm/cold/north{
+	req_one_access = list(209)
 	},
 /turf/simulated/floor/tiled/dark{
 	temperature = 278.15
@@ -1183,7 +1164,7 @@
 	d2 = 8;
 	icon_state = "2-8"
 	},
-/turf/simulated/floor/tiled/steel{
+/turf/simulated/floor/tiled/rust{
 	temperature = 278.15
 	},
 /area/raskara_okon/mining)
@@ -1194,8 +1175,7 @@
 /area/raskara_okon/eva)
 "pD" = (
 /obj/effect/floor_decal/corner/red{
-	dir = 9;
-	icon_state = "corner_white"
+	dir = 9
 	},
 /obj/machinery/light{
 	dir = 8
@@ -1242,7 +1222,7 @@
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
 	dir = 6
 	},
-/turf/simulated/floor/tiled/steel{
+/turf/simulated/floor/tiled/rust{
 	temperature = 278.15
 	},
 /area/raskara_okon/mining)
@@ -1250,9 +1230,7 @@
 /obj/effect/floor_decal/corner/red{
 	dir = 5
 	},
-/obj/structure/sign/flag/pra/left{
-	pixel_y = 32
-	},
+/obj/structure/sign/flag/pra/large/north,
 /turf/simulated/floor/tiled/dark{
 	temperature = 278.15
 	},
@@ -1262,7 +1240,7 @@
 	id = "okon_base_belt"
 	},
 /obj/effect/floor_decal/industrial/outline/yellow,
-/turf/simulated/floor/airless,
+/turf/template_noop,
 /area/raskara_okon/mining)
 "pY" = (
 /obj/structure/table/steel,
@@ -1271,7 +1249,7 @@
 /obj/item/shovel,
 /obj/item/gun/energy/plasmacutter,
 /obj/item/gun/energy/plasmacutter,
-/turf/simulated/floor/tiled/steel{
+/turf/simulated/floor/tiled/rust{
 	temperature = 278.15
 	},
 /area/raskara_okon/mining)
@@ -1288,8 +1266,7 @@
 /area/raskara_okon/laboratory)
 "qm" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
-	dir = 9;
-	pixel_y = 0
+	dir = 9
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
 	dir = 4
@@ -1318,12 +1295,10 @@
 	d2 = 4;
 	icon_state = "0-4"
 	},
-/obj/machinery/power/apc/high{
-	dir = 8;
-	pixel_x = -24;
+/obj/machinery/power/apc/high/west{
 	req_access = list(209)
 	},
-/turf/simulated/floor/tiled/steel{
+/turf/simulated/floor/tiled/rust{
 	temperature = 278.15
 	},
 /area/raskara_okon/mining)
@@ -1353,10 +1328,8 @@
 	dir = 6
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
-/obj/machinery/alarm/cold{
-	req_one_access = list(209);
-	dir = 8;
-	pixel_x = 32
+/obj/machinery/alarm/cold/east{
+	req_one_access = list(209)
 	},
 /turf/simulated/floor/tiled/dark{
 	temperature = 278.15
@@ -1469,8 +1442,7 @@
 /area/raskara_okon/mess_hall)
 "td" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
-	dir = 6;
-	pixel_y = 0
+	dir = 6
 	},
 /obj/machinery/meter,
 /obj/structure/cable/green{
@@ -1495,9 +1467,6 @@
 /obj/effect/floor_decal/corner/red{
 	dir = 5
 	},
-/obj/structure/sign/flag/pra/right{
-	pixel_y = 32
-	},
 /turf/simulated/floor/tiled/dark{
 	temperature = 278.15
 	},
@@ -1520,10 +1489,8 @@
 /obj/effect/floor_decal/corner/red{
 	dir = 10
 	},
-/obj/machinery/alarm/cold{
-	req_one_access = list(209);
-	pixel_y = -32;
-	dir = 1
+/obj/machinery/alarm/cold/south{
+	req_one_access = list(209)
 	},
 /turf/simulated/floor/tiled/dark{
 	temperature = 278.15
@@ -1537,12 +1504,10 @@
 	},
 /area/raskara_okon/eva)
 "tL" = (
-/obj/machinery/alarm/cold{
-	req_one_access = list(209);
-	dir = 8;
-	pixel_x = 32
+/obj/machinery/alarm/cold/east{
+	req_one_access = list(209)
 	},
-/turf/simulated/floor/tiled/steel{
+/turf/simulated/floor/tiled/rust{
 	temperature = 278.15
 	},
 /area/raskara_okon/mining)
@@ -1550,6 +1515,7 @@
 /obj/structure/toilet{
 	dir = 4
 	},
+/obj/structure/curtain/open/shower,
 /turf/simulated/floor/tiled/freezer{
 	temperature = 278.15
 	},
@@ -1676,9 +1642,10 @@
 	},
 /area/raskara_okon/engineer)
 "vJ" = (
-/obj/machinery/door/airlock/science{
+/obj/machinery/door/airlock/research{
 	req_access = list(209);
-	name = "Laboratory"
+	name = "Laboratory";
+	dir = 4
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
 	dir = 4
@@ -1713,8 +1680,7 @@
 	dir = 1
 	},
 /obj/machinery/atmospherics/pipe/manifold/hidden/supply{
-	dir = 1;
-	icon_state = "map-supply"
+	dir = 1
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
 	dir = 4
@@ -1772,23 +1738,28 @@
 	temperature = 278.15
 	},
 /area/raskara_okon/observatory)
+"xg" = (
+/obj/machinery/portable_atmospherics/canister/air/airlock,
+/obj/effect/floor_decal/industrial/outline/yellow,
+/turf/simulated/floor{
+	temperature = 278.15
+	},
+/area/raskara_okon/engineer)
 "xn" = (
-/turf/simulated/floor/tiled/steel{
+/turf/simulated/floor/tiled/rust{
 	temperature = 278.15
 	},
 /area/raskara_okon/mining)
 "xp" = (
 /obj/structure/closet/cabinet,
-/obj/item/clothing/shoes/tajara/jackboots,
+/obj/item/clothing/shoes/jackboots/tajara,
 /obj/item/clothing/under/tajaran/database_freighter,
 /obj/item/clothing/accessory/badge/pra_passport,
 /obj/item/clothing/accessory/badge/pra_passport,
 /obj/item/clothing/accessory/flagpatch/pra,
 /obj/item/clothing/accessory/flagpatch/pra,
-/obj/machinery/alarm/cold{
-	req_one_access = list(209);
-	dir = 8;
-	pixel_x = 32
+/obj/machinery/alarm/cold/east{
+	req_one_access = list(209)
 	},
 /turf/simulated/floor/tiled/dark{
 	temperature = 278.15
@@ -1903,13 +1874,13 @@
 	dir = 1
 	},
 /obj/machinery/light,
-/turf/simulated/floor/tiled/steel{
+/turf/simulated/floor/tiled/rust{
 	temperature = 278.15
 	},
 /area/raskara_okon/mining)
 "zd" = (
 /obj/structure/closet/cabinet,
-/obj/item/clothing/shoes/tajara/jackboots,
+/obj/item/clothing/shoes/jackboots/tajara,
 /obj/item/clothing/under/tajaran/database_freighter,
 /obj/machinery/light/small{
 	dir = 4
@@ -1929,10 +1900,8 @@
 /obj/machinery/atmospherics/unary/vent_scrubber/on{
 	dir = 1
 	},
-/obj/machinery/alarm/cold{
-	req_one_access = list(209);
-	dir = 1;
-	pixel_y = -32
+/obj/machinery/alarm/cold/south{
+	req_one_access = list(209)
 	},
 /turf/simulated/floor/tiled/dark{
 	temperature = 278.15
@@ -1943,8 +1912,7 @@
 	dir = 4
 	},
 /obj/effect/floor_decal/industrial/warning{
-	dir = 8;
-	icon_state = "warning"
+	dir = 8
 	},
 /obj/structure/plasticflaps/mining,
 /obj/machinery/conveyor{
@@ -2087,7 +2055,8 @@
 "Ac" = (
 /obj/machinery/door/airlock/mining{
 	name = "Eva Storage";
-	req_access = list(209)
+	req_access = list(209);
+	dir = 4
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
 	dir = 4
@@ -2124,7 +2093,7 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/turf/simulated/floor/tiled/steel{
+/turf/simulated/floor/tiled/rust{
 	temperature = 278.15
 	},
 /area/raskara_okon/mining)
@@ -2144,8 +2113,7 @@
 	dir = 1
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
-	dir = 6;
-	pixel_y = 0
+	dir = 6
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
 	dir = 6
@@ -2167,10 +2135,7 @@
 	d2 = 8;
 	icon_state = "0-8"
 	},
-/obj/machinery/power/apc/high{
-	dir = 4;
-	name = "north bump";
-	pixel_x = 24;
+/obj/machinery/power/apc/high/east{
 	req_access = list(209)
 	},
 /turf/simulated/floor/tiled/dark{
@@ -2203,7 +2168,8 @@
 "BR" = (
 /obj/machinery/door/airlock/mining{
 	name = "Eva Storage";
-	req_access = list(209)
+	req_access = list(209);
+	dir = 1
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
@@ -2278,11 +2244,6 @@
 	d2 = 8;
 	icon_state = "4-8"
 	},
-/obj/structure/cable/green{
-	d1 = 2;
-	d2 = 8;
-	icon_state = "2-8"
-	},
 /obj/structure/sign/flag/pra{
 	pixel_y = 32
 	},
@@ -2325,7 +2286,7 @@
 	d2 = 2;
 	icon_state = "1-2"
 	},
-/turf/simulated/floor/tiled/steel{
+/turf/simulated/floor/tiled/rust{
 	temperature = 278.15
 	},
 /area/raskara_okon/mining)
@@ -2394,13 +2355,13 @@
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
 	dir = 4
 	},
-/turf/simulated/floor/tiled/steel{
+/turf/simulated/floor/tiled/rust{
 	temperature = 278.15
 	},
 /area/raskara_okon/mining)
 "Ef" = (
 /obj/machinery/artifact_scanpad,
-/obj/effect/floor_decal/spline/plain/cee,
+/obj/effect/floor_decal/spline/plain/cee/black,
 /turf/simulated/floor/bluegrid{
 	temperature = 278.15
 	},
@@ -2471,7 +2432,8 @@
 "Gh" = (
 /obj/machinery/door/airlock/glass_medical{
 	req_access = list(209);
-	name = "Medbay"
+	name = "Medbay";
+	dir = 4
 	},
 /turf/simulated/floor/tiled/white{
 	temperature = 278.15
@@ -2501,7 +2463,7 @@
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
 	dir = 4
 	},
-/turf/simulated/floor/tiled/steel{
+/turf/simulated/floor/tiled/rust{
 	temperature = 278.15
 	},
 /area/raskara_okon/mining)
@@ -2607,7 +2569,7 @@
 	},
 /area/raskara_okon/eva)
 "HX" = (
-/turf/simulated/floor/exoplanet/barren/raskara,
+/turf/template_noop,
 /area/exoplanet/barren/raskara)
 "Ic" = (
 /obj/structure/closet/secure_closet/freezer/kitchen{
@@ -2618,8 +2580,8 @@
 	pixel_x = 3;
 	pixel_y = -11
 	},
-/obj/item/reagent_containers/food/drinks/milk,
-/obj/item/reagent_containers/food/drinks/milk,
+/obj/item/reagent_containers/food/drinks/carton/milk,
+/obj/item/reagent_containers/food/drinks/carton/milk,
 /obj/effect/floor_decal/corner/grey/diagonal,
 /obj/item/reagent_containers/food/snacks/meat/adhomai,
 /obj/item/reagent_containers/food/snacks/meat/adhomai,
@@ -2631,6 +2593,8 @@
 /obj/item/reagent_containers/food/drinks/carton/fatshouters,
 /obj/item/reagent_containers/food/drinks/carton/fatshouters,
 /obj/item/reagent_containers/food/drinks/carton/fatshouters,
+/obj/item/storage/box/fancy/egg_box,
+/obj/item/storage/box/fancy/egg_box,
 /turf/simulated/floor/tiled/white{
 	temperature = 278.15
 	},
@@ -2638,7 +2602,7 @@
 "IM" = (
 /obj/structure/ore_box,
 /obj/effect/floor_decal/industrial/outline/yellow,
-/turf/simulated/floor/tiled/steel{
+/turf/simulated/floor/tiled/rust{
 	temperature = 278.15
 	},
 /area/raskara_okon/mining)
@@ -2692,8 +2656,7 @@
 /area/raskara_okon/observatory)
 "JM" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
-	dir = 10;
-	pixel_y = 0
+	dir = 10
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
 	dir = 6
@@ -2725,7 +2688,7 @@
 /obj/machinery/atmospherics/unary/vent_scrubber/on{
 	dir = 8
 	},
-/turf/simulated/floor/tiled/steel{
+/turf/simulated/floor/tiled/rust{
 	temperature = 278.15
 	},
 /area/raskara_okon/mining)
@@ -2755,7 +2718,8 @@
 "Ky" = (
 /obj/machinery/door/airlock{
 	req_access = list(209);
-	name = "Restroom"
+	name = "Restroom";
+	dir = 1
 	},
 /turf/simulated/floor/tiled/freezer{
 	temperature = 278.15
@@ -2800,7 +2764,8 @@
 "Lu" = (
 /obj/machinery/door/airlock/mining{
 	req_access = list(209);
-	name = "Mining"
+	name = "Mining";
+	dir = 1
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
@@ -2845,7 +2810,7 @@
 "LM" = (
 /obj/effect/floor_decal/industrial/outline/yellow,
 /obj/effect/floor_decal/industrial/loading/yellow,
-/turf/simulated/floor/tiled/steel{
+/turf/simulated/floor/tiled/rust{
 	temperature = 278.15
 	},
 /area/raskara_okon/mining)
@@ -2922,7 +2887,7 @@
 	dir = 8
 	},
 /obj/machinery/light,
-/turf/simulated/floor/tiled/steel{
+/turf/simulated/floor/tiled/rust{
 	temperature = 278.15
 	},
 /area/raskara_okon/mining)
@@ -3030,7 +2995,7 @@
 /obj/machinery/mining/brace{
 	dir = 4
 	},
-/turf/simulated/floor/tiled/steel{
+/turf/simulated/floor/tiled/rust{
 	temperature = 278.15
 	},
 /area/raskara_okon/mining)
@@ -3086,10 +3051,7 @@
 	},
 /area/raskara_okon/entry)
 "Os" = (
-/obj/machinery/power/apc/high{
-	dir = 1;
-	name = "north bump";
-	pixel_y = 24;
+/obj/machinery/power/apc/high/north{
 	req_access = list(209)
 	},
 /obj/structure/cable/green{
@@ -3112,7 +3074,7 @@
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/effect/floor_decal/corner/grey/diagonal,
 /obj/structure/table/stone/marble,
-/obj/item/reagent_containers/cooking_container/plate/bowl,
+/obj/item/reagent_containers/cooking_container/board/bowl,
 /obj/item/reagent_containers/glass/beaker{
 	pixel_x = -6;
 	pixel_y = 8
@@ -3133,10 +3095,7 @@
 	d2 = 8;
 	icon_state = "0-8"
 	},
-/obj/machinery/power/apc/high{
-	dir = 4;
-	name = "north bump";
-	pixel_x = 24;
+/obj/machinery/power/apc/high/east{
 	req_access = list(209)
 	},
 /turf/simulated/floor/tiled/dark{
@@ -3237,9 +3196,7 @@
 	dir = 10
 	},
 /obj/structure/cable/green,
-/obj/machinery/power/apc/high{
-	name = "south bump";
-	pixel_y = -24;
+/obj/machinery/power/apc/high/south{
 	req_access = list(209)
 	},
 /turf/simulated/floor/tiled/dark{
@@ -3251,7 +3208,7 @@
 	id = "okon_base_belt"
 	},
 /obj/effect/floor_decal/industrial/outline/yellow,
-/turf/simulated/floor/tiled/steel{
+/turf/simulated/floor/tiled/rust{
 	temperature = 278.15
 	},
 /area/raskara_okon/mining)
@@ -3270,10 +3227,8 @@
 /obj/machinery/atmospherics/unary/vent_pump/on{
 	dir = 1
 	},
-/obj/machinery/alarm/cold{
-	req_one_access = list(209);
-	pixel_y = -32;
-	dir = 1
+/obj/machinery/alarm/cold/south{
+	req_one_access = list(209)
 	},
 /turf/simulated/floor/tiled/dark{
 	temperature = 278.15
@@ -3282,7 +3237,8 @@
 "Rh" = (
 /obj/machinery/door/airlock{
 	req_access = list(209);
-	name = "Barracks"
+	name = "Barracks";
+	dir = 4
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
 	dir = 4
@@ -3304,10 +3260,7 @@
 	d2 = 8;
 	icon_state = "0-8"
 	},
-/obj/machinery/power/apc/high{
-	dir = 4;
-	name = "north bump";
-	pixel_x = 24;
+/obj/machinery/power/apc/high/east{
 	req_access = list(209)
 	},
 /turf/simulated/floor/tiled/white{
@@ -3362,7 +3315,7 @@
 /obj/machinery/light{
 	dir = 8
 	},
-/turf/simulated/floor/tiled/steel{
+/turf/simulated/floor/tiled/rust{
 	temperature = 278.15
 	},
 /area/raskara_okon/mining)
@@ -3386,10 +3339,7 @@
 	d2 = 8;
 	icon_state = "0-8"
 	},
-/obj/machinery/power/apc/high{
-	dir = 1;
-	name = "north bump";
-	pixel_y = 24;
+/obj/machinery/power/apc/high/north{
 	req_access = list(209)
 	},
 /turf/simulated/floor/tiled/dark{
@@ -3407,7 +3357,7 @@
 	id = "okon_base_belt";
 	layer = 2.9
 	},
-/turf/simulated/floor/tiled/steel{
+/turf/simulated/floor/tiled/rust{
 	temperature = 278.15
 	},
 /area/raskara_okon/mining)
@@ -3533,10 +3483,7 @@
 	d2 = 2;
 	icon_state = "0-2"
 	},
-/obj/machinery/power/apc/high{
-	dir = 1;
-	name = "north bump";
-	pixel_y = 24;
+/obj/machinery/power/apc/high/north{
 	req_access = list(209)
 	},
 /turf/simulated/floor/tiled/dark{
@@ -3620,8 +3567,7 @@
 /area/raskara_okon/observatory)
 "Wh" = (
 /obj/effect/floor_decal/corner/red{
-	dir = 9;
-	icon_state = "corner_white"
+	dir = 9
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
@@ -3636,7 +3582,7 @@
 /area/raskara_okon/entry)
 "Wp" = (
 /obj/machinery/artifact_analyser,
-/obj/effect/floor_decal/spline/plain/cee{
+/obj/effect/floor_decal/spline/plain/cee/black{
 	dir = 1
 	},
 /obj/machinery/light{
@@ -3669,8 +3615,7 @@
 /area/raskara_okon/laboratory)
 "WE" = (
 /obj/effect/floor_decal/corner/red{
-	dir = 9;
-	icon_state = "corner_white"
+	dir = 9
 	},
 /obj/machinery/atmospherics/pipe/manifold/hidden/supply{
 	dir = 8
@@ -3687,10 +3632,9 @@
 /area/raskara_okon/entry)
 "WG" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/supply{
-	dir = 6;
-	pixel_y = 0
+	dir = 6
 	},
-/turf/simulated/floor/tiled/steel{
+/turf/simulated/floor/tiled/rust{
 	temperature = 278.15
 	},
 /area/raskara_okon/mining)
@@ -3842,7 +3786,8 @@
 "Yr" = (
 /obj/machinery/door/airlock{
 	req_access = list(209);
-	name = "Observatory"
+	name = "Observatory";
+	dir = 1
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
@@ -3879,7 +3824,7 @@
 /obj/machinery/portable_atmospherics/canister/air/airlock,
 /obj/machinery/door/window{
 	dir = 4;
-	req_one_access = "112"
+	req_access = list(209)
 	},
 /obj/structure/window/reinforced,
 /obj/structure/window/reinforced{
@@ -3905,7 +3850,8 @@
 "YV" = (
 /obj/machinery/door/airlock/engineering{
 	req_access = list(209);
-	name = "Atmospherics"
+	name = "Atmospherics";
+	dir = 4
 	},
 /obj/structure/cable/green{
 	d1 = 4;
@@ -3947,7 +3893,7 @@
 /obj/machinery/mineral/stacking_unit_console{
 	pixel_y = 32
 	},
-/turf/simulated/floor/tiled/steel{
+/turf/simulated/floor/tiled/rust{
 	temperature = 278.15
 	},
 /area/raskara_okon/mining)
@@ -3957,10 +3903,6 @@
 	dir = 6
 	},
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers,
-/obj/structure/sign/flag/pra/right{
-	dir = 4;
-	pixel_x = 32
-	},
 /turf/simulated/floor/tiled/dark{
 	temperature = 278.15
 	},
@@ -4070,12 +4012,12 @@ HX
 HX
 HX
 Ag
-XM
+iP
 Lk
 Cc
 Ze
 Ic
-wx
+is
 fq
 ef
 Ag
@@ -4142,7 +4084,7 @@ Oa
 Oa
 Oa
 Oa
-Oa
+XM
 wx
 eS
 Ql
@@ -4232,7 +4174,7 @@ HX
 (8,1,1) = {"
 HX
 gs
-iS
+xg
 mL
 Pj
 gs
@@ -4266,7 +4208,7 @@ HX
 (9,1,1) = {"
 HX
 gs
-iS
+xg
 mL
 tj
 gs
@@ -4409,7 +4351,7 @@ gs
 wj
 Re
 gs
-md
+tl
 Xv
 Oc
 ix
@@ -4511,7 +4453,7 @@ AS
 jg
 Ph
 gs
-md
+tl
 Xv
 Oc
 hj
@@ -4682,7 +4624,7 @@ Ay
 Mu
 Av
 Co
-jY
+Xv
 Oc
 Oc
 Oc

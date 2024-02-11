@@ -1,5 +1,5 @@
 /****************************************************
-			   ORGAN DEFINES
+					ORGAN DEFINES
 ****************************************************/
 
 /obj/item/organ/external/chest
@@ -194,7 +194,8 @@
 
 /obj/item/organ/external/hand/take_damage(brute, burn, damage_flags, used_weapon, list/forbidden_limbs, silent)
 	. = ..()
-	owner.update_hud_hands()
+	if(owner)
+		owner.update_hud_hands()
 
 /obj/item/organ/external/hand/removed()
 	owner.drop_from_inventory(owner.gloves)

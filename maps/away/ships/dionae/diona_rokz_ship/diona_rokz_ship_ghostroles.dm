@@ -7,7 +7,7 @@
 	tags = list("External")
 
 	spawnpoints = list("rokz_voidtamer")
-	max_count = 2
+	max_count = 3
 
 	outfit = /datum/outfit/admin/rokz_voidtamer
 
@@ -30,9 +30,10 @@
 	l_pocket = /obj/item/device/radio
 	backpack_contents = list(/obj/item/device/flashlight/lantern = 1, /obj/item/device/flashlight/survival = 1)
 
-/datum/outfit/admin/serz_voidtamer/post_equip(mob/living/carbon/human/H, visualsOnly = FALSE)
+/datum/outfit/admin/rokz_voidtamer/post_equip(mob/living/carbon/human/H, visualsOnly = FALSE)
 	if(H?.w_uniform)
 		H.w_uniform.color = "#6D3175"
+		H.w_uniform.accent_color = H.w_uniform.color
 
 /datum/ghostspawner/human/rokz_voidtamer/captain
 	short_name = "rokz_voidtamer_captain"

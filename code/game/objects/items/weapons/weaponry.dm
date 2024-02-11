@@ -8,6 +8,7 @@
 	var/net_type = /obj/effect/energy_net
 
 /obj/item/energy_net/dropped()
+	. = ..()
 	if(!QDELETED(src))
 		QDEL_IN(src, 1)
 
@@ -41,6 +42,7 @@
 	density = TRUE
 	opacity = FALSE
 	anchored = TRUE
+	mouse_opacity = MOUSE_OPACITY_ICON
 
 	var/health = 50
 	var/mob/living/affecting = null //Who it is currently affecting, if anyone.
@@ -94,7 +96,7 @@
 			health -= rand(10, 20)
 		else
 			health -= rand(1, 3)
-	else if (HAS_FLAG(user.mutations, HULK))
+	else if ((user.mutations & HULK))
 		health = 0
 	else
 		health -= rand(5, 8)

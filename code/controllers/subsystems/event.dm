@@ -1,7 +1,4 @@
-var/datum/controller/subsystem/events/SSevents
-
-/datum/controller/subsystem/events
-	// Subsystem stuff.
+SUBSYSTEM_DEF(events)
 	name = "Events"
 	priority = SS_PRIORITY_EVENT
 
@@ -26,10 +23,7 @@ var/datum/controller/subsystem/events/SSevents
 
 	var/datum/event_meta/new_event = new
 
-	var/initialized = FALSE
-
-/datum/controller/subsystem/events/New()
-	NEW_SS_GLOBAL(SSevents)
+	initialized = FALSE
 
 /datum/controller/subsystem/events/Initialize()
 	allEvents = subtypesof(/datum/event)
@@ -40,9 +34,11 @@ var/datum/controller/subsystem/events/SSevents
 	)
 	initialized = TRUE
 
-	if(current_map.use_overmap)
-		overmap_event_handler.create_events(current_map.overmap_z, current_map.overmap_size, current_map.overmap_event_areas)
+	if(SSatlas.current_map.use_overmap)
+		overmap_event_handler.create_events(SSatlas.current_map.overmap_z, SSatlas.current_map.overmap_size, SSatlas.current_map.overmap_event_areas)
 		overmap_trigger_handler.create_triggers(current_map.overmap_z, current_map.overmap_size)
+
+	return SS_INIT_SUCCESS
 
 /datum/controller/subsystem/events/Recover()
 	active_events = SSevents.active_events
@@ -73,12 +69,13 @@ var/datum/controller/subsystem/events/SSevents
 		if (MC_TICK_CHECK)
 			return
 
-/datum/controller/subsystem/events/stat_entry()
-	..("E:[active_events.len]")
+/datum/controller/subsystem/events/stat_entry(msg)
+	msg = "E:[active_events.len]"
+	return ..()
 
 /datum/controller/subsystem/events/proc/event_complete(datum/event/E)
 	if(!E.event_meta || !E.severity)	// datum/event is used here and there for random reasons, maintaining "backwards compatibility"
-		log_debug("SSevents: Event of '[E.type]' with missing meta-data has completed.")
+		LOG_DEBUG("SSevents: Event of '[E.type]' with missing meta-data has completed.")
 		return
 
 	finished_events += E
@@ -89,7 +86,7 @@ var/datum/controller/subsystem/events/SSevents
 	if(EM.add_to_queue)
 		EC.available_events += EM
 
-	log_debug("SSevents: Event '[EM.name]' has completed at [worldtime2text()].")
+	LOG_DEBUG("SSevents: Event '[EM.name]' has completed at [worldtime2text()].")
 
 /datum/controller/subsystem/events/proc/delay_events(severity, delay)
 	var/datum/event_container/EC = event_containers[severity]
@@ -128,7 +125,7 @@ var/datum/controller/subsystem/events/SSevents
 
 /datum/controller/subsystem/events/proc/GetInteractWindow()
 	var/html = "<A align='right' href='?src=\ref[src];refresh=1'>Refresh</A>"
-	html += "<A align='right' href='?src=\ref[src];pause_all=[!config.allow_random_events]'>Pause All - [config.allow_random_events ? "Pause" : "Resume"]</A>"
+	html += "<A align='right' href='?src=\ref[src];pause_all=[!GLOB.config.allow_random_events]'>Pause All - [GLOB.config.allow_random_events ? "Pause" : "Resume"]</A>"
 
 	if(selected_event_container)
 		var/event_time = max(0, selected_event_container.next_event_time - world.time)
@@ -262,8 +259,8 @@ var/datum/controller/subsystem/events/SSevents
 		EC.delayed = !EC.delayed
 		log_and_message_admins("has [EC.delayed ? "paused" : "resumed"] countdown for [severity_to_string[EC.severity]] events.")
 	else if(href_list["pause_all"])
-		config.allow_random_events = text2num(href_list["pause_all"])
-		log_and_message_admins("has [config.allow_random_events ? "resumed" : "paused"] countdown for all events.")
+		GLOB.config.allow_random_events = text2num(href_list["pause_all"])
+		log_and_message_admins("has [GLOB.config.allow_random_events ? "resumed" : "paused"] countdown for all events.")
 	else if(href_list["interval"])
 		var/delay = input("Enter delay modifier. A value less than one means events fire more often, higher than one less often.", "Set Interval Modifier") as num|null
 		if(delay && delay > 0)

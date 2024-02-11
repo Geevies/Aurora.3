@@ -3,8 +3,7 @@
 	id = "adhomai_nuclear_waste"
 	description = "A site used by the PRA to store radioactive waste."
 
-	spawn_weight = 1
-	spawn_cost = 1
+	template_flags = TEMPLATE_FLAG_NO_RUINS|TEMPLATE_FLAG_RUIN_STARTS_DISALLOWED
 	sectors = list(SECTOR_SRANDMARR)
 	suffixes = list("adhomai/adhomai_nuclear_waste.dmm")
 
@@ -15,5 +14,5 @@
 	dynamic_lighting = TRUE
 	no_light_control = FALSE
 	base_turf = /turf/simulated/floor/exoplanet/mineral/adhomai
-	flags = RAD_SHIELDED
+	area_flags = AREA_FLAG_RAD_SHIELDED
 	ambience = AMBIENCE_HIGHSEC

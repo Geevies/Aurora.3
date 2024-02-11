@@ -6,7 +6,7 @@
 	density = TRUE
 	anchored = TRUE
 	unacidable = TRUE
-	req_access = list(access_captain)
+	req_access = list(ACCESS_CAPTAIN)
 	var/health = 30
 	var/obj/held_obj
 	var/open = FALSE
@@ -117,3 +117,6 @@
 
 /obj/structure/displaycase/captain_revolver
 	spawn_contained_type = /obj/item/gun/projectile/revolver/mateba/captain
+
+/obj/structure/displaycase/adhomai_map
+	spawn_contained_type = /obj/item/toy/adhomian_map

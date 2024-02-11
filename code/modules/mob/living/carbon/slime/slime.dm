@@ -17,7 +17,6 @@
 	nutrition = 700
 	max_nutrition = 1200
 
-	see_in_dark = 8
 	update_slimes = 0
 
 	// canstun and canweaken don't affect slimes because they ignore stun and weakened variables
@@ -72,10 +71,10 @@
 /mob/living/carbon/slime/Initialize(mapload, colour = "grey")
 	. = ..()
 
-	verbs += /mob/living/proc/ventcrawl
+	add_verb(src, /mob/living/proc/ventcrawl)
 
 	add_language(LANGUAGE_TCB)
-	set_default_language(all_languages[LANGUAGE_TCB])
+	src.default_language = GLOB.all_languages[LANGUAGE_TCB]
 
 	src.colour = colour
 	number = rand(1, 1000)
@@ -91,55 +90,55 @@
 	regenerate_icons()
 
 /mob/living/carbon/slime/purple/Initialize(mapload, colour = "purple")
-	..()
+	. = ..()
 
 /mob/living/carbon/slime/metal/Initialize(mapload, colour = "metal")
-	..()
+	. = ..()
 
 /mob/living/carbon/slime/orange/Initialize(mapload, colour = "orange")
-	..()
+	. = ..()
 
 /mob/living/carbon/slime/blue/Initialize(mapload, colour = "blue")
-	..()
+	. = ..()
 
 /mob/living/carbon/slime/dark_blue/Initialize(mapload, colour = "dark blue")
-	..()
+	. = ..()
 
 /mob/living/carbon/slime/dark_purple/Initialize(mapload, colour = "dark purple")
-	..()
+	. = ..()
 
 /mob/living/carbon/slime/yellow/Initialize(mapload, colour = "yellow")
-	..()
+	. = ..()
 
 /mob/living/carbon/slime/silver/Initialize(mapload, colour = "silver")
-	..()
+	. = ..()
 
 /mob/living/carbon/slime/pink/Initialize(mapload, colour = "pink")
-	..()
+	. = ..()
 
 /mob/living/carbon/slime/red/Initialize(mapload, colour = "red")
-	..()
+	. = ..()
 
 /mob/living/carbon/slime/gold/Initialize(mapload, colour = "gold")
-	..()
+	. = ..()
 
 /mob/living/carbon/slime/green/Initialize(mapload, colour = "green")
-	..()
+	. = ..()
 
 /mob/living/carbon/slime/oil/Initialize(mapload, colour = "oil")
-	..()
+	. = ..()
 
 /mob/living/carbon/slime/adamantine/Initialize(mapload, colour = "adamantine")
-	..()
+	. = ..()
 
 /mob/living/carbon/slime/black/Initialize(mapload, colour = "black")
-	..()
+	. = ..()
 
 /mob/living/carbon/slime/cerulean/Initialize(mapload, colour = "cerulean")
-	..()
+	. = ..()
 
 /mob/living/carbon/slime/pyrite/Initialize(mapload, colour = "pyrite")
-	..()
+	. = ..()
 
 /mob/living/carbon/slime/getToxLoss()
 	return toxloss
@@ -172,7 +171,7 @@
 	if(health <= 0) // if damaged, the slime moves twice as slow
 		tally *= 2
 
-	return tally + config.slime_delay
+	return tally + GLOB.config.slime_delay
 
 /mob/living/carbon/slime/proc/reset_atkcooldown()
 	Atkcool = FALSE
@@ -226,22 +225,21 @@
 /mob/living/carbon/slime/Allow_Spacemove()
 	return TRUE
 
-/mob/living/carbon/slime/Stat()
-	..()
+/mob/living/carbon/slime/get_status_tab_items()
+	. = ..()
 
-	statpanel("Status")
-	stat(null, "Health: [round((health / maxHealth) * 100)]%")
-	stat(null, "Intent: [a_intent]")
+	. += "Health: [round((health / maxHealth) * 100)]%"
+	. += "Intent: [a_intent]"
 
 	if(client.statpanel == "Status")
-		stat(null, "Nutrition: [nutrition]/[get_max_nutrition()]")
+		. += "Nutrition: [nutrition]/[get_max_nutrition()]"
 		if(amount_grown >= 5)
 			if(is_adult)
-				stat(null, "You can reproduce!")
+				. += "You can reproduce!"
 			else
-				stat(null, "You can evolve!")
+				. += "You can evolve!"
 
-		stat(null,"Power Level: [powerlevel]")
+		. += "Power Level: [powerlevel]"
 
 /mob/living/carbon/slime/adjustFireLoss(amount)
 	..(-abs(amount)) // Heals them
@@ -253,8 +251,9 @@
 	return FALSE
 
 /mob/living/carbon/slime/emp_act(severity)
+	. = ..()
+
 	powerlevel = 0 // oh no, the power!
-	..()
 
 /mob/living/carbon/slime/ex_act(severity)
 	..()
@@ -358,7 +357,7 @@
 
 			attacked += 10
 			if(prob(90))
-				if(HAS_FLAG(M.mutations, HULK))
+				if((M.mutations & HULK))
 					damage += 5
 					if(victim || target)
 						victim = null

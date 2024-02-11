@@ -5,6 +5,7 @@
 
 	spawn_weight = 1
 	spawn_cost = 2
+	template_flags = TEMPLATE_FLAG_NO_RUINS|TEMPLATE_FLAG_RUIN_STARTS_DISALLOWED
 	sectors = list(SECTOR_SRANDMARR)
 	suffixes = list("adhomai/pra_mining_camp.dmm")
 
@@ -15,7 +16,7 @@
 	dynamic_lighting = TRUE
 	no_light_control = FALSE
 	base_turf = /turf/simulated/floor/exoplanet/mineral/adhomai
-	flags = RAD_SHIELDED
+	area_flags = AREA_FLAG_RAD_SHIELDED
 
 //ghostroles
 
@@ -43,7 +44,7 @@
 
 	uniform = /obj/item/clothing/under/tajaran/nt
 	head = /obj/item/clothing/head/hardhat
-	shoes = /obj/item/clothing/shoes/tajara/workboots
+	shoes = /obj/item/clothing/shoes/workboots/tajara
 	belt = /obj/item/storage/belt/mining
 	back = /obj/item/storage/backpack/industrial
 

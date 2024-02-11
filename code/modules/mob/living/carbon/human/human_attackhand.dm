@@ -25,7 +25,7 @@
 	..()
 	if ((H.invisibility == INVISIBILITY_LEVEL_TWO) && M.back && (istype(M.back, /obj/item/rig)))
 		to_chat(H, "<span class='danger'>You are now visible.</span>")
-		H.invisibility = 0
+		H.set_invisibility(0)
 
 		anim(get_turf(H), H,'icons/mob/mob.dmi',,"uncloak",,H.dir)
 		anim(get_turf(H), H, 'icons/effects/effects.dmi', "electricity",null,20,null)
@@ -81,7 +81,7 @@
 				return 0
 			var/obj/item/organ/external/affecting = get_organ(ran_zone(H.zone_sel.selecting))
 
-			if(HAS_FLAG(H.mutations, HULK) || H.is_berserk())
+			if((H.mutations & HULK) || H.is_berserk())
 				damage += 5
 
 			playsound(loc, /singleton/sound_category/punch_sound, 25, 1, -1)
@@ -209,7 +209,7 @@
 					If aiming for chest:
 						27.3% chance you hit your target organ
 						70.5% chance you hit a random other organ
-						 2.2% chance you miss
+						2.2% chance you miss
 
 					If aiming for something else:
 						23.2% chance you hit your target organ
@@ -217,7 +217,7 @@
 						15.0% chance you miss
 
 					Note: We don't use get_zone_with_miss_chance() here since the chances
-						  were made for projectiles.
+						were made for projectiles.
 					TODO: proc for melee combat miss chances depending on organ?
 				*/
 				if(prob(80))
@@ -227,7 +227,7 @@
 						attack_message = "[H] attempted to strike [src], but missed!"
 					else
 						attack_message = "[H] attempted to strike [src], but [src.get_pronoun("he")] rolled out of the way!"
-						src.set_dir(pick(cardinal))
+						src.set_dir(pick(GLOB.cardinal))
 					miss_type = 1
 
 			if(!miss_type && block)
@@ -257,16 +257,21 @@
 			var/hit_dam_type = attack.damage_type
 			var/damage_flags = attack.damage_flags()
 
-			real_damage += attack.get_unarmed_damage(H)
+			real_damage += attack.get_unarmed_damage(src, H)
 			real_damage *= damage_multiplier
 			rand_damage *= damage_multiplier
 
-			if(HAS_FLAG(H.mutations, HULK))
+			if((H.mutations & HULK))
 				real_damage *= 2 // Hulks do twice the damage
 				rand_damage *= 2
 			if(H.is_berserk())
 				real_damage *= 1.5 // Nightshade increases damage by 50%
 				rand_damage *= 1.5
+			var/obj/item/organ/internal/parasite/blackkois/P = H.internal_organs_by_name["blackkois"]
+			if(istype(P))
+				if(P.stage >= 5)
+					real_damage *= 1.5 // Final stage black k'ois mycosis increases damage by 50%
+					rand_damage *= 1.5
 
 			real_damage = max(1, real_damage)
 
@@ -294,53 +299,45 @@
 				src.help_up_offer = 0
 
 		if(I_DISARM)
+			if(M.is_pacified())
+				to_chat(M, SPAN_NOTICE("You don't want to risk hurting [src]!"))
+				return FALSE
+
 			var/disarm_cost
-			var/usesStamina
 			var/obj/item/organ/internal/cell/cell = M.internal_organs_by_name[BP_CELL]
 			var/obj/item/cell/potato
 			if(cell)
 				potato = cell.cell
 
-			if(M.max_stamina > 0)
-				disarm_cost = M.max_stamina / 6
-				if(M.is_drowsy())
-					disarm_cost *= 1.25
-				usesStamina = TRUE
-			else if(M.max_stamina <= 0)
-				if(M.isSynthetic())
-					disarm_cost = potato.maxcharge / 24
-				disarm_cost = M.max_nutrition / 6
-				usesStamina = FALSE
-
-			if(usesStamina)
-				if(M.stamina <= disarm_cost)
-					to_chat(M, "<span class='danger'>You're too tired to disarm someone!</span>")
+			if(isipc(M))
+				disarm_cost = potato.maxcharge / 24
+				if(potato.charge < disarm_cost)
+					to_chat(M, SPAN_DANGER("You don't have enough charge to disarm someone!"))
 					return FALSE
+				potato.use(disarm_cost)
 			else
-				if(M.nutrition <= disarm_cost)
-					to_chat(M, "<span class='danger'>You don't have enough power to disarm someone!</span>")
-					return FALSE
-
-			if(M.is_pacified())
-				to_chat(M, "<span class='notice'>You don't want to risk hurting [src]!</span>")
-				return FALSE
-
-			if(attacker_style && attacker_style.disarm_act(H, src))
-				return TRUE
+				if(M.max_stamina > 0)
+					disarm_cost = M.max_stamina / 6
+					if(attacker_style && attacker_style.disarm_act(H, src))
+						return TRUE
+					if(M.is_drowsy())
+						disarm_cost *= 1.25
+					if(M.stamina <= disarm_cost)
+						to_chat(M, SPAN_DANGER("You're too tired to disarm someone!"))
+						return FALSE
+					M.stamina = Clamp(M.stamina - disarm_cost, 0, M.max_stamina) // attempting to knock something out of someone's hands, or pushing them over, is exhausting!
+				else if(M.max_stamina <= 0)
+					disarm_cost = M.max_nutrition / 6
+					if(M.nutrition <= disarm_cost)
+						to_chat(M, SPAN_DANGER("You don't have enough power to disarm someone!"))
+						return FALSE
+					M.nutrition = Clamp(M.nutrition - disarm_cost, 0, M.max_nutrition)
 
 			M.attack_log += text("\[[time_stamp()]\] <span class='warning'>Disarmed [src.name] ([src.ckey])</span>")
 			src.attack_log += text("\[[time_stamp()]\] <font color='orange'>Has been disarmed by [M.name] ([M.ckey])</font>")
 
 			msg_admin_attack("[key_name(M)] disarmed [src.name] ([src.ckey]) (<A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[M.x];Y=[M.y];Z=[M.z]'>JMP</a>)",ckey=key_name(M),ckey_target=key_name(src))
 			M.do_attack_animation(src)
-
-			if(usesStamina)
-				M.stamina = M.stamina - disarm_cost //attempting to knock something out of someone's hands, or pushing them over, is exhausting!
-				M.stamina = Clamp(M.stamina, 0, M.max_stamina)
-			else if(M.isSynthetic())
-				cell.use(disarm_cost)
-			else
-				M.nutrition = Clamp(M.nutrition - disarm_cost, 0, M.max_nutrition)
 
 			if(w_uniform)
 				w_uniform.add_fingerprint(M)
@@ -381,7 +378,7 @@
 						problem_railing = R
 						break
 				for(var/obj/structure/railing/R in get_step(T, dir))
-					if(R.dir == reverse_dir[dir])
+					if(R.dir == GLOB.reverse_dir[dir])
 						problem_railing = R
 						same_loc = TRUE
 						break
@@ -482,7 +479,7 @@
 	animate(src, pixel_y = starting_pixel_y + 4, time = 2)
 	animate(src, pixel_y = starting_pixel_y, time = 2)
 
-	if(!do_after(H, 3, FALSE)) //Chest compressions are fast, need to wait for the loading bar to do mouth to mouth
+	if(!do_after(H, 8, do_flags = DO_DEFAULT | DO_USER_UNIQUE_ACT)) //Chest compressions are fast, need to wait for the loading bar to do mouth to mouth
 		to_chat(H, SPAN_NOTICE("You stop performing [cpr_mode] on \the [src]."))
 		cpr = FALSE //If it cancelled, cancel it. Simple.
 
@@ -555,12 +552,11 @@
 	visible_message(SPAN_DANGER("[user] has [attack_message] [src]!"))
 
 	var/dam_zone = user.zone_sel?.selecting
-	if(!dam_zone)
-		dam_zone = pick(organs)
-	var/obj/item/organ/external/affecting = get_organ(dam_zone)
-	apply_damage(damage, DAMAGE_BRUTE, affecting, armor_pen = armor_penetration, damage_flags = attack_flags)
-	updatehealth()
-	return TRUE
+	var/obj/item/organ/external/affecting = dam_zone ? get_organ(dam_zone) : pick(organs)
+	if(affecting)
+		apply_damage(damage, DAMAGE_BRUTE, affecting, armor_pen = armor_penetration, damage_flags = attack_flags)
+		updatehealth()
+	return affecting
 
 //Used to attack a joint through grabbing
 /mob/living/carbon/human/proc/grab_joint(var/mob/living/user, var/def_zone)
@@ -639,7 +635,7 @@
 		organ.applied_pressure = user
 
 		//apply pressure as long as they stay still and keep grabbing
-		do_after(user, INFINITY, TRUE, display_progress = FALSE)
+		do_after(user, INFINITY, do_flags = (DO_DEFAULT & ~DO_SHOW_PROGRESS) | DO_USER_UNIQUE_ACT)
 
 		organ.applied_pressure = null
 

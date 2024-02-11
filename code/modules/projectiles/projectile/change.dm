@@ -34,7 +34,7 @@
 		var/mob/living/new_mob
 
 		var/options = list("robot", "slime")
-		for(var/t in all_species)
+		for(var/t in GLOB.all_species)
 			options += t
 		if(ishuman(M))
 			var/mob/living/carbon/human/H = M
@@ -50,7 +50,7 @@
 			if("robot")
 				new_mob = new /mob/living/silicon/robot(M.loc)
 				new_mob.gender = M.gender
-				new_mob.invisibility = 0
+				new_mob.set_invisibility(0)
 				new_mob.job = "Cyborg"
 				var/mob/living/silicon/robot/Robot = new_mob
 				Robot.mmi = new /obj/item/device/mmi(new_mob)

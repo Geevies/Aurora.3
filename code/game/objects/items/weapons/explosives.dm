@@ -5,7 +5,7 @@
 	icon = 'icons/obj/assemblies.dmi'
 	icon_state = "plastic-explosive0"
 	item_state = "plasticx"
-	flags = NOBLUDGEON
+	item_flags = ITEM_FLAG_NO_BLUDGEON
 	w_class = ITEMSIZE_SMALL
 	origin_tech = list(TECH_ILLEGAL = 2)
 	var/datum/wires/explosive/c4/wires = null
@@ -30,7 +30,7 @@
 		to_chat(user, "<span class='notice'>You [open_panel ? "open" : "close"] the wire panel.</span>")
 		return TRUE
 	else if(I.iswirecutter() || I.ismultitool() || istype(I, /obj/item/device/assembly/signaler ))
-		wires.Interact(user)
+		wires.interact(user)
 		return TRUE
 	else
 		return ..()
@@ -51,7 +51,7 @@
 		return
 	to_chat(user, SPAN_NOTICE("Planting explosives..."))
 
-	if(do_after(user, 50, TRUE, target))
+	if(do_after(user, 5 SECONDS, target, DO_UNIQUE))
 		user.do_attack_animation(target)
 		deploy_c4(target, user)
 
@@ -138,3 +138,21 @@
 			R.cell.use(1000)
 	can_deploy = TRUE
 	maptext = "<span style=\"font-family: 'Small Fonts'; -dm-text-outline: 1 black; font-size: 7px;\">Ready</span>"
+
+/obj/item/plastique/dirty
+	name = "dirty bomb"
+	desc = "A small explosive laced with radium. The explosion is small, but the radioactive material will remain for a fair while."
+	timer = 300
+
+/obj/item/plastique/dirty/attack_self(mob/user as mob)
+	var/newtime = input(usr, "Please set the timer.", "Timer", 10) as num
+	if(user.get_active_hand() == src)
+		newtime = Clamp(newtime, 300, 60000)
+		timer = newtime
+		to_chat(user, SPAN_NOTICE("Timer set for [timer] seconds."))
+
+/obj/item/plastique/dirty/explode(turf/location)
+	if(location)
+		SSradiation.radiate(src, 250)
+		new /obj/effect/decal/cleanable/greenglow(get_turf(src))
+	..()

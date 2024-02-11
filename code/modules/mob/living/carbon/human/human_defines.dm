@@ -36,7 +36,7 @@
 	var/damage_multiplier = 1 //multiplies melee combat damage
 	var/icon_update = 1 //whether icon updating shall take place
 
-	var/lip_style = null	//no lipstick by default- arguably misleading, as it could be used for general makeup
+	var/lipstick_color = null	//no lipstick by default
 
 	var/age = 30		//Player's age (pure fluff)
 	var/b_type = "A+"	//Player's bloodtype
@@ -73,10 +73,6 @@
 	var/obj/item/l_store = null
 	var/obj/item/s_store = null
 	var/obj/item/wrists = null
-
-	var/used_skillpoints = 0
-	var/skill_specialization = null
-	var/list/skills = list()
 
 	var/icon/stand_icon = null
 	var/icon/lying_icon = null
@@ -130,3 +126,5 @@
 	var/list/datum/martial_art/known_martial_arts = null
 
 	var/triage_tag = TRIAGE_NONE
+
+	var/lobotomized = FALSE //additional check for isAdvancedToolUser that can be set manually by things

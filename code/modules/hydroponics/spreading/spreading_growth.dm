@@ -2,7 +2,7 @@
 
 /obj/effect/plant/proc/get_cardinal_neighbors()
 	var/list/cardinal_neighbors = list()
-	for(var/check_dir in cardinal)
+	for(var/check_dir in GLOB.cardinal)
 		var/turf/simulated/T = get_step(get_turf(src), check_dir)
 		if(istype(T))
 			cardinal_neighbors |= T
@@ -59,7 +59,7 @@
 		plant.age = seed.get_trait(TRAIT_MATURATION)-1
 		plant.update_icon()
 		if(growth_type==0) //Vines do not become invisible.
-			invisibility = INVISIBILITY_MAXIMUM
+			set_invisibility(INVISIBILITY_MAXIMUM)
 		else
 			plant.layer = layer + 0.1
 

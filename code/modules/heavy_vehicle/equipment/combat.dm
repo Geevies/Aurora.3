@@ -38,7 +38,16 @@
 	name = "mounted submachinegun"
 	desc = "An exosuit-mounted automatic weapon. Handle with care."
 	icon_state = "mecha_ballistic"
-	holding_type = /obj/item/gun/energy/mountedsmg
+	holding_type = /obj/item/gun/energy/mountedsmg/mech
+
+/obj/item/mecha_equipment/mounted_system/combat/smg/attack_self(mob/user)
+	if(owner && istype(holding, /obj/item/gun/energy/mountedsmg/mech))
+		var/obj/item/gun/energy/mountedsmg/mech/R = holding
+		R.toggle_firing_mode(user)
+
+/obj/item/mecha_equipment/mounted_system/combat/smg/pra_egg
+	icon_state = "pra_egg_smg"
+	restricted_hardpoints = list(HARDPOINT_RIGHT_HAND)
 
 /obj/item/mecha_equipment/mounted_system/combat/pulse
 	name = "heavy pulse cannon"
@@ -76,11 +85,18 @@
 	self_recharge = TRUE
 	has_safety = FALSE
 
+/obj/item/gun/energy/mountedsmg/mech
+	max_shots = 30
+	firemodes = list(
+		list(mode_name = "semi-automatic", burst = 1, fire_delay = 0,    move_delay = null, burst_accuracy = null,                dispersion=list(0)),
+		list(mode_name = "3-round burst",  burst = 3, fire_delay = null, move_delay = 4,    burst_accuracy = list(0,-1,-1),       dispersion=list(0, 15, 15))
+	)
+
 /obj/item/gun/energy/laser/mounted/mech
 	use_external_power = TRUE
 	self_recharge = TRUE
 	has_safety = FALSE
-	projectile_type = /obj/item/projectile/beam/midlaser/mech
+	projectile_type = /obj/item/projectile/beam/heavylaser/mech
 
 /obj/item/gun/energy/pulse/mounted/mech
 	use_external_power = TRUE
@@ -115,6 +131,13 @@
 	desc = "The SGL-6FL grenade launcher is designated to launch primed flashbangs."
 	icon_state = "mech_gl"
 	holding_type = /obj/item/gun/launcher/mech/mountedgl/fl
+	restricted_hardpoints = list(HARDPOINT_LEFT_SHOULDER, HARDPOINT_RIGHT_SHOULDER)
+
+/obj/item/mecha_equipment/mounted_system/combat/grenadestinger
+	name = "stinger grenade launcher"
+	desc = "The SGL-6SG grenade launcher is designated to launch primed stinger grenades."
+	icon_state = "mech_gl"
+	holding_type = /obj/item/gun/launcher/mech/mountedgl/st
 	restricted_hardpoints = list(HARDPOINT_LEFT_SHOULDER, HARDPOINT_RIGHT_SHOULDER)
 
 /obj/item/mecha_equipment/mounted_system/combat/grenadetear
@@ -216,6 +239,11 @@
 /obj/item/gun/launcher/mech/mountedgl/fl
 	desc = "The SGL-6FL grenade launcher is designated to launch primed flashbangs."
 	grenade_type = /obj/item/grenade/flashbang
+	proj_gen_time = 200
+
+/obj/item/gun/launcher/mech/mountedgl/st
+	desc = "The SGL-6SG grenade launcher is designated to launch primed stinger grenades."
+	grenade_type = /obj/item/grenade/stinger
 	proj_gen_time = 200
 
 /obj/item/gun/launcher/mech/mountedgl/tg
@@ -347,7 +375,7 @@
 	layer = ABOVE_MOB_LAYER
 	pixel_x = 8
 	pixel_y = 4
-	mouse_opacity = 0
+	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 
 /obj/aura/mechshield/added_to(mob/living/target)
 	..()
@@ -394,7 +422,7 @@
 		if(P.damage <= 0)
 			return AURA_FALSE|AURA_CANCEL
 
-		spark(get_turf(src), 5, global.alldirs)
+		spark(get_turf(src), 5, GLOB.alldirs)
 		playsound(get_turf(src), /singleton/sound_category/spark_sound, 25, TRUE)
 
 /obj/aura/mechshield/hitby(atom/movable/M, var/speed)

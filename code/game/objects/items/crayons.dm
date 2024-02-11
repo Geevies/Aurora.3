@@ -1,3 +1,6 @@
+/obj/item/pen/crayon
+	icon = 'icons/obj/storage/fancy/crayon.dmi'
+
 /obj/item/pen/crayon/red
 	icon_state = "crayonred"
 	colour = "#DA0000"
@@ -98,6 +101,7 @@
 	user.drop_from_inventory(src)
 
 /obj/item/pen/crayon/augment/dropped()
+	. = ..()
 	loc = null
 	qdel(src)
 

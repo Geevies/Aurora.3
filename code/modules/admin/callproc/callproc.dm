@@ -4,7 +4,7 @@
 	set name = "Advanced ProcCall"
 
 	if(!check_rights(R_DEBUG)) return
-	if(config.debugparanoid && !check_rights(R_ADMIN)) return
+	if(GLOB.config.debugparanoid && !check_rights(R_ADMIN)) return
 
 	var/target = null
 	var/targetselected = 0
@@ -20,7 +20,7 @@
 				if("Area or Turf")
 					target = input("Select target:", "Target", get_turf(usr)) as null|area|turf in world
 				if("Client")
-					target = input("Select target:", "Target", usr.client) as null|anything in clients
+					target = input("Select target:", "Target", usr.client) as null|anything in GLOB.clients
 				else
 					return
 			if(!target)
@@ -28,8 +28,6 @@
 				return
 		if("Cancel")
 			return
-		if("No")
-			; // do nothing
 
 	callproc_targetpicked(targetselected, target)
 
@@ -38,7 +36,7 @@
 	set name = "Advanced ProcCall Target"
 
 	if(!check_rights(R_DEBUG)) return
-	if(config.debugparanoid && !check_rights(R_ADMIN)) return
+	if(GLOB.config.debugparanoid && !check_rights(R_ADMIN)) return
 
 	callproc_targetpicked(1, A)
 
@@ -46,7 +44,7 @@
 
 	// this needs checking again here because VV's 'Call Proc' option directly calls this proc with the target datum
 	if(!check_rights(R_DEBUG)) return
-	if(config.debugparanoid && !check_rights(R_ADMIN)) return
+	if(GLOB.config.debugparanoid && !check_rights(R_ADMIN)) return
 
 	var/returnval = null
 
@@ -128,7 +126,7 @@
 				if(isnull(current)) return
 
 			if("client")
-				current = input("Select client for [arguments.len+1]\th argument") as null|anything in clients
+				current = input("Select client for [arguments.len+1]\th argument") as null|anything in GLOB.clients
 				if(isnull(current)) return
 
 			if("mob's area")
@@ -137,8 +135,6 @@
 				current = get_area(M)
 				if(!current)
 					switch(alert("\The [M] appears to not have an area; do you want to pass null instead?",, "Yes", "Cancel"))
-						if("Yes")
-							; // do nothing
 						if("Cancel")
 							return
 
@@ -146,8 +142,6 @@
 				current = holder.marked_datum
 				if(!current)
 					switch(alert("You do not currently have a marked datum; do you want to pass null instead?",, "Yes", "Cancel"))
-						if("Yes")
-							; // do nothing
 						if("Cancel")
 							return
 		if(!done)

@@ -4,13 +4,16 @@
 	name_plural = "Unathi"
 	category_name = "Unathi"
 	bodytype = BODYTYPE_UNATHI
+	species_height = HEIGHT_CLASS_TALL
+	height_min = 175
+	height_max = 215
 	icobase = 'icons/mob/human_races/unathi/r_unathi.dmi'
 	deform = 'icons/mob/human_races/unathi/r_def_unathi.dmi'
 	preview_icon = 'icons/mob/human_races/unathi/unathi_preview.dmi'
 	bandages_icon = 'icons/mob/bandage.dmi'
 	tail = "Tail"
 	tail_animation = 'icons/mob/species/unathi/tail.dmi'
-	selectable_tails = list("Tail")
+	selectable_tails = list("Tail", "Damaged Tail", "Stubby Tail")
 	unarmed_types = list(
 		/datum/unarmed_attack/stomp,
 		/datum/unarmed_attack/kick,
@@ -102,22 +105,16 @@
 		)
 
 	has_organ = list(
-        BP_BRAIN =    /obj/item/organ/internal/brain/unathi,
-        BP_HEART =    /obj/item/organ/internal/heart/unathi,
-        BP_LIVER =    /obj/item/organ/internal/liver/unathi,
-        BP_LUNGS =    /obj/item/organ/internal/lungs/unathi,
-        BP_KIDNEYS =    /obj/item/organ/internal/kidneys/unathi,
-        BP_STOMACH =    /obj/item/organ/internal/stomach/unathi,
-        BP_EYES =    /obj/item/organ/internal/eyes/unathi
-    )
+		BP_BRAIN =    /obj/item/organ/internal/brain/unathi,
+		BP_EYES =    /obj/item/organ/internal/eyes/unathi,
+		BP_HEART =    /obj/item/organ/internal/heart/unathi,
+		BP_LIVER =    /obj/item/organ/internal/liver/unathi,
+		BP_LUNGS =    /obj/item/organ/internal/lungs/unathi,
+		BP_KIDNEYS =    /obj/item/organ/internal/kidneys/unathi,
+		BP_STOMACH =    /obj/item/organ/internal/stomach/unathi
+	)
 
 	alterable_internal_organs = list(BP_HEART, BP_EYES, BP_LUNGS, BP_LIVER, BP_KIDNEYS, BP_STOMACH)
-
-	pain_emotes_with_pain_level = list(
-			list(/singleton/emote/audible/wheeze, /singleton/emote/audible/roar, /singleton/emote/audible/bellow) = 80,
-			list(/singleton/emote/audible/grunt, /singleton/emote/audible/groan, /singleton/emote/audible/wheeze, /singleton/emote/audible/hiss) = 50,
-			list(/singleton/emote/audible/grunt, /singleton/emote/audible/groan, /singleton/emote/audible/hiss) = 20,
-		)
 
 	pain_messages = list("It hurts so much", "You really need some painkillers", "Ancestors, it hurts")
 
@@ -127,7 +124,9 @@
 		/singleton/origin_item/culture/izweski,
 		/singleton/origin_item/culture/traditionalists,
 		/singleton/origin_item/culture/spaceborn,
-		/singleton/origin_item/culture/dominian_unathi
+		/singleton/origin_item/culture/dominian_unathi,
+		/singleton/origin_item/culture/queendom,
+		/singleton/origin_item/culture/autakh
 	)
 
 	zombie_type = SPECIES_ZOMBIE_UNATHI
@@ -138,5 +137,5 @@
 	. = ..()
 	if(H.shoes)
 		return
-	var/obj/item/clothing/shoes/sandal/S = new /obj/item/clothing/shoes/sandal(H)
+	var/obj/item/clothing/shoes/sandals/S = new /obj/item/clothing/shoes/sandals(H)
 	H.equip_to_slot_or_del(S,slot_shoes)

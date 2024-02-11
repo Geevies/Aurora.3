@@ -4,12 +4,16 @@
 /obj/item/reagent_containers/food/snacks
 	var/tmp/list/cooked
 
+//similar process for food containers that you can create via a cooking process
+/obj/item/storage/box/fancy/food
+	var/tmp/list/cooked
+
 // Root type for cooking machines. See following files for specific implementations.
 /obj/machinery/appliance
 	name = "cooker"
 	desc = DESC_PARENT
 	desc_info = "Control-click this to change its temperature."
-	icon = 'icons/obj/cooking_machines.dmi'
+	icon = 'icons/obj/machinery/cooking_machines.dmi'
 	var/appliancetype = 0
 	density = 1
 	anchored = 1
@@ -38,11 +42,15 @@
 	var/can_burn_food				// Can the object burn food that is left inside?
 	var/burn_chance = 10			// How likely is the food to burn?
 	var/list/cooking_objs = list()	// List of things being cooked
+	var/particles/particle_holder
+	var/particle_type = /particles/cooking_smoke
+	var/smoke_percent = 0
 
 	// If the machine has multiple output modes, define them here.
 	var/selected_option
 	var/list/output_options = list()
 	var/finish_verb = "pings!"
+	var/place_verb = "into"
 	var/combine_first = FALSE//If 1, this appliance will do combination cooking before checking recipes
 
 /obj/machinery/appliance/Initialize()
@@ -53,6 +61,7 @@
 		stat &= ~NOPOWER
 	else
 		stat |= NOPOWER
+	particle_holder = new particle_type
 
 /obj/machinery/appliance/Destroy()
 	for (var/a in cooking_objs)
@@ -62,9 +71,9 @@
 		qdel(CI)
 	return ..()
 
-/obj/machinery/appliance/examine(var/mob/user)
-	..()
-	if(Adjacent(usr))
+/obj/machinery/appliance/examine(mob/user, distance, is_adjacent)
+	. = ..()
+	if(is_adjacent)
 		list_contents(user)
 		return TRUE
 
@@ -127,14 +136,14 @@
 
 /obj/machinery/appliance/proc/choose_output()
 	set src in view()
-	set name = "Choose output"
+	set name = "Choose Output"
 	set category = "Object"
 
 	if (use_check_and_message(usr, issilicon(usr) ? USE_ALLOW_NON_ADJACENT : 0))
 		return
 	if(isemptylist(output_options))
 		return
-	var/choice = input("What specific food do you wish to make with [src]?", "Choose Output") as null|anything in output_options+"Default"
+	var/choice = tgui_input_list(usr, "What specific food do you wish to make with [src]?", "Choose Output", output_options + "Default")
 	if(!choice)
 		return
 	selected_option = (choice == "Default") ? null : choice
@@ -228,7 +237,8 @@
 		I.forceMove(src)
 		cooking_objs.Add(CI)
 		if (CC.check_contents() == CONTAINER_EMPTY)//If we're just putting an empty container in, then dont start any processing.
-			user.visible_message("<b>[user]</b> puts [I] into [src].")
+			user.visible_message("<b>[user]</b> puts [I] [place_verb] [src].")
+			playsound(src, I.drop_sound, DROP_SOUND_VOLUME)
 			return
 	else
 		if (CI && istype(CI))
@@ -241,7 +251,8 @@
 		CI.combine_target = selected_option
 
 	// We can actually start cooking now.
-	user.visible_message("<b>[user]</b> puts [I] into [src].")
+	user.visible_message("<b>[user]</b> puts [I] [place_verb] [src].")
+	playsound(src, I.drop_sound, DROP_SOUND_VOLUME)
 	if(selected_option || length(CI.container.contents) || select_recipe(CI.container || src, appliance = CI.container.appliancetype)) // we're doing combo cooking, we're not just heating reagents, OR we have a valid reagent-only recipe
 		// this is to stop reagents from burning when you're heating stuff
 		get_cooking_work(CI)
@@ -317,11 +328,36 @@
 
 	return TRUE
 
+/obj/machinery/appliance/proc/get_smoke_percent()
+	if(can_burn_food == FALSE)
+		return 0
+	var/closest_to_burn = 0
+	for (var/datum/cooking_item/i in cooking_objs)
+		if(i.burned | !i.max_cookwork)
+			continue
+		var/progress = i.cookwork / i.max_cookwork
+		var/half_overcook = (i.overcook_mult - 1)*0.5
+		var/normalized_burn = (progress - half_overcook)/(i.overcook_mult - half_overcook)
+		if(progress < 1+half_overcook)
+			continue
+		if(normalized_burn > closest_to_burn)
+			closest_to_burn = normalized_burn
+	return closest_to_burn
+
+/obj/machinery/appliance/proc/adjust_smoke()
+	smoke_percent = get_smoke_percent()
+	particle_holder.spawning = 3 * smoke_percent
+	if(smoke_percent > 0)
+		particles = particle_holder
+	else
+		particles = null
+
 /obj/machinery/appliance/process()
 	if (cooking_power > 0 && cooking)
 		for (var/i in cooking_objs)
 			do_cooking_tick(i)
-
+	if(can_burn_food)
+		adjust_smoke()
 
 /obj/machinery/appliance/proc/finish_cooking(var/datum/cooking_item/CI)
 	audible_message("<b>[src]</b> [finish_verb]", intent_message = PING_SOUND)

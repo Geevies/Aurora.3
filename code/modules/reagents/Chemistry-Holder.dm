@@ -1,5 +1,3 @@
-#define PROCESS_REACTION_ITER 5 //when processing a reaction, iterate this many times
-
 /datum/reagents
 	var/primary_reagent
 	var/list/reagent_volumes
@@ -16,14 +14,17 @@
 	my_atom = A
 
 /datum/reagents/Destroy()
-	. = ..()
 	if(SSchemistry)
 		SSchemistry.active_holders -= src
 
 	LAZYCLEARLIST(reagent_data)
 	LAZYCLEARLIST(reagent_volumes)
+
 	if(my_atom && my_atom.reagents == src)
 		my_atom.reagents = null
+	my_atom = null
+
+	. = ..()
 
 /* Internal procs */
 
@@ -85,7 +86,7 @@
 /datum/reagents/proc/process_reactions()
 	if(!my_atom?.loc)
 		return FALSE
-	if(my_atom.flags & NOREACT)
+	if(my_atom.atom_flags & ATOM_FLAG_NO_REACT)
 		return FALSE
 
 	var/reaction_occured
@@ -253,7 +254,8 @@
 		var/singleton/reagent/current = GET_SINGLETON(_current)
 		var/amount_to_transfer = reagent_volumes[_current] * part
 		var/energy_to_transfer = current.get_thermal_energy(src) * part
-		target.add_reagent(_current, amount_to_transfer * multiplier, REAGENT_DATA(src, _current), TRUE, new_thermal_energy = energy_to_transfer * multiplier) // We don't react until everything is in place
+		var/list/data_to_transfer = REAGENT_DATA(src, _current)
+		target.add_reagent(_current, amount_to_transfer * multiplier, data_to_transfer?.Copy(), TRUE, new_thermal_energy = energy_to_transfer * multiplier) // We don't react until everything is in place
 		if(!copy)
 			remove_reagent(_current, amount_to_transfer, TRUE)
 

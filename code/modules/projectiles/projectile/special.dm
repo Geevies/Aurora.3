@@ -44,9 +44,9 @@
 			else
 				to_chat(src, "<span class='notice'>Warning: Power surge detected, source - EMP. Surge prevention module is depleted and requires replacement</span>")
 
-		R.emp_act(2) // Borgs emp_act is 1-2
+		R.emp_act(EMP_LIGHT) // Borgs emp_act is 1-2
 	else
-		A.emp_act(3)
+		A.emp_act(EMP_LIGHT)
 	return
 
 /obj/item/projectile/ion/small
@@ -322,3 +322,9 @@
 	embed = TRUE
 	sharp = TRUE
 	shrapnel_type = /obj/item/bone_dart/vannatusk
+
+/obj/item/projectile/bonedart/ling
+	name = "bone dart"
+	damage = 10
+	armor_penetration = 10
+	check_armor = "bullet"
