@@ -56,7 +56,7 @@
 	uses_species_whitelist = TRUE
 
 /obj/outfit/admin/moghes_ozeuoi
-	uniform = /obj/item/clothing/under/color/lightbrown
+	pants = /obj/item/clothing/pants/jumpsuit/lightbrown
 	accessory = /obj/item/clothing/accessory/storage/brown_vest
 	shoes = /obj/item/clothing/shoes/sandals/caligae
 	back = /obj/item/storage/backpack/industrial

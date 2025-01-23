@@ -216,7 +216,7 @@
 
 /obj/structure/closet/bombcloset/fill()
 	new /obj/item/clothing/suit/bomb_suit(src)
-	new /obj/item/clothing/under/color/black(src)
+	new /obj/item/clothing/pants/jumpsuit/black(src)
 	new /obj/item/clothing/shoes/sneakers/black(src)
 	new /obj/item/clothing/head/bomb_hood(src)
 	new /obj/item/wirecutters/bomb(src)

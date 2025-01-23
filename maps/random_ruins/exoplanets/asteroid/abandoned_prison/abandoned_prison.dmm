@@ -451,7 +451,7 @@
 	dir = 5
 	},
 /obj/effect/floor_decal/corner/orange/full,
-/obj/item/clothing/under/color/orange/cell2,
+/obj/item/clothing/pants/jumpsuit/orange/cell2,
 /turf/simulated/floor/tiled/dark/full,
 /area/abandoned_prison/cells)
 "gk" = (
@@ -793,7 +793,7 @@
 	dir = 5
 	},
 /obj/effect/floor_decal/corner/orange/full,
-/obj/item/clothing/under/color/orange/cell4,
+/obj/item/clothing/pants/jumpsuit/orange/cell4,
 /turf/simulated/floor/tiled/dark/full,
 /area/abandoned_prison/cells)
 "lb" = (
@@ -3226,7 +3226,7 @@
 /area/abandoned_prison/eva_prep)
 "RU" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/supply,
-/obj/item/clothing/under/color/orange/cell3,
+/obj/item/clothing/pants/jumpsuit/orange/cell3,
 /obj/effect/floor_decal/corner_wide/black/diagonal,
 /turf/simulated/floor/tiled/steel,
 /area/abandoned_prison/eva_prep)

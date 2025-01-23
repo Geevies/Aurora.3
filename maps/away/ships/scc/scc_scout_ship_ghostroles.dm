@@ -166,7 +166,7 @@
 	name = "SCC Scout Ship Base Crew Uniform"
 
 	id = /obj/item/card/id/orion_ship
-	uniform = list(/obj/item/clothing/under/color/black, /obj/item/clothing/under/color/grey, /obj/item/clothing/under/color/white)
+	pants = list(/obj/item/clothing/pants/jumpsuit/black, /obj/item/clothing/pants/jumpsuit/grey, /obj/item/clothing/pants/jumpsuit/white)
 	shoes = /obj/item/clothing/shoes/jackboots
 	l_ear = /obj/item/device/radio/headset/ship
 
@@ -233,7 +233,7 @@
 	name = "SCC Scout Ship Orion Crew"
 
 	id = /obj/item/card/id/orion
-	uniform = list(/obj/item/clothing/under/color/white, /obj/item/clothing/under/color/black, /obj/item/clothing/under/service_overalls)
+	pants = list(/obj/item/clothing/pants/jumpsuit/white, /obj/item/clothing/pants/jumpsuit/black, /obj/item/clothing/under/service_overalls)
 	back = list(/obj/item/storage/backpack/messenger/orion, /obj/item/storage/backpack/satchel/orion)
 	head = list(/obj/item/clothing/head/beret/corporate/orion, /obj/item/clothing/head/hardhat/white, /obj/item/clothing/head/softcap/orion_custodian)
 	accessory = /obj/item/clothing/accessory/pin/corporate/orion
@@ -242,7 +242,7 @@
 	name = "SCC Scout Ship Hephaestus Crew"
 
 	id = /obj/item/card/id/hephaestus
-	uniform = list(/obj/item/clothing/under/color/brown, /obj/item/clothing/under/color/green, /obj/item/clothing/under/service_overalls)
+	pants = list(/obj/item/clothing/pants/jumpsuit/brown, /obj/item/clothing/pants/jumpsuit/green, /obj/item/clothing/under/service_overalls)
 	back = list(/obj/item/storage/backpack/messenger/heph, /obj/item/storage/backpack/satchel/heph)
 	head = list(/obj/item/clothing/head/beret/corporate/heph, /obj/item/clothing/head/hardhat/green, /obj/item/clothing/head/sidecap/heph)
 	accessory = /obj/item/clothing/accessory/pin/corporate/heph
@@ -251,7 +251,7 @@
 	name = "SCC Scout Ship Zeng-Hu Crew"
 
 	id = /obj/item/card/id/zeng_hu
-	uniform = list(/obj/item/clothing/under/color/purple, /obj/item/clothing/under/color/white, /obj/item/clothing/under/rank/medical/surgeon/zeng)
+	pants = list(/obj/item/clothing/pants/jumpsuit/purple, /obj/item/clothing/pants/jumpsuit/white, /obj/item/clothing/under/rank/medical/surgeon/zeng)
 	back = list(/obj/item/storage/backpack/messenger/zeng, /obj/item/storage/backpack/satchel/zeng)
 	head = list(/obj/item/clothing/head/beret/corporate/zeng, /obj/item/clothing/head/softcap/zeng, /obj/item/clothing/head/surgery/zeng)
 	accessory = /obj/item/clothing/accessory/pin/corporate/zeng
@@ -260,7 +260,7 @@
 	name = "SCC Scout Ship NanoTrasen Crew"
 
 	id = /obj/item/card/id
-	uniform = list(/obj/item/clothing/under/color/blue, /obj/item/clothing/under/color/lightblue, /obj/item/clothing/under/rank/medical/surgeon)
+	pants = list(/obj/item/clothing/pants/jumpsuit/blue, /obj/item/clothing/pants/jumpsuit/lightblue, /obj/item/clothing/under/rank/medical/surgeon)
 	back = list(/obj/item/storage/backpack/messenger/nt, /obj/item/storage/backpack/satchel/nt)
 	head = list(/obj/item/clothing/head/beret/corporate, /obj/item/clothing/head/softcap/nt, /obj/item/clothing/head/surgery)
 	accessory = /obj/item/clothing/accessory/pin/corporate
@@ -269,7 +269,7 @@
 	name = "SCC Scout Ship Zavodskoi Crew"
 
 	id = /obj/item/card/id/zavodskoi
-	uniform = list(/obj/item/clothing/under/color/red, /obj/item/clothing/under/color/brown, /obj/item/clothing/under/rank/medical/surgeon/zavod)
+	pants = list(/obj/item/clothing/pants/jumpsuit/red, /obj/item/clothing/pants/jumpsuit/brown, /obj/item/clothing/under/rank/medical/surgeon/zavod)
 	back = list(/obj/item/storage/backpack/messenger/zavod, /obj/item/storage/backpack/satchel/zavod)
 	head = list(/obj/item/clothing/head/beret/corporate/zavod, /obj/item/clothing/head/softcap/zavod, /obj/item/clothing/head/sidecap/zavod, /obj/item/clothing/head/surgery/zavod)
 	accessory = /obj/item/clothing/accessory/pin/corporate/zavod

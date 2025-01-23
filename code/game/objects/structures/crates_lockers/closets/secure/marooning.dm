@@ -8,7 +8,7 @@
 
 /obj/structure/closet/secure_closet/marooning_equipment/fill()
 	new /obj/item/clothing/mask/breath(src)
-	new /obj/item/clothing/under/color/yellow(src)
+	new /obj/item/clothing/pants/jumpsuit/yellow(src)
 	new /obj/item/clothing/shoes/workboots/grey(src)
 	new /obj/item/clothing/head/helmet/space/emergency/marooning_equipment(src)
 	new /obj/item/clothing/suit/space/emergency/marooning_equipment(src)

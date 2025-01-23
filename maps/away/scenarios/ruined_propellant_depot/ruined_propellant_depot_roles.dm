@@ -40,10 +40,10 @@
 	name = "Propellant Depot Engineer Uniform"
 
 	uniform = list(
-		/obj/item/clothing/under/color/black,
-		/obj/item/clothing/under/color/brown,
-		/obj/item/clothing/under/color/lightbrown,
-		/obj/item/clothing/under/color/darkblue,
+		/obj/item/clothing/pants/jumpsuit/black,
+		/obj/item/clothing/pants/jumpsuit/brown,
+		/obj/item/clothing/pants/jumpsuit/lightbrown,
+		/obj/item/clothing/pants/jumpsuit/darkblue,
 		/obj/item/clothing/under/service_overalls,
 		/obj/item/clothing/under/overalls,
 	)

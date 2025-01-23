@@ -21,9 +21,9 @@
 	name = "Arctic Valley Villager"
 
 	uniform = list(
-		/obj/item/clothing/under/color/black,
-		/obj/item/clothing/under/color/blue,
-		/obj/item/clothing/under/color/yellow,
+		/obj/item/clothing/pants/jumpsuit/black,
+		/obj/item/clothing/pants/jumpsuit/blue,
+		/obj/item/clothing/pants/jumpsuit/yellow,
 		/obj/item/clothing/under/suit_jacket,
 		/obj/item/clothing/under/waiter,
 	)
@@ -116,12 +116,12 @@
 /obj/outfit/admin/generic/nuclear_silo_crew/lower/silo_resident
 	name = "Nuclear Missile Silo Resident"
 	uniform = list(
-		/obj/item/clothing/under/color/black,
-		/obj/item/clothing/under/color/blue,
-		/obj/item/clothing/under/color/yellow,
-		/obj/item/clothing/under/color/white,
-		/obj/item/clothing/under/color/red,
-		/obj/item/clothing/under/color/lightred,
+		/obj/item/clothing/pants/jumpsuit/black,
+		/obj/item/clothing/pants/jumpsuit/blue,
+		/obj/item/clothing/pants/jumpsuit/yellow,
+		/obj/item/clothing/pants/jumpsuit/white,
+		/obj/item/clothing/pants/jumpsuit/red,
+		/obj/item/clothing/pants/jumpsuit/lightred,
 	)
 
 	suit = list(
@@ -170,7 +170,7 @@
 	uniform = list(
 		/obj/item/clothing/under/service_overalls,
 		/obj/item/clothing/under/overalls,
-		/obj/item/clothing/under/color/brown,
+		/obj/item/clothing/pants/jumpsuit/brown,
 	)
 	suit = list(
 		/obj/item/clothing/suit/storage/toggle/highvis,
@@ -230,8 +230,8 @@
 		/obj/item/clothing/under/rank/medical,
 		/obj/item/clothing/under/rank/medical/surgeon,
 		/obj/item/clothing/under/rank/medical/generic,
-		/obj/item/clothing/under/color/white,
-		/obj/item/clothing/under/color/lightgreen,
+		/obj/item/clothing/pants/jumpsuit/white,
+		/obj/item/clothing/pants/jumpsuit/lightgreen,
 	)
 	suit = list(
 		/obj/item/clothing/suit/storage/toggle/med_dep_jacket,
@@ -284,9 +284,9 @@
 	uniform = list(
 		/obj/item/clothing/under/rank/medical/surgeon,
 		/obj/item/clothing/under/rank/scientist,
-		/obj/item/clothing/under/color/white,
-		/obj/item/clothing/under/color/purple,
-		/obj/item/clothing/under/color/lightpurple,
+		/obj/item/clothing/pants/jumpsuit/white,
+		/obj/item/clothing/pants/jumpsuit/purple,
+		/obj/item/clothing/pants/jumpsuit/lightpurple,
 	)
 	suit = list(
 		/obj/item/clothing/suit/storage/toggle/longcoat,
@@ -322,8 +322,8 @@
 	name = "Nuclear Missile Silo Guard"
 	uniform = list(
 		/obj/item/clothing/under/tactical,
-		/obj/item/clothing/under/color/blue,
-		/obj/item/clothing/under/color/darkblue,
+		/obj/item/clothing/pants/jumpsuit/blue,
+		/obj/item/clothing/pants/jumpsuit/darkblue,
 		/obj/item/clothing/under/rank/security,
 	)
 	suit = list(

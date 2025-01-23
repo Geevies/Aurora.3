@@ -61,10 +61,10 @@
 /area/exoplanet/adhomai)
 "fZ" = (
 /obj/structure/closet/cabinet,
-/obj/item/clothing/under/color/orange,
-/obj/item/clothing/under/color/orange,
-/obj/item/clothing/under/color/orange,
-/obj/item/clothing/under/color/orange,
+/obj/item/clothing/pants/jumpsuit/orange,
+/obj/item/clothing/pants/jumpsuit/orange,
+/obj/item/clothing/pants/jumpsuit/orange,
+/obj/item/clothing/pants/jumpsuit/orange,
 /turf/simulated/floor/tiled/freezer{
 	temperature = 268.15
 	},
@@ -289,7 +289,7 @@
 /area/exoplanet/adhomai)
 "xn" = (
 /obj/structure/closet/cabinet,
-/obj/item/clothing/under/color/orange,
+/obj/item/clothing/pants/jumpsuit/orange,
 /turf/simulated/floor/exoplanet/concrete/square,
 /area/exoplanet/adhomai)
 "yd" = (

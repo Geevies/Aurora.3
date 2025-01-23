@@ -2722,7 +2722,7 @@
 /area/centcom/holding)
 "bIQ" = (
 /obj/structure/table/rack,
-/obj/item/clothing/under/color/red,
+/obj/item/clothing/pants/jumpsuit/red,
 /obj/item/clothing/shoes/sneakers/brown,
 /obj/item/melee/energy/axe,
 /obj/effect/decal/fake_object/light_source/invisible,
@@ -3337,7 +3337,7 @@
 /area/centcom/holding)
 "cFp" = (
 /obj/structure/table/rack,
-/obj/item/clothing/under/color/red,
+/obj/item/clothing/pants/jumpsuit/red,
 /obj/item/clothing/shoes/sneakers/brown,
 /obj/item/clothing/suit/armor/vest,
 /obj/item/clothing/head/helmet/swat,
@@ -4229,7 +4229,7 @@
 /area/centcom/bar)
 "dUW" = (
 /obj/structure/table/rack,
-/obj/item/clothing/under/color/green,
+/obj/item/clothing/pants/jumpsuit/green,
 /obj/item/clothing/shoes/sneakers/brown,
 /obj/item/clothing/suit/armor/tdome/green,
 /obj/item/clothing/head/helmet/thunderdome,
@@ -5064,7 +5064,7 @@
 /area/centcom/bar)
 "eUW" = (
 /obj/structure/table/rack,
-/obj/item/clothing/under/color/green,
+/obj/item/clothing/pants/jumpsuit/green,
 /obj/item/clothing/shoes/sneakers/brown,
 /obj/item/clothing/suit/armor/vest,
 /obj/item/clothing/head/helmet/swat,
@@ -7646,7 +7646,7 @@
 /area/centcom/bar)
 "ihi" = (
 /obj/structure/table/rack,
-/obj/item/clothing/under/color/green,
+/obj/item/clothing/pants/jumpsuit/green,
 /obj/item/clothing/shoes/sneakers/brown,
 /obj/item/clothing/suit/armor/vest,
 /obj/item/clothing/head/helmet/swat,
@@ -7894,7 +7894,7 @@
 /area/centcom/specops)
 "iAl" = (
 /obj/structure/table/rack,
-/obj/item/clothing/under/color/green,
+/obj/item/clothing/pants/jumpsuit/green,
 /obj/item/clothing/shoes/sneakers/brown,
 /obj/item/melee/energy/axe,
 /turf/simulated/floor,
@@ -8355,7 +8355,7 @@
 /area/shuttle/escape)
 "jbw" = (
 /obj/structure/table/rack,
-/obj/item/clothing/under/color/red,
+/obj/item/clothing/pants/jumpsuit/red,
 /obj/item/clothing/shoes/sneakers/brown,
 /obj/item/clothing/suit/armor/tdome/red,
 /obj/item/clothing/head/helmet/thunderdome,
@@ -11027,14 +11027,14 @@
 /area/centcom/bar)
 "mLh" = (
 /obj/structure/table/rack,
-/obj/item/clothing/under/color/red,
+/obj/item/clothing/pants/jumpsuit/red,
 /obj/item/clothing/shoes/sneakers/brown,
 /obj/item/melee/energy/axe,
 /turf/simulated/floor,
 /area/tdome/tdome2)
 "mMJ" = (
 /obj/structure/table/rack,
-/obj/item/clothing/under/color/green,
+/obj/item/clothing/pants/jumpsuit/green,
 /obj/item/clothing/shoes/sneakers/brown,
 /obj/item/clothing/suit/armor/tdome/green,
 /obj/item/clothing/head/helmet/thunderdome,
@@ -15520,7 +15520,7 @@
 /area/centcom/bar)
 "tLh" = (
 /obj/structure/table/rack,
-/obj/item/clothing/under/color/red,
+/obj/item/clothing/pants/jumpsuit/red,
 /obj/item/clothing/shoes/sneakers/brown,
 /obj/item/clothing/suit/armor/tdome/red,
 /obj/item/clothing/head/helmet/thunderdome,
@@ -16234,7 +16234,7 @@
 /area/supply/dock)
 "uWm" = (
 /obj/structure/table/rack,
-/obj/item/clothing/under/color/green,
+/obj/item/clothing/pants/jumpsuit/green,
 /obj/item/clothing/shoes/sneakers/brown,
 /obj/item/melee/energy/axe,
 /obj/effect/decal/fake_object/light_source/invisible,
@@ -17079,7 +17079,7 @@
 /area/centcom/specops)
 "wEG" = (
 /obj/structure/table/rack,
-/obj/item/clothing/under/color/red,
+/obj/item/clothing/pants/jumpsuit/red,
 /obj/item/clothing/shoes/sneakers/brown,
 /obj/item/clothing/suit/armor/vest,
 /obj/item/clothing/head/helmet/swat,

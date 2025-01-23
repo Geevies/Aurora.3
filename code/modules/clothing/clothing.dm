@@ -44,6 +44,18 @@
 	///Species to refit the item for on initialize so that we can map in specific items for specific species easier. This should be set to the BODYTYPE of the species in question, not the species name or type itself.
 	var/refit_initialize = null
 
+	/// If set, rolling up sleeves/rolling down will use this icon state instead of initial().
+	var/initial_icon_override
+
+	/// 0 = unrolled, 1 = rolled, -1 = cannot be toggled
+	var/rolled_down = -1
+
+	/// 0 = unrolled, 1 = rolled, -1 = cannot be toggled
+	var/rolled_sleeves = -1
+
+	/// Convenience var for defining the icon state for the overlay used when the clothing is worn. Also used by rolling/unrolling.
+	var/worn_state = null
+
 /obj/item/clothing/Initialize(var/mapload, var/material_key)
 	. = ..(mapload)
 	if(!material_key)
@@ -59,6 +71,12 @@
 			refit_contained(refit_initialize)
 		else
 			refit_for_species(refit_initialize)
+	if(worn_state)
+		LAZYINITLIST(item_state_slots)
+		item_state_slots[slot_w_uniform_str] = worn_state
+	else
+		worn_state = icon_state
+	check_rollability()
 	update_icon()
 
 /obj/item/clothing/Destroy()
@@ -75,6 +93,160 @@
 //Updates the icons of the mob wearing the clothing item, if any.
 /obj/item/clothing/proc/update_clothing_icon()
 	return
+
+/// Checks whether this clothing item can be rolled up
+/obj/item/clothing/proc/check_rollability()
+	var/icon/under_icon = INV_W_UNIFORM_DEF_ICON
+	if(rolled_down < 0 || rolled_sleeves < 0)
+		if(contained_sprite)
+			under_icon = icon
+		else if(icon_override)
+			under_icon = icon_override
+		else if(item_icons && item_icons[slot_w_uniform_str])
+			under_icon = item_icons[slot_w_uniform_str]
+
+	if(rolled_down < 0)
+		if("[worn_state]_d[contained_sprite ? species_sprite_adaption_type : "_s"]" in icon_states(under_icon))
+			rolled_down = 0
+			verbs += /obj/item/clothing/proc/rollsuit
+	if(rolled_sleeves < 0)
+		if("[worn_state]_r[contained_sprite ? species_sprite_adaption_type : "_s"]" in icon_states(under_icon))
+			rolled_sleeves = 0
+			verbs += /obj/item/clothing/proc/rollsleeves
+
+/obj/item/clothing/proc/rollsuit()
+	set name = "Roll Up/Down Jumpsuit"
+	set category = "Object"
+	set src in usr
+	if(!istype(usr, /mob/living)) return
+	if(usr.stat) return
+
+	if(rolled_down == -1)
+		to_chat(usr, SPAN_NOTICE("You cannot roll down \the [src]!"))
+	if((rolled_sleeves == 1) && !(rolled_down))
+		rolled_sleeves = 0
+	update_rolldown_status()
+
+	rolled_down = !rolled_down
+	handle_rollsuit(usr)
+
+/obj/item/clothing/proc/handle_rollsuit(mob/user)
+	if(rolled_down)
+		body_parts_covered &= LOWER_TORSO|LEGS|FEET
+		if(contained_sprite || !LAZYLEN(item_state_slots))
+			if(initial_icon_override)
+				item_state = "[initial_icon_override]_d"
+			else
+				item_state = "[initial(item_state)]_d"
+		else
+			item_state_slots[slot_w_uniform_str] = "[worn_state]_d"
+		if(user)
+			to_chat(user, SPAN_NOTICE("You roll up \the [src]."))
+	else
+		body_parts_covered = initial(body_parts_covered)
+		if(contained_sprite || !LAZYLEN(item_state_slots))
+			if(initial_icon_override)
+				item_state = initial_icon_override
+			else
+				item_state = initial(item_state)
+		else
+			item_state_slots[slot_w_uniform_str] = "[worn_state]"
+		if(user)
+			to_chat(user, SPAN_NOTICE("You roll down \the [src]."))
+	update_clothing_icon()
+
+/obj/item/clothing/proc/rollsleeves()
+	set name = "Roll Up/Down Sleeves"
+	set category = "Object"
+	set src in usr
+	if(!istype(usr, /mob/living)) return
+	if(usr.stat) return
+
+	if(rolled_sleeves == -1)
+		to_chat(usr, SPAN_NOTICE("You cannot roll up \the [src]'s sleeves!"))
+		return
+	if(rolled_down == 1)
+		to_chat(usr, SPAN_NOTICE("You must roll up \the [src] first!"))
+		return
+	update_rollsleeves_status()
+
+	rolled_sleeves = !rolled_sleeves
+	handle_rollsleeves(usr)
+
+/obj/item/clothing/proc/handle_rollsleeves(mob/user)
+	if(rolled_sleeves)
+		body_parts_covered &= ~(ARMS|HANDS)
+		if(contained_sprite || !LAZYLEN(item_state_slots))
+			if(initial_icon_override)
+				item_state = "[initial_icon_override]_r"
+			else
+				item_state = "[initial(item_state)]_r"
+		else
+			item_state_slots[slot_w_uniform_str] = "[worn_state]_r"
+		if(user)
+			to_chat(user, SPAN_NOTICE("You roll up \the [src]'s sleeves."))
+	else
+		body_parts_covered = initial(body_parts_covered)
+		if(contained_sprite || !LAZYLEN(item_state_slots))
+			if(initial_icon_override)
+				item_state = initial_icon_override
+			else
+				item_state = initial(item_state)
+		else
+			item_state_slots[slot_w_uniform_str] = "[worn_state]"
+		if(user)
+			to_chat(user, SPAN_NOTICE("You roll down \the [src]'s sleeves."))
+	update_clothing_icon()
+
+/obj/item/clothing/proc/update_rollsleeves_status()
+	var/mob/living/carbon/human/H
+	if(istype(src.loc, /mob/living/carbon/human))
+		H = src.loc
+
+	var/icon/under_icon
+	if(contained_sprite)
+		under_icon = icon
+	else if(icon_override)
+		under_icon = icon_override
+	else if(H && sprite_sheets && sprite_sheets[H.species.get_bodytype(H)])
+		under_icon = sprite_sheets[H.species.get_bodytype(H)]
+	else if(item_icons && item_icons[slot_w_uniform_str])
+		under_icon = item_icons[slot_w_uniform_str]
+	else
+		under_icon = INV_W_UNIFORM_DEF_ICON
+
+	// The _s is because the icon update procs append it.
+	if(("[worn_state]_r[contained_sprite ? species_sprite_adaption_type : "_s"]") in icon_states(under_icon))
+		if(rolled_sleeves != 1)
+			rolled_sleeves = 0
+	else
+		rolled_sleeves = -1
+	if(H) update_clothing_icon()
+
+/obj/item/clothing/proc/update_rolldown_status()
+	var/mob/living/carbon/human/H
+	if(istype(src.loc, /mob/living/carbon/human))
+		H = src.loc
+
+	var/icon/under_icon
+	if(contained_sprite)
+		under_icon = icon
+	else if(icon_override)
+		under_icon = icon_override
+	else if(H && sprite_sheets && sprite_sheets[H.species.get_bodytype()])
+		under_icon = sprite_sheets[H.species.get_bodytype()]
+	else if(item_icons && item_icons[slot_w_uniform_str])
+		under_icon = item_icons[slot_w_uniform_str]
+	else
+		under_icon = INV_W_UNIFORM_DEF_ICON
+
+	// The _s is because the icon update procs append it.
+	if(("[worn_state]_d[contained_sprite ? species_sprite_adaption_type : "_s"]") in icon_states(under_icon))
+		if(rolled_down != 1)
+			rolled_down = 0
+	else
+		rolled_down = -1
+	if(H) update_clothing_icon()
 
 /obj/item/clothing/proc/build_and_apply_species_adaption()
 	if(!contained_sprite)
@@ -1123,19 +1295,7 @@
 
 	var/displays_id = 1
 
-	///0 = unrolled, 1 = rolled, -1 = cannot be toggled
-	var/rolled_down = -1
-
-	///0 = unrolled, 1 = rolled, -1 = cannot be toggled
-	var/rolled_sleeves = -1
-
-	///If set, rolling up sleeves/rolling down will use this icon state instead of initial().
-	var/initial_icon_override
-
 	species_restricted = list("exclude",BODYTYPE_VAURCA_BREEDER,BODYTYPE_VAURCA_WARFORM,BODYTYPE_GOLEM, BODYTYPE_TESLA_BODY)
-
-	///Convenience var for defining the icon state for the overlay used when the clothing is worn. Also used by rolling/unrolling.
-	var/worn_state = null
 
 	valid_accessory_slots = list(ACCESSORY_SLOT_UTILITY, ACCESSORY_SLOT_UTILITY_MINOR, ACCESSORY_SLOT_ARMBAND, ACCESSORY_SLOT_GENERIC, ACCESSORY_SLOT_CAPE)
 	restricted_accessory_slots = list(ACCESSORY_SLOT_UTILITY)
@@ -1151,30 +1311,6 @@
 	. = ..()
 	if(has_sensor)
 		src.verbs += /obj/item/clothing/under/proc/toggle
-	if(worn_state)
-		LAZYINITLIST(item_state_slots)
-		item_state_slots[slot_w_uniform_str] = worn_state
-	else
-		worn_state = icon_state
-
-	//autodetect rollability. now working with contained sprites!
-	var/icon/under_icon = INV_W_UNIFORM_DEF_ICON
-	if(rolled_down < 0 || rolled_sleeves < 0)
-		if(contained_sprite)
-			under_icon = icon
-		else if(icon_override)
-			under_icon = icon_override
-		else if(item_icons && item_icons[slot_w_uniform_str])
-			under_icon = item_icons[slot_w_uniform_str]
-
-	if(rolled_down < 0)
-		if("[worn_state]_d[contained_sprite ? "_un" : "_s"]" in icon_states(under_icon))
-			rolled_down = 0
-			verbs += /obj/item/clothing/under/proc/rollsuit
-	if(rolled_sleeves < 0)
-		if("[worn_state]_r[contained_sprite ? "_un" : "_s"]" in icon_states(under_icon))
-			rolled_sleeves = 0
-			verbs += /obj/item/clothing/under/proc/rollsleeves
 
 /obj/item/clothing/under/get_mob_overlay(mob/living/carbon/human/H, mob_icon, mob_state, slot)
 	var/image/I = ..()
@@ -1191,56 +1327,6 @@
 		bloodsies.color = blood_color
 		I.AddOverlays(bloodsies)
 	return I
-
-/obj/item/clothing/under/proc/update_rolldown_status()
-	var/mob/living/carbon/human/H
-	if(istype(src.loc, /mob/living/carbon/human))
-		H = src.loc
-
-	var/icon/under_icon
-	if(contained_sprite)
-		under_icon = icon
-	else if(icon_override)
-		under_icon = icon_override
-	else if(H && sprite_sheets && sprite_sheets[H.species.get_bodytype()])
-		under_icon = sprite_sheets[H.species.get_bodytype()]
-	else if(item_icons && item_icons[slot_w_uniform_str])
-		under_icon = item_icons[slot_w_uniform_str]
-	else
-		under_icon = INV_W_UNIFORM_DEF_ICON
-
-	// The _s is because the icon update procs append it.
-	if(("[worn_state]_d[contained_sprite ? "_un" : "_s"]") in icon_states(under_icon))
-		if(rolled_down != 1)
-			rolled_down = 0
-	else
-		rolled_down = -1
-	if(H) update_clothing_icon()
-
-/obj/item/clothing/under/proc/update_rollsleeves_status()
-	var/mob/living/carbon/human/H
-	if(istype(src.loc, /mob/living/carbon/human))
-		H = src.loc
-
-	var/icon/under_icon
-	if(contained_sprite)
-		under_icon = icon
-	else if(icon_override)
-		under_icon = icon_override
-	else if(H && sprite_sheets && sprite_sheets[H.species.get_bodytype(H)])
-		under_icon = sprite_sheets[H.species.get_bodytype(H)]
-	else if(item_icons && item_icons[slot_w_uniform_str])
-		under_icon = item_icons[slot_w_uniform_str]
-	else
-		under_icon = INV_W_UNIFORM_DEF_ICON
-
-	// The _s is because the icon update procs append it.
-	if(("[worn_state]_r[contained_sprite ? "_un" : "_s"]") in icon_states(under_icon))
-		if(rolled_sleeves != 1)
-			rolled_sleeves = 0
-	else
-		rolled_sleeves = -1
-	if(H) update_clothing_icon()
 
 /obj/item/clothing/under/return_own_image()
 	var/image/our_image
@@ -1327,90 +1413,6 @@
 	set category = "Object"
 	set src in usr
 	set_sensors(usr)
-
-/obj/item/clothing/under/proc/rollsuit()
-	set name = "Roll Up/Down Jumpsuit"
-	set category = "Object"
-	set src in usr
-	if(!istype(usr, /mob/living)) return
-	if(usr.stat) return
-
-	if(rolled_down == -1)
-		to_chat(usr, SPAN_NOTICE("You cannot roll down \the [src]!"))
-	if((rolled_sleeves == 1) && !(rolled_down))
-		rolled_sleeves = 0
-	update_rolldown_status()
-
-	rolled_down = !rolled_down
-	handle_rollsuit(usr)
-
-/obj/item/clothing/under/proc/handle_rollsuit(mob/user)
-	if(rolled_down)
-		body_parts_covered &= LOWER_TORSO|LEGS|FEET
-		if(contained_sprite || !LAZYLEN(item_state_slots))
-			if(initial_icon_override)
-				item_state = "[initial_icon_override]_d"
-			else
-				item_state = "[initial(item_state)]_d"
-		else
-			item_state_slots[slot_w_uniform_str] = "[worn_state]_d"
-		if(user)
-			to_chat(user, SPAN_NOTICE("You roll up \the [src]."))
-	else
-		body_parts_covered = initial(body_parts_covered)
-		if(contained_sprite || !LAZYLEN(item_state_slots))
-			if(initial_icon_override)
-				item_state = initial_icon_override
-			else
-				item_state = initial(item_state)
-		else
-			item_state_slots[slot_w_uniform_str] = "[worn_state]"
-		if(user)
-			to_chat(user, SPAN_NOTICE("You roll down \the [src]."))
-	update_clothing_icon()
-
-/obj/item/clothing/under/proc/rollsleeves()
-	set name = "Roll Up/Down Sleeves"
-	set category = "Object"
-	set src in usr
-	if(!istype(usr, /mob/living)) return
-	if(usr.stat) return
-
-	if(rolled_sleeves == -1)
-		to_chat(usr, SPAN_NOTICE("You cannot roll up \the [src]'s sleeves!"))
-		return
-	if(rolled_down == 1)
-		to_chat(usr, SPAN_NOTICE("You must roll up \the [src] first!"))
-		return
-	update_rollsleeves_status()
-
-	rolled_sleeves = !rolled_sleeves
-	handle_rollsleeves(usr)
-
-/obj/item/clothing/under/proc/handle_rollsleeves(mob/user)
-	if(rolled_sleeves)
-		body_parts_covered &= ~(ARMS|HANDS)
-		if(contained_sprite || !LAZYLEN(item_state_slots))
-			if(initial_icon_override)
-				item_state = "[initial_icon_override]_r"
-			else
-				item_state = "[initial(item_state)]_r"
-		else
-			item_state_slots[slot_w_uniform_str] = "[worn_state]_r"
-		if(user)
-			to_chat(user, SPAN_NOTICE("You roll up \the [src]'s sleeves."))
-	else
-		body_parts_covered = initial(body_parts_covered)
-		if(contained_sprite || !LAZYLEN(item_state_slots))
-			if(initial_icon_override)
-				item_state = initial_icon_override
-			else
-				item_state = initial(item_state)
-		else
-			item_state_slots[slot_w_uniform_str] = "[worn_state]"
-		if(user)
-			to_chat(user, SPAN_NOTICE("You roll down \the [src]'s sleeves."))
-	update_clothing_icon()
 
 /obj/item/clothing/under/clothing_class()
 	return "uniform"

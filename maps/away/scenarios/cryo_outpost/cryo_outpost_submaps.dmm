@@ -1082,7 +1082,7 @@
 "Ds" = (
 /obj/structure/closet/cabinet,
 /obj/outfit/admin/generic,
-/obj/item/clothing/under/color/purple,
+/obj/item/clothing/pants/jumpsuit/purple,
 /obj/random/loot,
 /turf/simulated/floor/lino/diamond,
 /area/template_noop)

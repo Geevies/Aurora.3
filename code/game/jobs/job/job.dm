@@ -300,7 +300,7 @@
 	allow_headset_choice = TRUE
 	var/jobtype = null
 
-	uniform = /obj/item/clothing/under/color/grey
+	pants = /obj/item/clothing/pants/jumpsuit/grey
 	id = /obj/item/card/id
 	back = /obj/item/storage/backpack
 	shoes = /obj/item/clothing/shoes/sneakers/black

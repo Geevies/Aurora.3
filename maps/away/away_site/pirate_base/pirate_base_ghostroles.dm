@@ -149,7 +149,7 @@
 /obj/outfit/admin/pirate_prisoner
 	name = "Pirate Gang Captive"
 
-	uniform = /obj/item/clothing/under/color/brown
+	pants = /obj/item/clothing/pants/jumpsuit/brown
 	shoes = /obj/item/clothing/shoes/sandals
 	back = /obj/item/storage/backpack/satchel/leather
 

@@ -124,7 +124,7 @@
 		/obj/item/clothing/under                                 = TRADER_SUBTYPES_ONLY,
 		/obj/item/clothing/under/acj                             = TRADER_BLACKLIST,
 		/obj/item/clothing/under/chameleon                       = TRADER_BLACKLIST,
-		/obj/item/clothing/under/color                           = TRADER_BLACKLIST,
+		/obj/item/clothing/pants/jumpsuit                           = TRADER_BLACKLIST,
 		/obj/item/clothing/under/dress                           = TRADER_BLACKLIST,
 		/obj/item/clothing/under/ert                             = TRADER_BLACKLIST_ALL,
 		/obj/item/clothing/under/gimmick                         = TRADER_BLACKLIST_ALL,

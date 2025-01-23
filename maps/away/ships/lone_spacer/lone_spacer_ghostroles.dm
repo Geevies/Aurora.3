@@ -18,7 +18,7 @@
 /obj/outfit/admin/lone_spacer
 	name = "Lone Spacer"
 
-	uniform = /obj/item/clothing/under/color/black
+	pants = /obj/item/clothing/pants/jumpsuit/black
 	shoes = /obj/item/clothing/shoes/jackboots
 	back = /obj/item/storage/backpack/industrial
 	accessory = /obj/item/clothing/accessory/scarf/lone_spacer_green

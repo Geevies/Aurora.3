@@ -3,11 +3,11 @@
 	name = "Generic Science Outfit"
 
 	uniform = list(
-		/obj/item/clothing/under/color/white,
-		/obj/item/clothing/under/color/blue,
-		/obj/item/clothing/under/color/lightblue,
-		/obj/item/clothing/under/color/lightpurple,
-		/obj/item/clothing/under/color/purple,
+		/obj/item/clothing/pants/jumpsuit/white,
+		/obj/item/clothing/pants/jumpsuit/blue,
+		/obj/item/clothing/pants/jumpsuit/lightblue,
+		/obj/item/clothing/pants/jumpsuit/lightpurple,
+		/obj/item/clothing/pants/jumpsuit/purple,
 		/obj/random/suit,
 	)
 	suit = list(

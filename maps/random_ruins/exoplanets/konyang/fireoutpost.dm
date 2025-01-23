@@ -49,7 +49,7 @@
 /obj/outfit/admin/konyang/firewatcher
 	name = "Konyang Firewatcher"
 
-	uniform = /obj/item/clothing/under/color/lightbrown
+	pants = /obj/item/clothing/pants/jumpsuit/lightbrown
 	shoes = /obj/item/clothing/shoes/jackboots
 	back = /obj/item/storage/backpack/satchel/leather
 	l_ear = null

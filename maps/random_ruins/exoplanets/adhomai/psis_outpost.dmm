@@ -208,8 +208,8 @@
 /obj/structure/closet/secure_closet{
 	req_access = list(209)
 	},
-/obj/item/clothing/under/color/orange,
-/obj/item/clothing/under/color/orange,
+/obj/item/clothing/pants/jumpsuit/orange,
+/obj/item/clothing/pants/jumpsuit/orange,
 /obj/machinery/light,
 /turf/simulated/floor/tiled/dark{
 	temperature = 268.15
@@ -1023,8 +1023,8 @@
 /obj/structure/closet/secure_closet{
 	req_access = list(209)
 	},
-/obj/item/clothing/under/color/orange,
-/obj/item/clothing/under/color/orange,
+/obj/item/clothing/pants/jumpsuit/orange,
+/obj/item/clothing/pants/jumpsuit/orange,
 /turf/simulated/floor/tiled/dark{
 	temperature = 268.15
 	},

@@ -195,7 +195,7 @@
 	uniform = list(
 		/obj/item/clothing/under/service_overalls,
 		/obj/item/clothing/under/det/zavod,
-		/obj/item/clothing/under/color/brown,
+		/obj/item/clothing/pants/jumpsuit/brown,
 		/obj/item/clothing/under/syndicate/tracksuit,
 		/obj/item/clothing/under/captainformal,
 		/obj/item/clothing/under/dominia,
@@ -493,9 +493,9 @@
 	allow_backbag_choice = FALSE
 
 	uniform = list(
-		/obj/item/clothing/under/color/darkred,
-		/obj/item/clothing/under/color/red,
-		/obj/item/clothing/under/color/lightred
+		/obj/item/clothing/pants/jumpsuit/darkred,
+		/obj/item/clothing/pants/jumpsuit/red,
+		/obj/item/clothing/pants/jumpsuit/lightred
 	)
 
 	suit = list(

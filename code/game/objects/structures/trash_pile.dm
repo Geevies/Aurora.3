@@ -123,7 +123,7 @@
 		/obj/item/clothing/shoes/laceup = 4,
 		/obj/item/clothing/shoes/laceup/brown = 4,
 		/obj/item/clothing/suit/storage/hazardvest = 4,
-		/obj/item/clothing/under/color/grey = 4,
+		/obj/item/clothing/pants/jumpsuit/grey = 4,
 		/obj/item/clothing/suit/caution = 4,
 		/obj/item/cell/device = 4,
 		/obj/item/reagent_containers/food/snacks/liquidfood = 4,

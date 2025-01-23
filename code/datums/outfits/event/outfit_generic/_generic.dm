@@ -3,8 +3,8 @@
 	name = "Generic Outfit"
 
 	uniform = list(
-		/obj/item/clothing/under/color/black,
-		/obj/item/clothing/under/color/brown,
+		/obj/item/clothing/pants/jumpsuit/black,
+		/obj/item/clothing/pants/jumpsuit/brown,
 		/obj/item/clothing/under/service_overalls,
 		/obj/item/clothing/under/overalls,
 		/obj/item/clothing/under/suit_jacket/charcoal,

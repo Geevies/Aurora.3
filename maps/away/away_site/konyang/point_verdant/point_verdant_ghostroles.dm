@@ -223,7 +223,7 @@
 
 /obj/outfit/admin/konyang/pharm
 	name = "Konyang Pharmacist"
-	uniform = /obj/item/clothing/under/color/white
+	pants = /obj/item/clothing/pants/jumpsuit/white
 	shoes = /obj/item/clothing/shoes/sneakers/medsci
 	back = /obj/item/storage/backpack/satchel/pharm
 	l_pocket = /obj/item/storage/wallet/random
@@ -273,7 +273,7 @@
 
 /obj/outfit/admin/konyang/utility
 	name = "Point Verdant Utility Worker"
-	uniform = /obj/item/clothing/under/color/blue
+	pants = /obj/item/clothing/pants/jumpsuit/blue
 	shoes = /obj/item/clothing/shoes/workboots/dark
 	head = /obj/item/clothing/head/hardhat
 	id = /obj/item/card/id

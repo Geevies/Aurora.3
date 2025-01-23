@@ -17,36 +17,38 @@
 /datum/gear/uniform/jumpsuit
 	display_name = "generic jumpsuits"
 	description = "A selection of generic colored jumpsuits."
-	path = /obj/item/clothing/under/color/grey
+	slot = slot_pants
+	path = /obj/item/clothing/pants/jumpsuit/grey
 
 /datum/gear/uniform/jumpsuit/New()
 	..()
 	var/list/jumpsuit = list()
-	jumpsuit["black jumpsuit"] = /obj/item/clothing/under/color/black
-	jumpsuit["grey jumpsuit"] = /obj/item/clothing/under/color/grey
-	jumpsuit["white jumpsuit"] = /obj/item/clothing/under/color/white
-	jumpsuit["dark red jumpsuit"] = /obj/item/clothing/under/color/darkred
-	jumpsuit["red jumpsuit"] = /obj/item/clothing/under/color/red
-	jumpsuit["light red jumpsuit"] = /obj/item/clothing/under/color/lightred
-	jumpsuit["light brown jumpsuit"] = /obj/item/clothing/under/color/lightbrown
-	jumpsuit["brown jumpsuit"] = /obj/item/clothing/under/color/brown
-	jumpsuit["yellow jumpsuit"] = /obj/item/clothing/under/color/yellow
-	jumpsuit["yellow green jumpsuit"] = /obj/item/clothing/under/color/yellowgreen
-	jumpsuit["light green jumpsuit"] = /obj/item/clothing/under/color/lightgreen
-	jumpsuit["green jumpsuit"] = /obj/item/clothing/under/color/green
-	jumpsuit["aqua jumpsuit"] = /obj/item/clothing/under/color/aqua
-	jumpsuit["light blue jumpsuit"] = /obj/item/clothing/under/color/lightblue
-	jumpsuit["blue jumpsuit"] = /obj/item/clothing/under/color/blue
-	jumpsuit["dark blue jumpsuit"] = /obj/item/clothing/under/color/darkblue
-	jumpsuit["purple jumpsuit"] = /obj/item/clothing/under/color/purple
-	jumpsuit["light purple jumpsuit"] = /obj/item/clothing/under/color/lightpurple
-	jumpsuit["pink jumpsuit"] = /obj/item/clothing/under/color/pink
-	jumpsuit["orange jumpsuit"] = /obj/item/clothing/under/color/orange
+	jumpsuit["black jumpsuit"] = /obj/item/clothing/pants/jumpsuit/black
+	jumpsuit["grey jumpsuit"] = /obj/item/clothing/pants/jumpsuit/grey
+	jumpsuit["white jumpsuit"] = /obj/item/clothing/pants/jumpsuit/white
+	jumpsuit["dark red jumpsuit"] = /obj/item/clothing/pants/jumpsuit/darkred
+	jumpsuit["red jumpsuit"] = /obj/item/clothing/pants/jumpsuit/red
+	jumpsuit["light red jumpsuit"] = /obj/item/clothing/pants/jumpsuit/lightred
+	jumpsuit["light brown jumpsuit"] = /obj/item/clothing/pants/jumpsuit/lightbrown
+	jumpsuit["brown jumpsuit"] = /obj/item/clothing/pants/jumpsuit/brown
+	jumpsuit["yellow jumpsuit"] = /obj/item/clothing/pants/jumpsuit/yellow
+	jumpsuit["yellow green jumpsuit"] = /obj/item/clothing/pants/jumpsuit/yellowgreen
+	jumpsuit["light green jumpsuit"] = /obj/item/clothing/pants/jumpsuit/lightgreen
+	jumpsuit["green jumpsuit"] = /obj/item/clothing/pants/jumpsuit/green
+	jumpsuit["aqua jumpsuit"] = /obj/item/clothing/pants/jumpsuit/aqua
+	jumpsuit["light blue jumpsuit"] = /obj/item/clothing/pants/jumpsuit/lightblue
+	jumpsuit["blue jumpsuit"] = /obj/item/clothing/pants/jumpsuit/blue
+	jumpsuit["dark blue jumpsuit"] = /obj/item/clothing/pants/jumpsuit/darkblue
+	jumpsuit["purple jumpsuit"] = /obj/item/clothing/pants/jumpsuit/purple
+	jumpsuit["light purple jumpsuit"] = /obj/item/clothing/pants/jumpsuit/lightpurple
+	jumpsuit["pink jumpsuit"] = /obj/item/clothing/pants/jumpsuit/pink
+	jumpsuit["orange jumpsuit"] = /obj/item/clothing/pants/jumpsuit/orange
 	gear_tweaks += new /datum/gear_tweak/path(jumpsuit)
 
 /datum/gear/uniform/colorjumpsuit
 	display_name = "jumpsuit (recolorable)"
-	path = /obj/item/clothing/under/color/colorable
+	slot = slot_pants
+	path = /obj/item/clothing/pants/jumpsuit/colorable
 	flags = GEAR_HAS_NAME_SELECTION | GEAR_HAS_DESC_SELECTION | GEAR_HAS_COLOR_SELECTION
 
 /datum/gear/uniform/suit

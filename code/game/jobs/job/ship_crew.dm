@@ -25,7 +25,7 @@
 	name = "Assistant"
 	jobtype = /datum/job/assistant
 
-	uniform = /obj/item/clothing/under/color/grey
+	pants = /obj/item/clothing/pants/jumpsuit/grey
 	shoes = /obj/item/clothing/shoes/sneakers/black
 
 	backpack_faction = /obj/item/storage/backpack/nt
@@ -53,7 +53,7 @@
 	name = "Off-Duty Crew Member"
 	jobtype = /datum/job/visitor
 
-	uniform = /obj/item/clothing/under/color/black
+	pants = /obj/item/clothing/pants/jumpsuit/black
 	shoes = /obj/item/clothing/shoes/sneakers/black
 
 /obj/outfit/job/visitor/passenger

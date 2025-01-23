@@ -25952,7 +25952,7 @@
 /area/engineering/atmos)
 "dIs" = (
 /obj/structure/table/rack,
-/obj/item/clothing/under/color/green,
+/obj/item/clothing/pants/jumpsuit/green,
 /obj/item/clothing/shoes/sneakers/brown,
 /obj/item/clothing/suit/armor/vest,
 /obj/item/clothing/head/helmet/swat,
@@ -32475,7 +32475,7 @@
 /obj/effect/floor_decal/industrial/warning,
 /obj/structure/closet,
 /obj/random/colored_jumpsuit,
-/obj/item/clothing/under/color/black,
+/obj/item/clothing/pants/jumpsuit/black,
 /obj/item/clothing/gloves/black,
 /turf/simulated/floor,
 /area/horizon/maintenance/deck_three/aft/starboard)
@@ -37927,7 +37927,7 @@
 /area/horizon/security/brig)
 "fvI" = (
 /obj/structure/table/rack,
-/obj/item/clothing/under/color/green,
+/obj/item/clothing/pants/jumpsuit/green,
 /obj/item/clothing/shoes/sneakers/brown,
 /obj/item/melee/energy/axe,
 /turf/simulated/floor,
@@ -39913,7 +39913,7 @@
 /obj/structure/table/holotable,
 /obj/item/clothing/head/helmet/thunderdome,
 /obj/item/clothing/suit/armor/tdome/red,
-/obj/item/clothing/under/color/red,
+/obj/item/clothing/pants/jumpsuit/red,
 /obj/item/holo/esword/red,
 /obj/effect/floor_decal/corner/red{
 	dir = 6
@@ -56829,7 +56829,7 @@
 /area/centcom/specops)
 "ikN" = (
 /obj/structure/table/rack,
-/obj/item/clothing/under/color/green,
+/obj/item/clothing/pants/jumpsuit/green,
 /obj/item/clothing/shoes/sneakers/brown,
 /obj/item/melee/energy/axe,
 /obj/effect/decal/fake_object/light_source/invisible,
@@ -59305,7 +59305,7 @@
 /area/antag/mercenary)
 "iCE" = (
 /obj/structure/table/rack,
-/obj/item/clothing/under/color/red,
+/obj/item/clothing/pants/jumpsuit/red,
 /obj/item/clothing/shoes/sneakers/brown,
 /obj/item/clothing/suit/armor/tdome/red,
 /obj/item/clothing/head/helmet/thunderdome,
@@ -79133,7 +79133,7 @@
 /area/centcom/holding)
 "lwu" = (
 /obj/structure/table/rack,
-/obj/item/clothing/under/color/red,
+/obj/item/clothing/pants/jumpsuit/red,
 /obj/item/clothing/shoes/sneakers/brown,
 /obj/item/clothing/suit/armor/tdome/red,
 /obj/item/clothing/head/helmet/thunderdome,
@@ -89972,7 +89972,7 @@
 /area/rnd/lab)
 "nck" = (
 /obj/structure/table/rack,
-/obj/item/clothing/under/color/green,
+/obj/item/clothing/pants/jumpsuit/green,
 /obj/item/clothing/shoes/sneakers/brown,
 /obj/item/clothing/suit/armor/tdome/green,
 /obj/item/clothing/head/helmet/thunderdome,
@@ -95530,7 +95530,7 @@
 /area/centcom/control)
 "nSH" = (
 /obj/structure/table/rack,
-/obj/item/clothing/under/color/red,
+/obj/item/clothing/pants/jumpsuit/red,
 /obj/item/clothing/shoes/sneakers/brown,
 /obj/item/clothing/suit/armor/vest,
 /obj/item/clothing/head/helmet/swat,
@@ -101016,7 +101016,7 @@
 /area/tcommsat/chamber)
 "oJU" = (
 /obj/structure/table/rack,
-/obj/item/clothing/under/color/red,
+/obj/item/clothing/pants/jumpsuit/red,
 /obj/item/clothing/shoes/sneakers/brown,
 /obj/item/melee/energy/axe,
 /turf/simulated/floor,
@@ -105615,7 +105615,7 @@
 /obj/structure/table/holotable,
 /obj/item/clothing/head/helmet/thunderdome,
 /obj/item/clothing/suit/armor/tdome/green,
-/obj/item/clothing/under/color/green,
+/obj/item/clothing/pants/jumpsuit/green,
 /obj/item/holo/esword/green,
 /obj/effect/floor_decal/corner/green{
 	dir = 9
@@ -122281,7 +122281,7 @@
 /area/horizon/holodeck/source_lasertag)
 "rOo" = (
 /obj/structure/table/rack,
-/obj/item/clothing/under/color/green,
+/obj/item/clothing/pants/jumpsuit/green,
 /obj/item/clothing/shoes/sneakers/brown,
 /obj/item/clothing/suit/armor/vest,
 /obj/item/clothing/head/helmet/swat,
@@ -147942,7 +147942,7 @@
 /area/horizon/holodeck/source_moghes)
 "vDe" = (
 /obj/structure/table/rack,
-/obj/item/clothing/under/color/red,
+/obj/item/clothing/pants/jumpsuit/red,
 /obj/item/clothing/shoes/sneakers/brown,
 /obj/item/melee/energy/axe,
 /obj/effect/decal/fake_object/light_source/invisible,
@@ -148978,7 +148978,7 @@
 /area/horizon/maintenance/deck_three/aft/starboard)
 "vMl" = (
 /obj/structure/table/rack,
-/obj/item/clothing/under/color/red,
+/obj/item/clothing/pants/jumpsuit/red,
 /obj/item/clothing/shoes/sneakers/brown,
 /obj/item/clothing/suit/armor/vest,
 /obj/item/clothing/head/helmet/swat,
@@ -158422,7 +158422,7 @@
 /area/rnd/xenobiology/xenoflora)
 "xbX" = (
 /obj/structure/table/rack,
-/obj/item/clothing/under/color/green,
+/obj/item/clothing/pants/jumpsuit/green,
 /obj/item/clothing/shoes/sneakers/brown,
 /obj/item/clothing/suit/armor/tdome/green,
 /obj/item/clothing/head/helmet/thunderdome,

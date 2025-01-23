@@ -338,7 +338,7 @@
 	return ..()
 
 /obj/structure/closet/secure_closet/brig/fill()
-	new /obj/item/clothing/under/color/orange( src )
+	new /obj/item/clothing/pants/jumpsuit/orange( src )
 	new /obj/item/clothing/shoes/sneakers/orange( src )
 
 /obj/structure/closet/secure_closet/courtroom

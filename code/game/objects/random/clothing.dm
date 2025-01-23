@@ -67,26 +67,26 @@
 	desc = "This is a random colored jumpsuit."
 	icon_state = "uniform"
 	spawnlist = list(
-		/obj/item/clothing/under/color/black,
-		/obj/item/clothing/under/color/blue,
-		/obj/item/clothing/under/color/green,
-		/obj/item/clothing/under/color/grey,
-		/obj/item/clothing/under/color/orange,
-		/obj/item/clothing/under/color/pink,
-		/obj/item/clothing/under/color/red,
-		/obj/item/clothing/under/color/white,
-		/obj/item/clothing/under/color/yellow,
-		/obj/item/clothing/under/color/lightblue,
-		/obj/item/clothing/under/color/aqua,
-		/obj/item/clothing/under/color/purple,
-		/obj/item/clothing/under/color/lightpurple,
-		/obj/item/clothing/under/color/lightgreen,
-		/obj/item/clothing/under/color/lightbrown,
-		/obj/item/clothing/under/color/brown,
-		/obj/item/clothing/under/color/yellowgreen,
-		/obj/item/clothing/under/color/darkblue,
-		/obj/item/clothing/under/color/lightred,
-		/obj/item/clothing/under/color/darkred
+		/obj/item/clothing/pants/jumpsuit/black,
+		/obj/item/clothing/pants/jumpsuit/blue,
+		/obj/item/clothing/pants/jumpsuit/green,
+		/obj/item/clothing/pants/jumpsuit/grey,
+		/obj/item/clothing/pants/jumpsuit/orange,
+		/obj/item/clothing/pants/jumpsuit/pink,
+		/obj/item/clothing/pants/jumpsuit/red,
+		/obj/item/clothing/pants/jumpsuit/white,
+		/obj/item/clothing/pants/jumpsuit/yellow,
+		/obj/item/clothing/pants/jumpsuit/lightblue,
+		/obj/item/clothing/pants/jumpsuit/aqua,
+		/obj/item/clothing/pants/jumpsuit/purple,
+		/obj/item/clothing/pants/jumpsuit/lightpurple,
+		/obj/item/clothing/pants/jumpsuit/lightgreen,
+		/obj/item/clothing/pants/jumpsuit/lightbrown,
+		/obj/item/clothing/pants/jumpsuit/brown,
+		/obj/item/clothing/pants/jumpsuit/yellowgreen,
+		/obj/item/clothing/pants/jumpsuit/darkblue,
+		/obj/item/clothing/pants/jumpsuit/lightred,
+		/obj/item/clothing/pants/jumpsuit/darkred
 	)
 
 /obj/random/suit
@@ -128,7 +128,7 @@
 		/obj/item/clothing/suit/armor/vest = 1,
 
 		/obj/item/clothing/under/chameleon = 0.75,
-		/obj/item/clothing/under/color/black = 7.5,
+		/obj/item/clothing/pants/jumpsuit/black = 7.5,
 
 		/obj/item/gun/energy/chameleon = 0.1,
 		/obj/item/gun/bang/deagle = 0.1,

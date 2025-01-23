@@ -6133,8 +6133,8 @@
 /obj/random/colored_jumpsuit,
 /obj/random/colored_jumpsuit,
 /obj/item/clothing/gloves/purple,
-/obj/item/clothing/under/color/lightpurple,
-/obj/item/clothing/under/color/lightpurple,
+/obj/item/clothing/pants/jumpsuit/lightpurple,
+/obj/item/clothing/pants/jumpsuit/lightpurple,
 /obj/item/clothing/head/beret/janitor,
 /obj/item/clothing/shoes/jackboots,
 /obj/item/clothing/shoes/galoshes,
@@ -9447,7 +9447,7 @@
 /obj/structure/table/rack/clothing{
 	dir = 4
 	},
-/obj/item/clothing/under/color/aqua,
+/obj/item/clothing/pants/jumpsuit/aqua,
 /obj/item/clothing/under/dress/white{
 	pixel_x = 5
 	},

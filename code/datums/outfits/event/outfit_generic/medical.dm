@@ -6,9 +6,9 @@
 		/obj/item/clothing/under/rank/medical/generic,
 		/obj/item/clothing/under/rank/medical/surgeon,
 		/obj/item/clothing/under/rank/medical/surgeon,
-		/obj/item/clothing/under/color/white,
-		/obj/item/clothing/under/color/blue,
-		/obj/item/clothing/under/color/lightblue,
+		/obj/item/clothing/pants/jumpsuit/white,
+		/obj/item/clothing/pants/jumpsuit/blue,
+		/obj/item/clothing/pants/jumpsuit/lightblue,
 	)
 	suit = list(
 		/obj/item/clothing/suit/storage/hooded/wintercoat,
