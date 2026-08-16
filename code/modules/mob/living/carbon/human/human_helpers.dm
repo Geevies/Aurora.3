@@ -58,7 +58,7 @@
 
 	var/binoc_check
 	if(client)
-		binoc_check = client.view == world.view
+		binoc_check = client.view == client.get_hud_view() && client.pixel_x == client.hud_pixel_x && client.pixel_y == 0
 	else
 		binoc_check = TRUE
 

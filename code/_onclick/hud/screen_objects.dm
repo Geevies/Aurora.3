@@ -17,6 +17,28 @@
 	var/datum/hud/hud = null
 	appearance_flags = NO_CLIENT_COLOR
 
+/// Decorative frame behind the left-side inventory controls.
+/atom/movable/screen/inventory_backdrop
+	icon = 'icons/hud/mob/inventory_backdrop.dmi'
+	icon_state = ""
+	name = " "
+	screen_loc = ui_inventory_backdrop
+	layer = FULLSCREEN_LAYER
+	plane = FULLSCREEN_PLANE
+	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+
+/// Hides the world beneath the sidebar and prevents clicks from reaching it.
+/atom/movable/screen/inventory_occlusion
+	icon_state = "black"
+	name = " "
+	screen_loc = ui_inventory_occlusion
+	layer = FULLSCREEN_LAYER - 0.1
+	plane = FULLSCREEN_PLANE
+	mouse_opacity = MOUSE_OPACITY_OPAQUE
+
+/atom/movable/screen/inventory_occlusion/Click()
+	return TRUE
+
 /atom/movable/screen/Initialize(mapload, ...)
 	. = ..()
 	//This is done with signals because the screen code sucks, blame the ancient developers

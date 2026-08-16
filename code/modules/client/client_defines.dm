@@ -4,7 +4,10 @@
 
 /client
 	parent_type = /datum
-
+	/// Normal view dimensions required by the active HUD, or null for world.view.
+	var/hud_view
+	/// Normal horizontal camera offset required by the active HUD.
+	var/hud_pixel_x = 0
 // Admin
 	var/datum/admins/holder = null
 	var/datum/admins/deadmin_holder = null
@@ -110,3 +113,6 @@
 
 	/// Cooldown for pinging Storytellers from the OOC tab.
 	COOLDOWN_DECLARE(storyteller_ping_cooldown)
+
+/client/proc/get_hud_view()
+	return hud_view || world.view

@@ -19,6 +19,19 @@
 	var/atom/movable/screen/using
 	var/atom/movable/screen/inventory/inv_box
 
+	target.client.hud_view = UI_HUMAN_VIEW
+	target.client.hud_pixel_x = UI_GAME_CAMERA_OFFSET_X
+	target.client.view = target.client.hud_view
+	target.client.pixel_x = target.client.hud_pixel_x
+
+	using = new /atom/movable/screen/inventory_occlusion()
+	using.hud = src
+	src.adding += using
+
+	using = new /atom/movable/screen/inventory_backdrop()
+	using.hud = src
+	src.adding += using
+
 	// Draw the various inventory equipment slots.
 	var/has_hidden_gear
 	for(var/gear_slot in hud_data.gear)
@@ -536,4 +549,3 @@
 	var/list/modifiers = params2list(params)
 	if(status_message && modifiers["shift"])
 		to_chat(usr, status_message)
-

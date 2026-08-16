@@ -231,8 +231,8 @@ somewhere on that shuttle. Subtypes of these can be then used to perform ship ov
 		c = E.owner.client
 
 	if(c)
-		c.view = world.view
-		c.pixel_x = 0
+		c.view = c.get_hud_view()
+		c.pixel_x = c.hud_pixel_x
 		c.pixel_y = 0
 
 	UnregisterSignal(user, COMSIG_MOVABLE_MOVED)

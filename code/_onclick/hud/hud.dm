@@ -180,6 +180,11 @@ GLOBAL_LIST(global_huds)
 	..()
 
 /datum/hud/Destroy()
+	if(mymob?.client)
+		mymob.client.hud_view = null
+		mymob.client.hud_pixel_x = 0
+		mymob.client.view = world.view
+		mymob.client.pixel_x = 0
 	mymob = null
 	QDEL_NULL(blobpwrdisplay)
 	QDEL_NULL(blobhealthdisplay)
@@ -346,6 +351,11 @@ GLOBAL_LIST(global_huds)
 	if(!(mymob.client))
 		return FALSE
 
+	mymob.client.hud_view = null
+	mymob.client.hud_pixel_x = 0
+	mymob.client.view = world.view
+	mymob.client.pixel_x = 0
+
 	var/ui_style = ui_style2icon(mymob.client.prefs.UI_style)
 	var/ui_color = mymob.client.prefs.UI_style_color
 	var/ui_alpha = mymob.client.prefs.UI_style_alpha
@@ -383,7 +393,7 @@ GLOBAL_LIST(global_huds)
 	if(!client)
 		return
 
-	if(client.view != world.view)
+	if(client.view != client.get_hud_view())
 		return
 
 	if(hud_used.hud_shown)
@@ -441,7 +451,7 @@ GLOBAL_LIST(global_huds)
 		return
 	if(!client)
 		return
-	if(client.view != world.view)
+	if(client.view != client.get_hud_view())
 		return
 
 	if(hud_used.hud_shown)

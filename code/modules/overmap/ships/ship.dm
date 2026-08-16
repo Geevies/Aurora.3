@@ -271,7 +271,7 @@
 			for(var/datum/weakref/W in machine.viewers)
 				var/mob/M = W.resolve()
 				if(istype(M) && M.client)
-					M.client.pixel_x = pixel_x
+					M.client.pixel_x = M.client.hud_pixel_x + pixel_x
 					M.client.pixel_y = pixel_y
 	..()
 

@@ -1003,28 +1003,28 @@ modules/mob/living/carbon/human/life.dm if you die, you will be zoomed out.
 
 		switch(M.dir)
 			if (NORTH)
-				M.client.pixel_x = 0
+				M.client.pixel_x = M.client.hud_pixel_x
 				M.client.pixel_y = viewoffset
 			if (SOUTH)
-				M.client.pixel_x = 0
+				M.client.pixel_x = M.client.hud_pixel_x
 				M.client.pixel_y = -viewoffset
 			if (EAST)
-				M.client.pixel_x = viewoffset
+				M.client.pixel_x = M.client.hud_pixel_x + viewoffset
 				M.client.pixel_y = 0
 			if (WEST)
-				M.client.pixel_x = -viewoffset
+				M.client.pixel_x = M.client.hud_pixel_x - viewoffset
 				M.client.pixel_y = 0
 
 		if(show_zoom_message)
 			M.visible_message("<b>[M]</b> peers through \the [zoomdevicename ? "[zoomdevicename] of \the [src.name]" : "[src.name]"].")
 
 	else
-		M.client.view = world.view
+		M.client.view = M.client.get_hud_view()
 		if(!M.hud_used.hud_shown)
 			M.toggle_zoom_hud()
 		zoom = 0
 
-		M.client.pixel_x = 0
+		M.client.pixel_x = M.client.hud_pixel_x
 		M.client.pixel_y = 0
 
 		if(!cannotzoom && show_zoom_message)

@@ -98,7 +98,7 @@
 		owner.last_special = world.time + 100
 
 /obj/item/organ/internal/eyes/night/proc/can_change_invisible()
-	if(owner.client && ((owner.client.view != world.view) || (owner.client.pixel_x != 0) || (owner.client.pixel_y != 0))) //using binoculars
+	if(owner.client && ((owner.client.view != owner.client.get_hud_view()) || (owner.client.pixel_x != owner.client.hud_pixel_x) || (owner.client.pixel_y != 0))) //using binoculars
 		return FALSE
 	if(owner.machine && owner.machine.check_eye(owner) >= 0 && owner.client.eye != owner) //using cameras
 		return FALSE
