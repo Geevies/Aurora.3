@@ -158,7 +158,15 @@
 	plane = HUD_PLANE
 	layer = HUD_BASE_LAYER
 
-/atom/movable/screen/storage/Click()
+/atom/movable/screen/storage/Click(location, control, params)
+	var/list/modifiers = params2list(params)
+	if(modifiers["right"] && istype(master, /obj/item/storage))
+		var/obj/item/storage/storage_master = master
+		if(storage_master.uses_grid_inventory())
+			var/obj/item/held_item = usr.get_active_hand()
+			if(held_item && held_item.inventory_flip(usr))
+				storage_master.grid_update_hover(usr, params)
+			return TRUE
 	if(!usr.canClick())
 		return TRUE
 	if(usr.stat || usr.paralysis || usr.stunned || usr.weakened)
@@ -166,8 +174,37 @@
 	if(master)
 		var/obj/item/I = usr.get_active_hand()
 		if(I)
-			usr.ClickOn(master)
+			if(istype(master, /obj/item/storage))
+				var/obj/item/storage/storage_master = master
+				if(storage_master.uses_grid_inventory())
+					storage_master.grid_click_in_progress = TRUE
+					storage_master.grid_click_params = params
+					usr.ClickOn(master)
+					storage_master.grid_click_in_progress = FALSE
+					storage_master.grid_click_params = null
+				else
+					usr.ClickOn(master)
+			else
+				usr.ClickOn(master)
 	return TRUE
+
+/atom/movable/screen/storage/MouseEntered(location, control, params)
+	. = ..()
+	if(istype(master, /obj/item/storage))
+		var/obj/item/storage/storage_master = master
+		storage_master.grid_update_hover(usr, params)
+
+/atom/movable/screen/storage/MouseMove(location, control, params)
+	. = ..()
+	if(istype(master, /obj/item/storage))
+		var/obj/item/storage/storage_master = master
+		storage_master.grid_update_hover(usr, params)
+
+/atom/movable/screen/storage/MouseExited()
+	. = ..()
+	if(usr && usr.client && istype(master, /obj/item/storage))
+		var/obj/item/storage/storage_master = master
+		usr.client.screen -= storage_master.grid_hover
 
 /atom/movable/screen/storage/background
 	name = "background storage"

@@ -1333,6 +1333,7 @@
 #include "code\game\objects\items\weapons\storage\slime_core_bag.dm"
 #include "code\game\objects\items\weapons\storage\stickersheets.dm"
 #include "code\game\objects\items\weapons\storage\storage.dm"
+#include "code\game\objects\items\weapons\storage\grid_inventory.dm"
 #include "code\game\objects\items\weapons\storage\toolbox.dm"
 #include "code\game\objects\items\weapons\storage\uplink_kits.dm"
 #include "code\game\objects\items\weapons\storage\wallets.dm"

@@ -366,10 +366,16 @@ This saves us from having to call add_fingerprint() any time something is put in
 			if(src.get_active_hand() == W)
 				src.remove_from_mob(W)
 			W.forceMove(src.back)
+			if(istype(src.back, /obj/item/storage))
+				var/obj/item/storage/back_storage = src.back
+				back_storage.grid_sync_forced_item(W)
 		if(slot_in_belt)
 			if(src.get_active_hand() == W)
 				src.remove_from_mob(W)
 			W.forceMove(src.belt)
+			if(istype(src.belt, /obj/item/storage))
+				var/obj/item/storage/belt_storage = src.belt
+				belt_storage.grid_sync_forced_item(W)
 		if(slot_tie)
 			var/obj/item/clothing/under/uniform = src.w_uniform
 			uniform.attackby(W,src)

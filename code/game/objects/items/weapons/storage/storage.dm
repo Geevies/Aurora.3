@@ -49,6 +49,28 @@
 	var/atom/movable/screen/storage/storage_end
 	var/list/storage_screens = list()
 	var/atom/movable/screen/close/closer
+	/// Enables spatial, grid-based placement for ordinary storage UIs.
+	var/grid_inventory = TRUE
+	/// Optional explicit grid dimensions. When unset they are derived from max_storage_space.
+	var/grid_columns
+	var/grid_rows
+	/// Capacity used to derive the current grid dimensions.
+	var/grid_capacity
+	/// Occupied cells keyed by "x,y", and the cells occupied by each item.
+	var/list/grid_cells
+	var/list/grid_item_cells
+	/// Placement preview displayed while the user hovers an item over the grid.
+	var/atom/movable/screen/storage_hover/grid_hover
+	/// Azure Peak grid HUD positioning. These are deliberately independent of Aurora's legacy storage layout.
+	var/screen_pixel_x = 5
+	var/screen_pixel_y = 0
+	var/screen_start_x = 1
+	var/screen_start_y = 10
+	var/grid_box_size
+	var/static/list/grid_underlay_appearances_by_size = list()
+	/// Synchronous click context used so legacy subtype overrides retain grid coordinates.
+	var/grid_click_in_progress = FALSE
+	var/grid_click_params
 	var/care_about_storage_depth = TRUE
 
 	///Set this to make it possible to use this item in an inverse way, so you can have the item in your hand and click items on the floor to pick them up.
@@ -105,6 +127,7 @@
 	QDEL_NULL(storage_end)
 	QDEL_LIST(storage_screens)
 	QDEL_NULL(closer)
+	QDEL_NULL(grid_hover)
 	return ..()
 
 /obj/item/storage/resolve_attackby(atom/A, mob/user, click_parameters)
@@ -276,10 +299,11 @@
 	user.client.screen -= storage_continue
 	user.client.screen -= storage_end
 	user.client.screen -= closer
+	user.client.screen -= grid_hover
 	user.client.screen -= contents
 	user.client.screen += closer
 	user.client.screen += contents
-	if(storage_slots)
+	if(uses_grid_inventory() || storage_slots)
 		user.client.screen += boxes
 	else
 		user.client.screen += storage_start
@@ -298,6 +322,7 @@
 	user.client.screen -= storage_continue
 	user.client.screen -= storage_end
 	user.client.screen -= closer
+	user.client.screen -= grid_hover
 	user.client.screen -= contents
 	if(user.s_active == src)
 		user.s_active = null
@@ -472,6 +497,14 @@
 
 //This proc determins the size of the inventory to be displayed. Please touch it only if you know what you're doing.
 /obj/item/storage/proc/orient2hud(mob/user as mob, defer_overlays = FALSE)
+	if(uses_grid_inventory())
+		var/old_grid_capacity = grid_capacity
+		grid_calculate_dimensions()
+		if(old_grid_capacity != grid_capacity)
+			grid_rebuild()
+		grid_orient_objs()
+		return
+	reset_grid_inventory_visuals()
 
 	var/adjusted_contents = contents.len
 
@@ -514,8 +547,11 @@
  * * item_to_check - The `/obj` to check if it can be inserted
  * * stop_messages - Boolean, if `TRUE`, prevents this proc from giving feedback messages
  */
-/obj/item/storage/proc/can_be_inserted(obj/item/item_to_check, stop_messages = FALSE)
+/obj/item/storage/proc/can_be_inserted(obj/item/item_to_check, stop_messages = FALSE, params, storage_click = FALSE)
 	SHOULD_NOT_SLEEP(TRUE)
+	if(grid_click_in_progress)
+		params = grid_click_params
+		storage_click = TRUE
 
 	if(!istype(item_to_check))
 		return FALSE
@@ -580,16 +616,42 @@
 			to_chat(usr, SPAN_NOTICE("\The [src] cannot hold [item_to_check] as it's a storage item of the same size."))
 		return FALSE
 
+	if(uses_grid_inventory())
+		var/requested_coordinates
+		if(storage_click)
+			requested_coordinates = grid_screen_loc_to_coordinates(params2list(params)["screen-loc"])
+		var/grid_coordinates = grid_find_space(item_to_check, requested_coordinates)
+		if(!grid_coordinates && !requested_coordinates)
+			grid_coordinates = grid_repack_for_item(item_to_check)
+		if(!grid_coordinates)
+			if(!stop_messages)
+				to_chat(usr, SPAN_NOTICE("\The [src] has no suitably shaped space for \the [item_to_check]."))
+			return FALSE
+
 	return TRUE
 
 //This proc handles items being inserted. It does not perform any checks of whether an item can or can't be inserted. That's done by can_be_inserted()
 //The stop_warning parameter will stop the insertion message from being displayed. It is intended for cases where you are inserting multiple items at once,
 //such as when picking up all the items on a tile with one click.
-/obj/item/storage/proc/handle_item_insertion(obj/item/W as obj, prevent_warning = 0, mob/user = usr)
+/obj/item/storage/proc/handle_item_insertion(obj/item/W as obj, prevent_warning = 0, mob/user = usr, params, storage_click = FALSE)
 	if(!istype(W)) return 0
+	if(grid_click_in_progress)
+		params = grid_click_params
+		storage_click = TRUE
+	var/grid_coordinates
+	if(uses_grid_inventory())
+		if(storage_click)
+			grid_coordinates = grid_screen_loc_to_coordinates(params2list(params)["screen-loc"])
+		grid_coordinates = grid_find_space(W, grid_coordinates)
+		if(!grid_coordinates && !storage_click)
+			grid_coordinates = grid_repack_for_item(W)
+		if(!grid_coordinates)
+			return FALSE
 	if(user)
 		user.prepare_for_slotmove(W)
 	W.forceMove(src)
+	if(grid_coordinates)
+		grid_add_item(W, grid_coordinates)
 	W.on_enter_storage(src)
 	if(rustle_sound)
 		playsound(src.loc, src.rustle_sound, 50, 0, -5)
@@ -626,6 +688,12 @@
 		user.prepare_for_slotmove(W)
 
 	W.forceMove(src)
+	if(uses_grid_inventory())
+		var/grid_coordinates = grid_find_space(W)
+		if(!grid_coordinates)
+			W.forceMove(get_turf(src))
+			return FALSE
+		grid_add_item(W, grid_coordinates)
 	W.on_enter_storage(src)
 	if (user)
 		W.dropped(user)
@@ -642,6 +710,7 @@
 /obj/item/storage/proc/remove_from_storage(obj/item/W, atom/new_location)
 	if(!istype(W))
 		return FALSE
+	grid_remove_item(W)
 
 	if(animated)
 		animate_parent()
@@ -681,6 +750,7 @@
 /obj/item/storage/proc/remove_from_storage_deferred(obj/item/W, atom/new_location, mob/user)
 	if(!istype(W))
 		return FALSE
+	grid_remove_item(W)
 
 	// fuck if I know.
 	for(var/mob/M in range(1, get_turf(src)))
@@ -724,13 +794,16 @@
 
 	return handle_item_insertion(W, prevent_messages)
 
-/obj/item/storage/attackby(obj/item/attacking_item, mob/user)
+/obj/item/storage/attackby(obj/item/attacking_item, mob/user, params, storage_click = FALSE)
 	..()
+	if(grid_click_in_progress)
+		params = grid_click_params
+		storage_click = TRUE
 
 	if(!attacking_item.dropsafety())
 		return
 
-	if(!can_be_inserted(attacking_item))
+	if(!can_be_inserted(attacking_item, FALSE, params, storage_click))
 		return
 
 	if(istype(attacking_item, /obj/item/tray))
@@ -746,7 +819,7 @@
 			return
 
 	attacking_item.add_fingerprint(user)
-	return handle_item_insertion(attacking_item, null, user)
+	return handle_item_insertion(attacking_item, null, user, params, storage_click)
 
 /obj/item/storage/dropped(mob/user)
 	return ..()
@@ -878,6 +951,8 @@
 		INVOKE_ASYNC(src, PROC_REF(shrinkwrap))
 	else
 		shrinkwrap()
+
+	initialize_grid_inventory()
 
 // Adjusts this storage object's max capacity to exactly the storage required by its contents. Will not decrease max storage capacity, only increase it.
 /obj/item/storage/proc/shrinkwrap()

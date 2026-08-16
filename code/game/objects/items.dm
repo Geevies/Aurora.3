@@ -17,6 +17,14 @@
 	var/burning
 
 	var/storage_cost
+	/// Width of this item in grid-inventory cells. Zero selects a footprint from w_class.
+	var/grid_width = 0
+	/// Height of this item in grid-inventory cells. Zero selects a footprint from w_class.
+	var/grid_height = 0
+	/// The click-area underlay used while this item is displayed in grid storage.
+	var/image/grid_inventory_underlay
+	/// Storage cost used to derive the automatic footprint; explicit footprints ignore it.
+	var/grid_storage_cost
 
 	var/storage_slot_sort_by_name = FALSE
 
@@ -261,6 +269,7 @@
 
 /obj/item/Initialize(mapload, ...)
 	. = ..()
+	initialize_grid_dimensions()
 	if(item_flags & ITEM_FLAG_HELD_MAP_TEXT)
 		set_initial_maptext()
 		check_maptext()
