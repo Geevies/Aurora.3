@@ -34,6 +34,7 @@
 /atom/movable/screen/plane_master/game_world
 	name = "game world plane master"
 	plane = GAME_PLANE
+	render_target = GAME_WORLD_RENDER_TARGET
 	appearance_flags = PLANE_MASTER
 	blend_mode = BLEND_OVERLAY
 
@@ -123,6 +124,37 @@
 /atom/movable/screen/plane_master/emissive/Initialize()
 	. = ..()
 	add_filter("em_block_masking", 1, color_matrix_filter(GLOB.em_mask_matrix))
+
+/// Collects fluid silhouettes without rendering them directly. A single
+/// blurred copy of the game plane is composited through this mask per client.
+/atom/movable/screen/plane_master/fluid_mask
+	name = "fluid blur mask plane master"
+	plane = FLUID_MASK_PLANE
+	render_target = FLUID_MASK_RENDER_TARGET
+	render_relay_plane = null
+	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+	var/obj/render_plane_relay/fluid_blur_overlay
+
+/atom/movable/screen/plane_master/fluid_mask/backdrop(mob/mymob)
+	. = ..()
+	if(fluid_blur_overlay in mymob.client.screen)
+		return
+	fluid_blur_overlay = new
+	fluid_blur_overlay.name = "fluid blur overlay"
+	fluid_blur_overlay.render_source = GAME_WORLD_RENDER_TARGET
+	fluid_blur_overlay.plane = RENDER_PLANE_GAME
+	// Draw the blurred GAME_PLANE copy after the normal game-world relay, but
+	// before ABOVE_GAME_PLANE. Mobs in shallow fluid use the latter until the
+	// fluid covers them, while floors and loose objects remain blur-able.
+	fluid_blur_overlay.layer = ((GAME_PLANE + abs(LOWEST_EVER_PLANE)) * 0.5) + 0.25
+	fluid_blur_overlay.mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+	fluid_blur_overlay.add_filter("fluid_blur", 1, gauss_blur_filter(1.25))
+	fluid_blur_overlay.add_filter("fluid_mask", 2, alpha_mask_filter(render_source = FLUID_MASK_RENDER_TARGET))
+	mymob.client.add_to_screen(fluid_blur_overlay)
+
+/atom/movable/screen/plane_master/fluid_mask/Destroy()
+	QDEL_NULL(fluid_blur_overlay)
+	return ..()
 
 /atom/movable/screen/plane_master/above_lighting
 	name = "above lighting plane master"

@@ -27,6 +27,7 @@
 /atom/movable/proc/update_nearby_tiles(need_rebuild)
 	for(var/turf/simulated/turf in locs)
 		SSair.mark_for_update(turf)
+	fluid_update()
 
 	return 1
 

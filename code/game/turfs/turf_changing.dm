@@ -55,6 +55,7 @@
 	var/old_outside = is_outside
 	var/old_is_open = is_open()
 	var/list/old_resources = resources ? resources.Copy() : null
+	var/obj/effect/liquid/old_fluid = fluid_effect
 
 	SEND_SIGNAL(src, COMSIG_TURF_CHANGE, path)
 
@@ -86,6 +87,10 @@
 	var/list/old_signal_procs = _signal_procs?.Copy()
 
 	var/turf/new_turf = new path(src)
+	if(old_fluid && !QDELETED(old_fluid))
+		new_turf.fluid_effect = old_fluid
+		SSfluids.activate(old_fluid)
+	new_turf.fluid_update()
 
 	if(!density)
 		turf_fire = old_turf_fire

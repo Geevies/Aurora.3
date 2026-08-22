@@ -534,6 +534,7 @@
 	cpr(H, FALSE, cpr_mode) //Again.
 
 /mob/living/carbon/human/proc/cpr_compressions(mob/living/carbon/human/H, medicine_skill)
+	eject_aspirated_water()
 	if(is_asystole())
 		var/break_probability = 5 * rand(2,3)
 		if(medicine_skill < SKILL_LEVEL_FAMILIAR)

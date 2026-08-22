@@ -341,6 +341,7 @@
 	if(world.time > last_pump + 10 SECONDS)
 		last_pump = world.time
 		playsound(src, 'sound/machines/pump.ogg', 25)
+		H.eject_aspirated_water()
 		var/obj/item/organ/internal/heart/heart = H.internal_organs_by_name[BP_HEART]
 		if(heart)
 			heart.external_pump = list(world.time, 0.6)

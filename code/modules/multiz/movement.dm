@@ -141,6 +141,9 @@
 	if(incorporeal_move == INCORPOREAL_BSTECH)
 		return TRUE
 
+	if(can_swim_vertical(direction))
+		return TRUE
+
 	if(Allow_Spacemove())
 		return TRUE
 
@@ -253,6 +256,9 @@
 // Humans and borgs have jetpacks which allows them to override gravity! Or rather,
 // they can have them. So we override and check.
 /mob/living/carbon/human/CanAvoidGravity()
+	if(can_swim_vertical(UP))
+		return TRUE
+
 	if (!restrained())
 		var/obj/item/tank/jetpack/thrust = GetJetpack(src)
 
@@ -331,8 +337,10 @@
 	if((locate(/obj/structure/disposalpipe/up) in below) || (locate(/obj/structure/machinery/atmospherics/pipe/zpipe/up) in below))
 		return FALSE
 
-/mob/can_fall()
+/mob/can_fall(turf/below, turf/simulated/open/dest = src.loc)
 	if(status_flags & NOFALL || incorporeal_move == INCORPOREAL_BSTECH)
+		return FALSE
+	if(dest?.is_flooded(FALSE) || below?.is_flooded(FALSE))
 		return FALSE
 	return ..()
 
@@ -462,6 +470,7 @@
 	visible_message("\The [src] falls and lands on \the [loc]!",
 		"With a loud thud, you land on \the [loc]!", "You hear a thud!")
 
+	damage_mod *= get_fluid_fall_damage_multiplier()
 	var/z_velocity = 5*(levels_fallen**2)
 
 	var/damage = ((60 + z_velocity) + rand(-20,20)) * damage_mod
@@ -517,6 +526,7 @@
 		aug_mod = suspension.suspension_mod
 		suspension.take_damage(10)
 
+	damage_mod *= get_fluid_fall_damage_multiplier()
 	var/z_velocity = 5*(levels_fallen**2)
 	var/damage = (((40 * species.fall_mod) + z_velocity) + rand(-20,20)) * combat_roll * damage_mod * aug_mod
 	var/limb_damage = rand(0,damage/2)
@@ -662,6 +672,7 @@
 	if (!.)
 		return
 
+	damage_mod *= get_fluid_fall_damage_multiplier()
 	var/z_velocity = 5*(levels_fallen**2)
 	var/damage = ((60 + z_velocity) + rand(-20,20)) * damage_mod
 	if(istype(loc, /turf/simulated/floor/exoplanet/asteroid))
@@ -703,7 +714,7 @@
 	var/momentum = speed * mass //8
 	if(weight <= 10) //Keeps damages sane.
 		momentum = momentum / THROWNOBJ_KNOCKBACK_DIVISOR
-	var/damage = round(fall_force * momentum) //64
+	var/damage = round(fall_force * momentum * get_fluid_fall_damage_multiplier())
 
 	var/miss_chance = max(10 * (levels_fallen), 0)
 

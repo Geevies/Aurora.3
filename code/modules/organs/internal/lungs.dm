@@ -179,6 +179,11 @@
 	var/exhaled_pp = (exhaling/breath.total_moles)*breath_pressure
 
 	var/inhale_efficiency = min(round(((inhaling/breath.total_moles)*breath_pressure)/safe_pressure_min, 0.001), 3)
+	if(!owner.can_breathe_water())
+		var/aspirated_water = REAGENT_VOLUME(owner.breathing, /singleton/reagent/water/aspirated)
+		if(aspirated_water > FLUID_ASPIRATION_IMPAIRMENT_START)
+			var/occlusion = (aspirated_water - FLUID_ASPIRATION_IMPAIRMENT_START) / (FLUID_ASPIRATION_MAX - FLUID_ASPIRATION_IMPAIRMENT_START)
+			inhale_efficiency *= 1 - clamp(occlusion, 0, 0.9)
 
 	// Not enough to breathe
 	if(inhale_efficiency < 1)
@@ -207,24 +212,41 @@
 		// Too much exhaled gas in the air
 		if(exhaled_pp > safe_exhaled_max)
 			if (!owner.co2_alert|| prob(15))
-				var/word = pick("extremely dizzy","short of breath","faint","confused")
-				to_chat(owner, SPAN_DANGER("You feel [word]."))
+				if(owner.fluid_mouth_submerged)
+					if(owner.fluid_breath_hold_until > world.time)
+						if(owner.fluid_breath_hold_until - world.time <= 30 SECONDS)
+							to_chat(owner, SPAN_DANGER("You can't hold your breath much longer!"))
+					else
+						to_chat(owner, SPAN_DANGER("Water fills your mouth and nose. You are drowning!"))
+				else
+					var/word = pick("extremely dizzy","short of breath","faint","confused")
+					to_chat(owner, SPAN_DANGER("You feel [word]."))
 
 			owner.co2_alert = 1
 			failed_exhale = 1
 
 		else if(exhaled_pp > safe_exhaled_max * 0.7)
 			if (!owner.co2_alert || prob(1))
-				var/word = pick("dizzy","short of breath","faint","momentarily confused")
-				to_chat(owner, SPAN_WARNING("You feel [word]."))
+				if(owner.fluid_mouth_submerged)
+					if(owner.fluid_breath_hold_until > world.time)
+						if(owner.fluid_breath_hold_until - world.time <= 1 MINUTE)
+							to_chat(owner, SPAN_WARNING("Your lungs burn as you hold your breath!"))
+					else
+						to_chat(owner, SPAN_WARNING("Your lungs burn as you struggle for air!"))
+				else
+					var/word = pick("dizzy","short of breath","faint","momentarily confused")
+					to_chat(owner, SPAN_WARNING("You feel [word]."))
 
 			owner.co2_alert = 1
 			failed_exhale = 1
 
 		else if(exhaled_pp > safe_exhaled_max * 0.6)
 			if (prob(0.3))
-				var/word = pick("a little dizzy","short of breath")
-				to_chat(owner, SPAN_WARNING("You feel [word]."))
+				if(owner.fluid_mouth_submerged)
+					to_chat(owner, SPAN_WARNING("You struggle to hold your breath beneath the water."))
+				else
+					var/word = pick("a little dizzy","short of breath")
+					to_chat(owner, SPAN_WARNING("You feel [word]."))
 
 		else
 			owner.co2_alert = 0

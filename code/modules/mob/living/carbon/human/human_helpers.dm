@@ -262,9 +262,10 @@
 	return FALSE
 
 /mob/living/carbon/human/proc/is_submerged()
-	if(lying && istype(loc, /turf/simulated/floor/beach/water)) // replace this when we port fluids
+	if(lying && istype(loc, /turf/simulated/floor/beach/water))
 		return TRUE
-	return FALSE
+	var/turf/current_turf = get_turf(src)
+	return current_turf?.is_flooded(lying)
 
 /mob/living/carbon/human/proc/getCryogenicFactor(var/bodytemperature)
 	if(isSynthetic())

@@ -157,6 +157,7 @@ GLOBAL_LIST_INIT(admin_verbs_spawn, list(
 	/client/proc/game_panel,
 	/datum/admins/proc/spawn_fruit,
 	/datum/admins/proc/spawn_custom_item,
+	/datum/admins/proc/spawn_fluid,
 	/datum/admins/proc/spawn_plant,
 	/datum/admins/proc/spawn_atom,		// allows us to spawn instances,
 	/client/proc/cmd_admin_delete,		// delete an instance/object/mob/etc,
@@ -191,6 +192,9 @@ GLOBAL_LIST_INIT(admin_verbs_server, list(
 	))
 
 GLOBAL_LIST_INIT(admin_verbs_debug, list(
+	/datum/admins/proc/fluid_diagnostics,
+	/datum/admins/proc/jump_to_active_fluid,
+	/datum/admins/proc/jump_to_fluid_source,
 	/client/proc/cmd_admin_list_open_jobs,
 	/client/proc/Debug2,
 	/client/proc/DebugToggle,

@@ -588,6 +588,7 @@
 			var/turf/simulated/turf = T
 			update_heat_protection(turf)
 			SSair.mark_for_update(turf)
+			T.fluid_update()
 
 	return 1
 

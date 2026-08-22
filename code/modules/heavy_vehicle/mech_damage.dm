@@ -185,6 +185,7 @@
 
 	visible_message(SPAN_DANGER("\The [src] falls and lands on \the [loc]!"), "", SPAN_DANGER("You hear a thud!"))
 
+	damage_mod *= get_fluid_fall_damage_multiplier()
 	var/z_velocity = 5 * (levels_fallen**2) // 1z - 5, 2z - 20, 3z - 45
 	var/damage = max((z_velocity + rand(-10, 10)) * damage_mod, 0)
 

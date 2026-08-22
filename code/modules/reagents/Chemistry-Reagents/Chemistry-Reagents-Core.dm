@@ -213,6 +213,23 @@
 		if(!S.client && S.target)
 			S.target = null
 			++S.discipline
+
+/singleton/reagent/water/aspirated
+	name = "Aspirated Water"
+	description = "Water trapped inside the respiratory system. It obstructs gas exchange until it can be coughed out or medically purged."
+	breathe_met = REM
+	scannable = TRUE
+
+/singleton/reagent/water/aspirated/affect_breathe(var/mob/living/carbon/human/H, var/alien, var/removed, var/datum/reagents/holder)
+	if(!istype(H) || H.can_breathe_water())
+		return
+	var/obj/item/organ/internal/lungs/lungs = H.internal_organs_by_name[H.species?.breathing_organ]
+	if(istype(lungs) && BP_IS_ROBOTIC(lungs))
+		holder.remove_reagent(type, removed * (FLUID_ROBOTIC_LUNG_CLEARANCE_MULTIPLIER - 1))
+	var/remaining_water = REAGENT_VOLUME(holder, type)
+	if(!H.fluid_mouth_submerged && remaining_water > FLUID_ASPIRATION_IMPAIRMENT_START && prob(min(35, remaining_water * 4)))
+		H.emote("cough")
+		holder.remove_reagent(type, min(removed, remaining_water))
 #undef WATER_MOLS_PER_MIL
 
 /singleton/reagent/fuel
