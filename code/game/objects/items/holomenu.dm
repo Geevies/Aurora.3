@@ -10,7 +10,7 @@
 	light_range = 1.4
 	light_on = FALSE
 
-	req_one_access = list(ACCESS_BAR, ACCESS_GALLEY, ACCESS_HYDROPONICS)
+	req_one_access = list(/datum/access/bar::id, /datum/access/galley::id, /datum/access/hydroponics::id)
 
 	var/rave_mode = FALSE
 	var/menu_text = ""

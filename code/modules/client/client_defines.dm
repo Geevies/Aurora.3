@@ -122,3 +122,5 @@
 	var/parallax_movedir = NONE
 	/// Timers for the area directional animation, one for each layer.
 	var/list/parallax_animate_timers = list()
+	/// Cooldown for pinging Storytellers from the OOC tab.
+	COOLDOWN_DECLARE(storyteller_ping_cooldown)

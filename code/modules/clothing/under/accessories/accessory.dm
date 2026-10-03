@@ -375,6 +375,10 @@
 		to_chat(user, SPAN_NOTICE("You retie \the [src] as \an [alt]."))
 	return ..()
 
+/obj/item/clothing/accessory/scarf/random/Initialize()
+	. = ..()
+	color = get_random_colour(lower = 150)
+
 /obj/item/clothing/accessory/scarf/zebra
 	name = "zebra scarf"
 	build_from_parts = TRUE
@@ -758,31 +762,6 @@
 	flippable = FALSE
 	contained_sprite = TRUE
 
-/obj/item/clothing/accessory/poncho/trinary
-	name = "trinary perfection cape"
-	desc = "A brilliant red and brown cape, commonly worn by those who serve the Trinary Perfection."
-	icon = 'icons/obj/clothing/ties.dmi'
-	icon_override = 'icons/mob/ties.dmi'
-	icon_state = "trinary_cape"
-	item_state = "trinary_cape"
-	overlay_state = "trinary_cape"
-	contained_sprite = FALSE
-	protects_against_weather = FALSE
-
-/obj/item/clothing/accessory/poncho/trinary/pellegrina
-	name = "trinary perfection pellegrina"
-	desc = "A brilliant red and brown cape, commonly worn by those who serve the Trinary Perfection. This one is signifcantly shorter."
-	icon_state = "trinary_pellegrina"
-	item_state = "trinary_pellegrina"
-	overlay_state = "trinary_pellegrina"
-
-/obj/item/clothing/accessory/poncho/trinary/shouldercape
-	name = "trinary perfection shoulder cape"
-	desc = "A brilliant red and brown cape, commonly worn by those who serve the Trinary Perfection. This one is worn over one shoulder."
-	icon_state = "trinary_shouldercape"
-	item_state = "trinary_shouldercape"
-	overlay_state = "trinary_shouldercape"
-
 /obj/item/clothing/accessory/poncho/assunzione
 	name = "\improper Luceian cloak"
 	desc = "A violet cloak adorned with gold inlays worn by devout adherents of Luceism, the dominant faith of Assunzione."
@@ -847,8 +826,8 @@
 	item_state = "neckbrace"
 
 /obj/item/clothing/accessory/tc_pin
-	name = "Tau Ceti pin"
-	desc = "A small, Tau Ceti flag pin of the Republic of Tau Ceti."
+	name = "Republic of Biesel pin"
+	desc = "A small Republic of Biesel flag pin."
 	icon_state = "tc-pin"
 	item_state = "tc-pin"
 	overlay_state = "tc-pin"
@@ -1422,15 +1401,23 @@
 	icon = 'icons/obj/item/clothing/accessory/led_collar.dmi'
 	icon_state = "led_collar"
 	item_state = "led_collar"
-	plane = ABOVE_LIGHTING_PLANE
 	contained_sprite = TRUE
 	slot = ACCESSORY_SLOT_UTILITY_MINOR
+	var/mutable_appearance/inventory_emissive
 
 /obj/item/clothing/accessory/led_collar/Initialize()
 	. = ..()
 	color = pick("#00FFFF", "#FF0000", "#FF00FF", "#FF6600", "#CC00CC")
+	AddOverlays(emissive_appearance(icon, icon_state))
 	set_light_range_power_color(0.5, 0.4, color)
 	set_light_on(TRUE)
+
+/obj/item/clothing/accessory/led_collar/get_inv_overlay(mob/M, force = FALSE)
+	var/image/I = ..()
+	if(!inventory_emissive)
+		inventory_emissive = emissive_appearance(I.icon, I.icon_state)
+	I.AddOverlays(inventory_emissive)
+	return I
 
 /// Update the light mode to one used by accessories when it gets attached.
 /obj/item/clothing/accessory/led_collar/on_attached(obj/item/clothing/S, mob/user)
@@ -1451,8 +1438,7 @@
 
 /obj/item/clothing/accessory/led_collar/get_accessory_mob_overlay(var/mob/living/carbon/human/H, var/force = FALSE)
 	var/image/I = ..()
-	SET_PLANE_EXPLICIT(I, ABOVE_LIGHTING_PLANE, H)
-	I.appearance_flags |= KEEP_APART
+	I.AddOverlays(emissive_appearance(I.icon, I.icon_state, H))
 	return I
 
 /obj/item/clothing/accessory/newgibson_uraniumglass_necklace

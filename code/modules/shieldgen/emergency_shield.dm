@@ -6,7 +6,7 @@
 	density = TRUE
 	opacity = FALSE
 	anchored = FALSE
-	req_access = list(ACCESS_ENGINE)
+	req_access = list(/datum/access/engine::id)
 	maxhealth = 100
 	var/active = FALSE
 	/// Malfunction causes parts of the shield to slowly dissipate
@@ -361,7 +361,6 @@
 	if(. != BULLET_ACT_HIT)
 		return .
 
-	health -= hitting_projectile.get_structure_damage()
 	check_failure()
 	opacity = TRUE
 	addtimer(CALLBACK(src, PROC_REF(update_opacity), FALSE), 2 SECONDS)

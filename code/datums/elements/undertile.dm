@@ -33,6 +33,10 @@
 
 	var/turf/turf = get_turf(source)
 
+	// Tent groundsheets leave cables accessible on top of the fabric.
+	if(istype(source, /obj/structure/cable) && turf?.has_tent_floor())
+		underfloor_accessibility = UNDERFLOOR_INTERACTABLE
+
 	if(isobj(source))
 		var/obj/source_obj = source
 		if(!source_obj.uses_undertile())

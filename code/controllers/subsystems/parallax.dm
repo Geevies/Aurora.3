@@ -26,7 +26,7 @@ SUBSYSTEM_DEF(parallax)
 
 /datum/controller/subsystem/parallax/Initialize()
 	build_space_appearances()
-	set_random_parallax_layer(pick_weight(random_parallax_weights))
+	set_random_parallax_layer(pickweight(random_parallax_weights))
 	planet_y_offset = rand(100, 160)
 	planet_x_offset = rand(100, 160)
 	return SS_INIT_SUCCESS

@@ -149,7 +149,7 @@
 	return 1
 
 /turf/simulated/floor/can_lay_cable()
-	return can_have_cabling() && underfloor_accessibility >= UNDERFLOOR_INTERACTABLE
+	return can_have_cabling() && (underfloor_accessibility >= UNDERFLOOR_INTERACTABLE || has_tent_floor())
 
 /turf/simulated/can_have_cabling()
 	return TRUE

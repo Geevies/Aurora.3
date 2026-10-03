@@ -88,6 +88,8 @@ GLOBAL_LIST_INIT(admin_verbs_admin, list(
 	/client/proc/allow_stationbound_reset,
 	/client/proc/end_round,
 	/client/proc/event_manager_panel,
+	/client/proc/persistence_panel,
+	/client/proc/server_configuration,
 	/client/proc/empty_ai_core_toggle_latejoin,
 	/client/proc/aooc,
 	/client/proc/change_human_appearance_admin,	// Allows an admin to change the basic appearance of human-based mobs ,
@@ -148,8 +150,7 @@ GLOBAL_LIST_INIT(admin_verbs_fun, list(
 	/client/proc/fab_tip,
 	/client/proc/apply_sunstate,
 	/datum/admins/proc/ccannoucment,
-	/datum/admins/proc/set_odyssey,
-	/datum/admins/proc/toggle_persistence
+	/datum/admins/proc/set_odyssey
 	))
 
 GLOBAL_LIST_INIT(admin_verbs_spawn, list(
@@ -194,6 +195,8 @@ GLOBAL_LIST_INIT(admin_verbs_debug, list(
 	/client/proc/Debug2,
 	/client/proc/DebugToggle,
 	/client/proc/DebugToggleAll,
+	/client/proc/registry_get_value,
+	/client/proc/registry_set_value,
 	/client/proc/kill_air,
 	/client/proc/ZASSettings,
 	/client/proc/cmd_debug_make_powernets,
@@ -204,6 +207,7 @@ GLOBAL_LIST_INIT(admin_verbs_debug, list(
 	/client/proc/cmd_admin_delete,
 	/client/proc/cmd_debug_del_all,
 	/client/proc/air_report,
+	/client/proc/toggle_nonhorizon_temperature_graphics,
 	/client/proc/reload_admins,
 	/client/proc/print_random_map,
 	/client/proc/create_random_map,
@@ -457,6 +461,7 @@ GLOBAL_LIST_INIT(admin_verbs_mod, list(
 	/client/proc/cmd_admin_check_contents,
 	/client/proc/print_logout_report,
 	/client/proc/check_ai_laws,			/*shows AI and borg laws*/
+	/client/proc/persistence_panel,
 	/client/proc/aooc,
 	/client/proc/toggle_aooc,
 	/client/proc/alooc,
@@ -492,6 +497,8 @@ GLOBAL_LIST_INIT(admin_verbs_dev, list( //will need to be altered - Ryan784
 	/client/proc/debug_controller,
 	/client/proc/debug_variables,
 	/client/proc/dsay,
+	/client/proc/persistence_panel,
+	/client/proc/server_configuration,
 	/client/proc/hide_most_verbs,
 	/client/proc/kill_air,
 	/client/proc/kill_airgroup,
@@ -1325,7 +1332,9 @@ GLOBAL_LIST_INIT(admin_verbs_storyteller, list(
 		return
 
 	var/mission_name = input("Enter Mission Name or press cancel to Reset","Mission Name") as null|text
-	SSpersistent_configuration.forced_awaymission = mission_name
+	if(!SSregistry.setValue("forced_awaymission", mission_name))
+		to_chat(usr, SPAN_WARNING("Failed to persist forced away mission to registry."))
+		return
 
 	if(!mission_name)
 		log_and_message_admins("reset the forced away mission.")

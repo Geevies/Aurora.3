@@ -6,7 +6,13 @@
 
 /turf/simulated/proc/update_graphic(list/graphic_add = null, list/graphic_remove = null)
 	if(graphic_add && LAZYLEN(graphic_add))
-		add_vis_contents(get_offset_gas_graphics(graphic_add))
+		if(SSair.suppress_nonhorizon_temperature_graphics && !is_station_level(z))
+			for(var/obj/gas_overlay/graphic in graphic_add)
+				if(graphic.gas_id == GAS_HEAT || graphic.gas_id == GAS_COLD)
+					continue
+				add_vis_contents(graphic.get_offset_overlay(src))
+		else
+			add_vis_contents(get_offset_gas_graphics(graphic_add))
 	if(graphic_remove && LAZYLEN(graphic_remove))
 		remove_vis_contents(get_offset_gas_graphics(graphic_remove))
 

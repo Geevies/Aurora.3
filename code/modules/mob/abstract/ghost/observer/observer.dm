@@ -248,7 +248,7 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 	QDEL_NULL(orbiting)
 	mind.current.ajourn=0
 	var/mob/reentered_body = mind.current
-	reentered_body.key = key
+	client.transfer_key_to_mob(reentered_body)
 	reentered_body.teleop = null
 	reentered_body.client.init_verbs()
 	reentered_body.client?.refresh_parallax_skybox_layers()

@@ -12,6 +12,34 @@
 	groupable = TRUE
 	spawn_amount = 1
 
+/singleton/cargo_item/watertank
+	category = "miscellaneous"
+	name = "water tank"
+	supplier = "orion"
+	description = "A tank filled with water."
+	price = 350
+	items = list(
+		/obj/structure/reagent_dispensers/watertank
+	)
+	access = 0
+	container_type = "box"
+	groupable = TRUE
+	spawn_amount = 1
+
+/singleton/cargo_item/cookingoil
+	category = "miscellaneous"
+	name = "cooking oil tank"
+	supplier = "orion"
+	description = "A tank filled with cooking oil."
+	price = 450
+	items = list(
+		/obj/structure/reagent_dispensers/cookingoil
+	)
+	access = 0
+	container_type = "box"
+	groupable = TRUE
+	spawn_amount = 1
+
 /singleton/cargo_item/sculptingblock
 	category = "miscellaneous"
 	name = "sculpting block"
@@ -59,6 +87,20 @@
 	groupable = FALSE
 	spawn_amount = 1
 
+/singleton/cargo_item/firewood
+	category = "miscellaneous"
+	name = "firewood"
+	supplier = "orion"
+	description = "25 logs for campfires and other wood-burning needs."
+	price = 50
+	items = list(
+		/obj/item/stack/material/wood/log/full
+	)
+	access = 0
+	container_type = "crate"
+	groupable = TRUE
+	spawn_amount = 1
+
 /singleton/cargo_item/sleeping_bag
 	category = "miscellaneous"
 	name = "sleeping bag"
@@ -70,19 +112,5 @@
 	)
 	access = 0
 	container_type = "crate"
-	groupable = TRUE
-	spawn_amount = 1
-
-/singleton/cargo_item/watertank
-	category = "miscellaneous"
-	name = "water tank"
-	supplier = "orion"
-	description = "A tank filled with water."
-	price = 10
-	items = list(
-		/obj/structure/reagent_dispensers/watertank
-	)
-	access = 0
-	container_type = "box"
 	groupable = TRUE
 	spawn_amount = 1

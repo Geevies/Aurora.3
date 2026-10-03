@@ -4,7 +4,7 @@
 /obj/structure/machinery/navbeacon
 
 	icon = 'icons/obj/objects.dmi'
-	icon_state = null
+	icon_state = "floor_beaconf"
 	name = "navigation beacon"
 	desc = "A radio beacon used for bot navigation."
 	// underfloor
@@ -22,11 +22,13 @@
 	/// location response text
 	var/location = ""
 	/// assoc. list of transponder codes
-	var/list/codes
+	var/list/codes = list()
 	/// codes as set on map: "tag1;tag2" or "tag1=value;tag2=value"
 	var/codes_txt = ""
+	/// Position in a cleanbot patrol route. Zero disables automatic numbered patrol routing.
+	var/patrol_number = 0
 
-	req_one_access = list(ACCESS_ENGINE, ACCESS_ROBOTICS)
+	req_one_access = list(/datum/access/engine::id, /datum/access/robotics::id)
 
 /obj/structure/machinery/navbeacon/mechanics_hints(mob/user, distance, is_adjacent)
 	. += ..()
@@ -36,6 +38,7 @@
 	. = ..()
 	AddElement(/datum/element/undertile, TRAIT_T_RAY_VISIBLE)
 	RegisterSignal(src, COMSIG_UNDERTILE_UPDATED, PROC_REF(on_undertile_updated))
+	patrol_number = max(0, round(patrol_number))
 
 	//If mapped, set the codes and hide it accordingly, otherwise, you're being built, so don't do that
 	//and unanchor yourself, as you'll be transported around, most likely
@@ -98,7 +101,7 @@
 		return
 
 	var/request = signal.data["findbeacon"]
-	if(request && ((request in codes) || request == "any" || request == location))
+	if(request && ((codes && (request in codes)) || request == "any" || request == location))
 		addtimer(CALLBACK(src, PROC_REF(post_signal)), 1)
 
 	// return a signal giving location and transponder codes
@@ -209,6 +212,7 @@
 			<i>(swipe card to unlock controls)</i><BR>
 			Frequency: [format_frequency(freq)]<BR><HR>
 			Location: [location ? location : "(none)"]</A><BR>
+			Cleanbot Patrol Number: [patrol_number ? patrol_number : "(disabled)"]<BR>
 			Transponder Codes:<UL>"}
 
 		for(var/key in codes)
@@ -227,6 +231,7 @@
 			<A href='byond://?src=[REF(src)];freq=10'>+</A><BR>
 			<HR>
 			Location: <A href='byond://?src=[REF(src)];locedit=1'>[location ? location : "(none)"]</A><BR>
+			Cleanbot Patrol Number: <A href='byond://?src=[REF(src)];patroledit=1'>[patrol_number ? patrol_number : "(disabled)"]</A><BR>
 			Transponder Codes:<UL>"}
 
 		for(var/key in codes)
@@ -259,6 +264,13 @@
 				if(newloc)
 					location = newloc
 					updateDialog()
+
+			else if(href_list["patroledit"])
+				var/new_patrol_number = input(usr, "Enter the cleanbot patrol number. Use 0 to disable numbered patrol routing.", "Navigation Beacon", patrol_number) as num|null
+				if(isnull(new_patrol_number))
+					return
+				patrol_number = max(0, round(new_patrol_number))
+				updateDialog()
 
 			else if(href_list["edit"])
 				var/codekey = href_list["code"]

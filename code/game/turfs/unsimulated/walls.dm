@@ -34,7 +34,8 @@
 		/obj/structure/window_frame,
 		/obj/structure/window_frame/unanchored,
 		/obj/structure/window_frame/empty,
-		/obj/structure/arch
+		/obj/structure/arch,
+		/obj/structure/fake_wall
 	)
 
 /turf/unsimulated/wall/fakepdoor
@@ -53,7 +54,8 @@
 		/turf/unsimulated/wall/steel,
 		/obj/structure/window_frame,
 		/obj/structure/window_frame/unanchored,
-		/obj/structure/window_frame/empty
+		/obj/structure/window_frame/empty,
+		/obj/structure/fake_wall
 	)
 
 /turf/unsimulated/wall/darkshuttlewall
@@ -67,7 +69,8 @@
 		/turf/unsimulated/wall/riveted,
 		/obj/structure/window_frame,
 		/obj/structure/window_frame/unanchored,
-		/obj/structure/window_frame/empty
+		/obj/structure/window_frame/empty,
+		/obj/structure/fake_wall
 	)
 
 /turf/unsimulated/wall/fakeairlock
@@ -88,7 +91,8 @@
 		/obj/structure/window_frame/unanchored,
 		/obj/structure/window_frame/empty,
 		/obj/structure/machinery/door,
-		/obj/structure/machinery/door/airlock
+		/obj/structure/machinery/door/airlock,
+		/obj/structure/fake_wall
 	)
 	smoothing_flags = SMOOTH_MORE
 	icon_state = "map_white"
@@ -105,6 +109,6 @@
 		/turf/unsimulated/wall/shuttle/scc_space_ship,
 		/turf/simulated/wall/shuttle/scc_space_ship,
 		/obj/structure/window/shuttle/scc_space_ship,
-		/obj/structure/machinery/door/airlock
+		/obj/structure/machinery/door/airlock,
+		/obj/structure/fake_wall
 	)
-

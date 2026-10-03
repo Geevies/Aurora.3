@@ -14,19 +14,23 @@
 	name = "Robotech Deluxe"
 	desc = "All the tools you need to create your own robot army."
 	icon_state = "robotics"
-	req_access = list(ACCESS_ROBOTICS)
+	icon_vend = "robotics-vend"
+	req_access = list(/datum/access/robotics::id)
 	vend_id = "robo-tools"
 	products = list(
 		/obj/item/stack/cable_coil = 4,
-		/obj/item/flash/synthetic = 4,
+		/obj/item/flash/synthetic = 10,
 		/obj/item/cell/high = 12,
 		/obj/item/assembly/prox_sensor = 8,
 		/obj/item/assembly/signaler = 20,
 		/obj/item/healthanalyzer = 3,
 		/obj/item/surgery/scalpel = 2,
+		/obj/item/surgery/hemostat = 2,
+		/obj/item/storage/firstaid/empty = 2,
 		/obj/item/surgery/circular_saw = 2,
 		/obj/item/screwdriver = 5,
-		/obj/item/crowbar = 5
+		/obj/item/crowbar = 5,
+		/obj/item/mmi = 2
 	)
 	contraband = list(
 		/obj/item/flash = 2
@@ -54,7 +58,8 @@
 	name = "Engi-Vend"
 	desc = "Spare tool vending. What? Did you expect some witty description?"
 	icon_state = "engivend"
-	req_access = list(ACCESS_ENGINE)
+	icon_vend = "engivend-vend"
+	req_access = list(/datum/access/engine::id)
 	vend_id = "tools"
 	products = list(
 		/obj/item/multitool = 4,
@@ -103,7 +108,7 @@
 	icon_vend = "tool-vend"
 	light_mask = "tool-lightmask"
 	vend_id = "tools"
-	//req_access = list(ACCESS_MAINT_TUNNELS) //Maintenance access
+	//req_access = list(/datum/access/maint_tunnels::id) //Maintenance access
 	products = list(
 		/obj/item/stack/cable_coil/random = 10,
 		/obj/item/crowbar = 5,
@@ -155,7 +160,7 @@
 	icon_deny = "engi-deny"
 	icon_vend = "engi-vend"
 	light_mask = "engi-lightmask"
-	req_access = list(ACCESS_ENGINE_EQUIP)
+	req_access = list(/datum/access/engine_equip::id)
 	vend_id = "tools"
 	products = list(
 		/obj/item/clothing/head/hardhat = 4,
@@ -206,7 +211,7 @@
 	product_ads = "Stop walkin, get talkin!;Get them keys!;Psst, got a minute?"
 	icon_state = "wallencrypt"
 	density = 0 //It is wall-mounted.
-	req_access = list(ACCESS_HOP)
+	req_access = list(/datum/access/hop::id)
 	vend_id = "encryption"
 	products = list(
 		/obj/item/encryptionkey/heads/captain = 1,

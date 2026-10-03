@@ -35,6 +35,7 @@
 	var/mob/living/current
 	var/mob/living/original	//This is being used now, don't remove it
 	var/active = 0
+	var/time_joined
 
 	var/mob/living/admin_mob_placeholder = null
 
@@ -42,6 +43,9 @@
 
 	var/assigned_role
 	var/special_role
+	/// Used in ghostroles to help them recognize their group upon examine.
+	var/recognition_group
+	var/recognition_message
 
 	var/role_alt_title
 
@@ -84,6 +88,7 @@
 /datum/mind/proc/transfer_to(mob/living/new_character)
 	if(!istype(new_character))
 		log_world("ERROR: ## DEBUG: transfer_to(): Some idiot has tried to transfer_to( a non mob/living mob. Please inform Carn")
+	var/client/old_client = current?.client
 	var/datum/changeling/changeling = antag_datums[MODE_CHANGELING]
 	var/datum/vampire/vampire = antag_datums[MODE_VAMPIRE]
 	if(current)					//remove ourself from our old body's mind variable
@@ -110,7 +115,10 @@
 	if(vampire)
 		new_character.make_vampire()
 	if(active)
-		new_character.key = key		//now transfer the key to link the client to our new body
+		if(old_client)
+			old_client.transfer_key_to_mob(new_character)
+		else
+			new_character.key = key		//now transfer the key to link the client to our new body
 
 
 /datum/mind/proc/store_memory(new_text)
@@ -500,6 +508,8 @@
 /datum/mind/proc/reset()
 	assigned_role =   null
 	special_role =    null
+	recognition_group = null
+	recognition_message = null
 	role_alt_title =  null
 	assigned_job =    null
 	//faction =       null //Uncommenting this causes a compile error due to 'undefined type', fucked if I know.
@@ -538,6 +548,7 @@
 			mind.signature = client.prefs.signature
 		if (client.prefs.signfont)
 			mind.signfont = client.prefs.signfont
+	mind.time_joined = world.time
 	mind.current = src
 
 //HUMAN
