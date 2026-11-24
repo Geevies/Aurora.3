@@ -69,13 +69,16 @@
 /datum/unit_test/stargate/start_test()
 	var/list/sites = list()
 	for(var/turf/simulated/floor/site in world)
-		var/turf/front = get_step(site, SOUTH)
-		var/turf/beyond = get_step(front, SOUTH)
-		if(!istype(front, /turf/simulated/floor) || !istype(beyond, /turf/simulated/floor))
-			continue
-		if(site.contains_dense_objects() || front.contains_dense_objects() || beyond.contains_dense_objects())
-			continue
 		if(length(sites) && get_dist(sites[1], site) < 5)
+			continue
+		var/turf/corner = length(sites) ? get_offset_target_turf(site, -1, -2) : get_step(site, SOUTH)
+		var/list/footprint = block(corner, get_offset_target_turf(corner, 2, 2))
+		var/clear = length(footprint) == 9
+		for(var/turf/tile in footprint)
+			if(!istype(tile, /turf/simulated/floor) || tile.contains_dense_objects())
+				clear = FALSE
+				break
+		if(!clear)
 			continue
 		sites += site
 		if(length(sites) == 2)
@@ -83,24 +86,35 @@
 	TEST_ASSERT(length(sites) == 2, "Two clear gate sites are required")
 
 	var/obj/structure/stargate/first = new(sites[1], REF(src))
+	first.set_dir(EAST)
 	var/obj/structure/stargate/second = new(sites[2], REF(src))
-	var/turf/first_exit = get_step(first, SOUTH)
-	var/turf/second_exit = get_step(second, SOUTH)
 	var/failures_before = GLOB.unit_tests_failures
-	if(!(second_exit in first.aperture?.vis_contents) || !(first_exit in second.aperture?.vis_contents))
-		TEST_FAIL("Both apertures must show their partner's exit turf")
+	if(length(first.apertures) != 3 || length(second.apertures) != 3)
+		TEST_FAIL("Each ring must open exactly three segments")
+	for(var/offset in -1 to 1)
+		var/turf/entry = get_offset_target_turf(first, 0, offset)
+		var/turf/other_entry = get_offset_target_turf(second, -offset, 0)
+		var/turf/exit = get_step(other_entry, SOUTH)
+		var/turf/return_exit = get_step(entry, EAST)
+		var/obj/effect/map_effect/portal/stargate/near = locate() in entry
+		var/obj/effect/map_effect/portal/stargate/far = locate() in other_entry
+		if(!(exit in near?.vis_contents) || !(return_exit in far?.vis_contents))
+			TEST_FAIL("Segment [offset] must show its matching exit in both directions")
 
-	var/mob/living/traveler = new(first_exit)
-	step(traveler, NORTH)
-	if(traveler.loc != second_exit)
-		TEST_FAIL("Walking into the first ring must reach the second exit")
-	traveler.throw_at(second, 1, 1)
-	if(traveler.loc != first_exit)
-		TEST_FAIL("A mob thrown into the second ring must return through the first")
-	qdel(traveler)
+		var/mob/living/traveler = new(return_exit)
+		step(traveler, WEST)
+		if(traveler.loc != exit)
+			TEST_FAIL("Walking into segment [offset] must reach its matching exit")
+		traveler.throw_at(other_entry, 1, 1)
+		if(traveler.loc != return_exit)
+			TEST_FAIL("A mob thrown back through segment [offset] must return through the same lane")
+		qdel(traveler)
 
+	var/turf/first_edge = get_step(first, NORTH)
+	var/turf/first_exit = get_step(first_edge, EAST)
+	var/turf/second_exit = get_step(get_step(second, WEST), SOUTH)
 	var/obj/item/cargo = new(first_exit)
-	cargo.throw_at(get_step(first, NORTH), 2, 4)
+	cargo.throw_at(get_step(first_edge, WEST), 2, 4)
 	if(cargo.throwing)
 		cargo.throwing.start_time -= 2
 		cargo.throwing.tick()
@@ -109,7 +123,7 @@
 	qdel(cargo)
 
 	var/obj/projectile/shot = new(first_exit)
-	shot.fire(dir2angle(NORTH))
+	shot.fire(dir2angle(WEST))
 	for(var/i in 1 to 8)
 		if(QDELETED(shot) || shot.loc == get_step(second_exit, SOUTH))
 			break
@@ -118,9 +132,13 @@
 		TEST_FAIL("A projectile must continue out of the receiving ring")
 	qdel(shot)
 
+	var/list/segments = first.apertures + second.apertures
 	qdel(first)
-	if(second.partner || second.aperture || second.icon_state != "idle")
+	if(second.partner || length(second.apertures) || second.icon_state != "idle")
 		TEST_FAIL("Deleting one ring must close the surviving aperture")
+	for(var/obj/effect/map_effect/portal/stargate/segment as anything in segments)
+		if(!QDELETED(segment))
+			TEST_FAIL("Deleting a ring must remove every segment at both ends")
 	qdel(second)
 	if(GLOB.unit_tests_failures == failures_before)
 		return TEST_PASS("Paired views, walking, throws and disconnection work")

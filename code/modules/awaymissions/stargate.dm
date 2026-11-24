@@ -1,11 +1,11 @@
-/// Place two rings with the same gate_id. Each ring's dir points at its exit tile.
+/// Place the center of each three-tile ring with the same gate_id. Its cardinal dir points toward its exit row.
 /obj/structure/stargate
 	name = "stargate"
 	desc = "A metal ring lined with crystalline chevrons. A matching ring can open a passage through its center."
 	icon = 'icons/obj/machinery/stargate.dmi'
 	icon_state = "idle"
-	pixel_x = -8
-	pixel_y = -8
+	pixel_x = -64
+	pixel_y = -64
 	anchored = TRUE
 	density = FALSE
 	pass_flags_self = PASSSTRUCTURE | LETPASSTHROW
@@ -13,7 +13,7 @@
 	var/gate_id = "stargate"
 	var/static/list/unpaired_gates = list()
 	var/obj/structure/stargate/partner
-	var/obj/effect/map_effect/portal/stargate/aperture
+	var/list/apertures
 
 /obj/structure/stargate/Initialize(mapload, pair_id)
 	. = ..()
@@ -22,42 +22,75 @@
 	return INITIALIZE_HINT_LATELOAD
 
 /obj/structure/stargate/LateInitialize()
-	if(isturf(loc) && gate_id && get_step(src, dir))
+	if(isturf(loc) && gate_id && (dir in GLOB.cardinals))
 		find_partner()
 
+/// Ordered from left to right when facing out of the ring.
+/obj/structure/stargate/proc/get_aperture_turfs()
+	var/list/lanes = list(get_step(src, turn(dir, 90)), loc, get_step(src, turn(dir, -90)))
+	for(var/turf/lane as anything in lanes)
+		var/turf/exit = get_step(lane, dir)
+		if(!lane || !exit || (locate(/obj/effect/map_effect/portal) in lane) || (locate(/obj/effect/map_effect/portal) in exit))
+			return
+	return lanes
+
 /obj/structure/stargate/proc/find_partner()
+	var/list/lanes = get_aperture_turfs()
+	if(!lanes)
+		return
 	for(var/obj/structure/stargate/other in unpaired_gates)
-		if(other.gate_id != gate_id || other.loc == loc)
+		if(other.gate_id != gate_id)
 			continue
-		if(get_step(other, other.dir) == loc || get_step(src, dir) == other.loc)
+		var/list/other_lanes = other.get_aperture_turfs()
+		if(!other_lanes)
+			continue
+		var/overlap = FALSE
+		for(var/turf/lane in lanes)
+			if((lane in other_lanes) || (get_step(lane, dir) in other_lanes) || (get_step(lane, REVERSE_DIR(other.dir)) in other_lanes))
+				overlap = TRUE
+				break
+		if(overlap)
 			continue
 		unpaired_gates -= other
 		partner = other
 		other.partner = src
-		aperture = new(loc)
-		other.aperture = new(other.loc)
-		aperture.set_dir(dir)
-		other.aperture.set_dir(other.dir)
-		aperture.open(other.aperture)
-		other.aperture.open(aperture)
-		icon_state = "linked"
-		other.icon_state = "linked"
+		create_apertures(lanes)
+		other.create_apertures(other_lanes)
+		for(var/i in 1 to length(lanes))
+			// Entering one ring and exiting the other reverses their facing-relative order.
+			var/obj/effect/map_effect/portal/stargate/near = apertures[i]
+			var/obj/effect/map_effect/portal/stargate/far = other.apertures[length(lanes) + 1 - i]
+			near.open(far)
+			far.open(near)
 		return
 	unpaired_gates |= src
 
+/obj/structure/stargate/proc/create_apertures(list/lanes)
+	apertures = list()
+	for(var/turf/lane in lanes)
+		var/obj/effect/map_effect/portal/stargate/aperture = new(lane)
+		aperture.set_dir(dir)
+		var/icon/mask = icon(icon, "aperture", dir)
+		var/mask_x = 1 - pixel_x + (lane.x - x) * WORLD_ICON_SIZE
+		var/mask_y = 1 - pixel_y + (lane.y - y) * WORLD_ICON_SIZE
+		mask.Crop(mask_x, mask_y, mask_x + WORLD_ICON_SIZE - 1, mask_y + WORLD_ICON_SIZE - 1)
+		aperture.add_filter("aperture", 1, alpha_mask_filter(icon = mask))
+		apertures += aperture
+	icon_state = "linked"
+
 /obj/structure/stargate/Destroy()
 	unpaired_gates -= src
-	QDEL_NULL(aperture)
+	QDEL_NULL_LIST(apertures)
 	if(partner)
 		var/obj/structure/stargate/other = partner
 		partner = null
 		other.partner = null
-		QDEL_NULL(other.aperture)
+		QDEL_NULL_LIST(other.apertures)
 		other.icon_state = "idle"
 		other.find_partner()
 	return ..()
 
-/// The ring frames a live view of the tile a traveler will arrive on.
+/// Each segment shows the exact exit tile for travelers crossing that part of the ring.
 /obj/effect/map_effect/portal/stargate
 	name = "gateway aperture"
 	icon_state = null
@@ -67,8 +100,6 @@
 /obj/effect/map_effect/portal/stargate/proc/open(obj/effect/map_effect/portal/stargate/other)
 	counterpart = other
 	add_vis_contents(other.get_focused_turf())
-	var/static/icon/aperture_mask = icon('icons/obj/machinery/stargate.dmi', "aperture")
-	add_filter("aperture", 1, alpha_mask_filter(icon = aperture_mask))
 
 /obj/effect/map_effect/portal/stargate/go_through_portal(atom/movable/traveler)
 	var/turf/exit = counterpart.get_focused_turf()
