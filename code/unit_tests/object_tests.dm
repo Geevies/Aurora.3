@@ -87,9 +87,35 @@
 	TEST_ASSERT(length(sites) == 2, "Two clear gate sites are required")
 
 	var/obj/structure/stargate/first = new(sites[1], REF(src))
-	first.set_dir(EAST)
 	var/obj/structure/stargate/second = new(sites[2], REF(src))
 	var/failures_before = GLOB.unit_tests_failures
+	for(var/offset in -1 to 1)
+		var/turf/entry = get_offset_target_turf(first, offset, 0)
+		var/turf/other_entry = get_offset_target_turf(second, offset, 0)
+		var/turf/north_exit = get_step(other_entry, NORTH)
+		var/obj/effect/map_effect/portal/stargate/aperture = locate() in entry
+		if(!(north_exit in aperture?.vis_contents))
+			TEST_FAIL("Aligned lane [offset] must show the north exit turf using the map portal effect")
+		var/mob/living/traveler = new(get_step(entry, SOUTH))
+		step(traveler, NORTH)
+		if(traveler.loc != north_exit)
+			TEST_FAIL("Entering aligned lane [offset] from the south must exit north")
+		step(traveler, SOUTH)
+		if(traveler.loc != get_step(entry, SOUTH))
+			TEST_FAIL("Entering aligned lane [offset] from the north must exit south")
+		qdel(traveler)
+	var/turf/beyond_exit = get_offset_target_turf(second, 0, 2)
+	var/found_room_view = FALSE
+	for(var/obj/effect/map_effect/portal/stargate/aperture in first.apertures)
+		if(beyond_exit in aperture.vis_contents)
+			found_room_view = TRUE
+			break
+	if(!found_room_view)
+		TEST_FAIL("The map portal effect must show the destination room beyond the exit row")
+
+	first.set_address("Unpaired [REF(src)]")
+	first.set_dir(EAST)
+	first.set_address(second.gate_id)
 	if(length(first.apertures) != 3 || length(second.apertures) != 3)
 		TEST_FAIL("Each ring must open exactly three segments")
 	for(var/offset in -1 to 1)
@@ -99,10 +125,9 @@
 		var/turf/south_exit = get_step(other_entry, SOUTH)
 		var/turf/east_exit = get_step(entry, EAST)
 		var/turf/west_exit = get_step(entry, WEST)
-		if(!projection_contains(first.front_view, entry, north_exit) || !projection_contains(first.back_view, entry, south_exit))
-			TEST_FAIL("Segment [offset] must show the correct exit from both sides")
-		if(!projection_contains(first.front_view, west_exit, get_step(north_exit, NORTH)))
-			TEST_FAIL("The view must continue beyond the ring into the destination room")
+		var/obj/effect/map_effect/portal/stargate/aperture = locate() in entry
+		if(!(north_exit in aperture?.vis_contents))
+			TEST_FAIL("Turned lane [offset] must show its exit turf")
 
 		var/mob/living/traveler = new(east_exit)
 		step(traveler, WEST)
@@ -162,7 +187,7 @@
 
 	var/list/segments = first.apertures + second.apertures
 	qdel(first)
-	if(second.partner || length(second.apertures) || second.front_view || second.back_view || second.icon_state != "idle")
+	if(second.partner || length(second.apertures) || second.icon_state != "idle")
 		TEST_FAIL("Deleting one ring must close the surviving aperture")
 	for(var/obj/effect/map_effect/portal/stargate/segment as anything in segments)
 		if(!QDELETED(segment))
@@ -171,9 +196,3 @@
 	if(GLOB.unit_tests_failures == failures_before)
 		return TEST_PASS("Paired views, walking, throws and disconnection work")
 	return UNIT_TEST_FAILED
-
-/datum/unit_test/stargate/proc/projection_contains(list/projection, turf/position, turf/destination)
-	for(var/image/tile in projection)
-		if(tile.loc == position && (destination in tile.vis_contents))
-			return TRUE
-	return FALSE

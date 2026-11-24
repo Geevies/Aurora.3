@@ -1,11 +1,10 @@
-#define STARGATE_VIEW_DEPTH 7
-
 /// Place the center of each three-tile ring with the same gate_id. Its cardinal dir defines the front of the ring.
 /obj/structure/stargate
 	name = "stargate"
 	desc = "A metal ring lined with crystalline chevrons. A matching ring can open a passage through its center."
 	icon = 'icons/obj/machinery/stargate.dmi'
 	icon_state = "idle"
+	layer = ABOVE_OBJ_LAYER
 	pixel_x = -64
 	pixel_y = -64
 	anchored = TRUE
@@ -16,9 +15,6 @@
 	var/static/list/unpaired_gates = list()
 	var/obj/structure/stargate/partner
 	var/list/apertures
-	var/list/front_view
-	var/list/back_view
-	var/list/viewers
 
 /obj/structure/stargate/Initialize(mapload, pair_id)
 	. = ..()
@@ -125,8 +121,8 @@
 			var/obj/effect/map_effect/portal/stargate/far = other.apertures[i]
 			near.counterpart = far
 			far.counterpart = near
-		open_views()
-		other.open_views()
+		show_destination()
+		other.show_destination()
 		return
 	unpaired_gates |= src
 
@@ -135,94 +131,16 @@
 	for(var/turf/lane in lanes)
 		var/obj/effect/map_effect/portal/stargate/aperture = new(lane)
 		aperture.set_dir(dir)
-		var/icon/mask = icon(icon, "aperture", dir)
-		var/mask_x = 1 - pixel_x + (lane.x - x) * WORLD_ICON_SIZE
-		var/mask_y = 1 - pixel_y + (lane.y - y) * WORLD_ICON_SIZE
-		mask.Crop(mask_x, mask_y, mask_x + WORLD_ICON_SIZE - 1, mask_y + WORLD_ICON_SIZE - 1)
-		aperture.aperture_mask = mask
 		apertures += aperture
 	icon_state = "linked"
 
-/obj/structure/stargate/proc/open_views()
-	front_view = project_view(REVERSE_DIR(dir), REVERSE_DIR(partner.dir))
-	back_view = project_view(dir, partner.dir)
-	viewers = list()
-	START_PROCESSING(SSprocessing, src)
-	process()
-
-/// The view widens beyond the opening. Each image copies a live destination turf.
-/obj/structure/stargate/proc/project_view(forward, remote_forward)
-	var/list/projected = list()
-	var/list/visible_turfs = list()
+/obj/structure/stargate/proc/show_destination()
+	var/list/observed_turfs = list()
+	// The map portal renderer projects in world coordinates. Show the exit row when the rings turn the route.
+	var/approach_direction = (dir == partner.dir) ? dir : NONE
 	for(var/obj/effect/map_effect/portal/stargate/aperture in apertures)
-		var/turf/exit = get_step(aperture.counterpart, remote_forward)
-		var/list/visible
-		DVIEW(visible, STARGATE_VIEW_DEPTH, exit, INVISIBILITY_LIGHTING)
-		visible_turfs |= visible
-		var/image/window = make_view_tile(get_turf(aperture), exit, BELOW_OBJ_LAYER)
-		window.filters = list(filter(arglist(alpha_mask_filter(icon = aperture.aperture_mask))))
-		projected += window
-
-	var/turf/local_row = get_turf(src)
-	var/turf/remote_row = get_step(partner, remote_forward)
-	for(var/depth in 1 to STARGATE_VIEW_DEPTH)
-		local_row = get_step(local_row, forward)
-		remote_row = get_step(remote_row, remote_forward)
-		if(!local_row || !remote_row)
-			break
-		if(remote_row in visible_turfs)
-			projected += make_view_tile(local_row, remote_row, ABOVE_PROJECTILE_LAYER)
-		for(var/turn_angle in list(-90, 90))
-			var/turf/local_tile = local_row
-			var/turf/remote_tile = remote_row
-			for(var/offset in 1 to depth + 1)
-				local_tile = get_step(local_tile, turn(forward, turn_angle))
-				remote_tile = get_step(remote_tile, turn(remote_forward, turn_angle))
-				if(!local_tile || !remote_tile)
-					break
-				if(remote_tile in visible_turfs)
-					projected += make_view_tile(local_tile, remote_tile, ABOVE_PROJECTILE_LAYER)
-	return projected
-
-/obj/structure/stargate/proc/make_view_tile(turf/position, turf/destination, image_layer)
-	var/image/tile = image(loc = position, layer = image_layer)
-	tile.plane = GAME_PLANE
-	tile.appearance_flags = PIXEL_SCALE | KEEP_TOGETHER
-	tile.mouse_opacity = MOUSE_OPACITY_TRANSPARENT
-	tile.add_vis_contents(destination)
-	return tile
-
-/obj/structure/stargate/process()
-	var/list/remaining = viewers.Copy()
-	for(var/client/viewer in GLOB.clients)
-		var/turf/eye_turf = get_turf(viewer.eye)
-		if(!eye_turf || eye_turf.z != z || get_dist(src, eye_turf) > STARGATE_VIEW_DEPTH)
-			continue
-		var/side = get_dir(src, eye_turf)
-		if(!(side & (dir | REVERSE_DIR(dir))) || !(src in view(world.view, viewer.eye)))
-			continue
-		var/list/projection = (side & dir) ? front_view : back_view
-		remaining -= viewer
-		if(viewers[viewer] == projection)
-			continue
-		if(viewers[viewer])
-			viewer.images -= viewers[viewer]
-		viewer.images += projection
-		viewers[viewer] = projection
-	for(var/client/viewer as anything in remaining)
-		if(!QDELETED(viewer))
-			viewer.images -= remaining[viewer]
-		viewers -= viewer
-
-/obj/structure/stargate/proc/close_views()
-	if(viewers)
-		STOP_PROCESSING(SSprocessing, src)
-		for(var/client/viewer as anything in viewers)
-			if(!QDELETED(viewer))
-				viewer.images -= viewers[viewer]
-	viewers = null
-	front_view = null
-	back_view = null
+		var/turf/exit = get_step(aperture.counterpart, REVERSE_DIR(partner.dir))
+		aperture.render_destination(exit, approach_direction, observed_turfs)
 
 /obj/structure/stargate/Destroy()
 	disconnect()
@@ -230,14 +148,12 @@
 
 /obj/structure/stargate/proc/disconnect()
 	unpaired_gates -= src
-	close_views()
 	QDEL_NULL_LIST(apertures)
 	icon_state = "idle"
 	if(partner)
 		var/obj/structure/stargate/other = partner
 		partner = null
 		other.partner = null
-		other.close_views()
 		QDEL_NULL_LIST(other.apertures)
 		other.icon_state = "idle"
 		other.find_partner()
@@ -246,9 +162,7 @@
 /obj/effect/map_effect/portal/stargate
 	name = "gateway aperture"
 	icon_state = null
-	layer = BELOW_OBJ_LAYER
-	opacity = FALSE
-	var/icon/aperture_mask
+	vis_flags = VIS_HIDE // Keep nearby rings from recursively rendering each other.
 
 /obj/effect/map_effect/portal/stargate/on_entered(datum/source, atom/movable/arrived, atom/old_loc, list/atom/old_locs)
 	SIGNAL_HANDLER
@@ -276,5 +190,3 @@
 		var/obj/projectile/projectile = traveler
 		projectile.set_angle(dir2angle(exit_direction))
 	return ..(traveler, exit)
-
-#undef STARGATE_VIEW_DEPTH

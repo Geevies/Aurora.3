@@ -102,7 +102,7 @@ when portals are shortly lived, or when portals are made to be obvious with spec
 	return get_step(get_turf(src), dir)
 
 // Determines the size of the block of turfs inside `vis_contents`, and where the portal is in relation to that.
-/obj/effect/map_effect/portal/proc/calculate_dimensions()
+/obj/effect/map_effect/portal/proc/calculate_dimensions(turf/focused_T)
 	var/highest_x = 0
 	var/lowest_x = 0
 
@@ -133,9 +133,28 @@ when portals are shortly lived, or when portals are made to be obvious with spec
 	total_height = (highest_y - lowest_y) + 1
 
 	// Find how far the portal is from the edges.
-	var/turf/focused_T = counterpart.get_focused_turf()
 	portal_distance_x = lowest_x - focused_T.x
 	portal_distance_y = lowest_y - focused_T.y
+
+
+/// Render a destination with the map portal's field of view and pixel alignment.
+/obj/effect/map_effect/portal/proc/render_destination(turf/focus, approach_direction, list/observed_turfs)
+	name = null
+	icon_state = null
+	add_vis_contents(focus)
+	if(approach_direction)
+		var/list/visible
+		DVIEW(visible, world.view, focus, INVISIBILITY_LIGHTING)
+		for(var/turf/visible_turf in visible)
+			if(!(get_dir(visible_turf, focus) & approach_direction) || (visible_turf in observed_turfs))
+				continue
+			add_vis_contents(visible_turf)
+			observed_turfs += visible_turf
+
+	calculate_dimensions(focus)
+	// BYOND anchors the group at the bottom-left turf. Align the focus with the aperture.
+	pixel_x = WORLD_ICON_SIZE * portal_distance_x
+	pixel_y = WORLD_ICON_SIZE * portal_distance_y
 
 
 // Portal masters manage everything else involving portals.
@@ -155,7 +174,6 @@ when portals are shortly lived, or when portals are made to be obvious with spec
 /obj/effect/map_effect/portal/master/LateInitialize()
 	find_counterparts()
 	make_visuals()
-	apply_offset()
 
 /obj/effect/map_effect/portal/master/Destroy()
 	LAZYREMOVE(GLOB.all_portal_masters, src)
@@ -214,35 +232,9 @@ when portals are shortly lived, or when portals are made to be obvious with spec
 	var/list/observed_turfs = list()
 	for(var/thing in portal_lines + src)
 		var/obj/effect/map_effect/portal/P = thing
-		P.name = null
-		P.icon_state = null
-
 		if(!P.counterpart)
 			return
-
-		var/turf/T = P.counterpart.get_focused_turf()
-		P.add_vis_contents(T)
-
-		var/list/things = list()
-		DVIEW(things, world.view, T, INVISIBILITY_LIGHTING)
-		for(var/turf/turf in things)
-			if(get_dir(turf, T) & P.dir)
-				if(turf in observed_turfs) // Avoid showing the same turf twice or more for improved performance.
-					continue
-
-				P.add_vis_contents(turf)
-				observed_turfs += turf
-
-		P.calculate_dimensions()
-
-// Shifts the portal's pixels in order to line up properly, as BYOND offsets the sprite when it holds multiple turfs inside `vis_contents`.
-// This undos the shift that BYOND did.
-/obj/effect/map_effect/portal/master/proc/apply_offset()
-	for(var/thing in portal_lines + src)
-		var/obj/effect/map_effect/portal/P = thing
-
-		P.pixel_x = WORLD_ICON_SIZE * P.portal_distance_x
-		P.pixel_y = WORLD_ICON_SIZE * P.portal_distance_y
+		P.render_destination(P.counterpart.get_focused_turf(), P.dir, observed_turfs)
 
 // Allows portals to transfer emotes.
 // Only portal masters do this to avoid flooding the other side with duplicate messages.
