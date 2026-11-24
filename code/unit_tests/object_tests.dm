@@ -89,6 +89,8 @@
 	var/obj/structure/stargate/first = new(sites[1], REF(src))
 	var/obj/structure/stargate/second = new(sites[2], REF(src))
 	var/failures_before = GLOB.unit_tests_failures
+	if(length(first.preview_images) != 3 || !first.is_approach_side(get_step(first, SOUTH)) || first.is_approach_side(get_step(first, NORTH)))
+		TEST_FAIL("All three previews must be limited to viewers on the approach side")
 	for(var/offset in -1 to 1)
 		var/turf/entry = get_offset_target_turf(first, offset, 0)
 		var/turf/other_entry = get_offset_target_turf(second, offset, 0)
@@ -189,7 +191,7 @@
 
 	var/list/segments = first.apertures + second.apertures
 	qdel(first)
-	if(second.partner || length(second.apertures) || second.icon_state != "idle")
+	if(second.partner || length(second.apertures) || length(second.preview_images) || second.icon_state != "idle")
 		TEST_FAIL("Deleting one ring must close the surviving aperture")
 	for(var/obj/effect/map_effect/portal/stargate/segment as anything in segments)
 		if(!QDELETED(segment))

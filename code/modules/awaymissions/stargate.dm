@@ -15,6 +15,8 @@
 	var/static/list/unpaired_gates = list()
 	var/obj/structure/stargate/partner
 	var/list/apertures
+	var/list/preview_images
+	var/list/preview_viewers
 
 /obj/structure/stargate/Initialize(mapload, pair_id)
 	. = ..()
@@ -130,17 +132,67 @@
 	apertures = list()
 	for(var/turf/lane in lanes)
 		var/obj/effect/map_effect/portal/stargate/aperture = new(lane)
+		aperture.gate = src
 		aperture.set_dir(dir)
 		apertures += aperture
 	icon_state = "linked"
 
 /obj/structure/stargate/proc/show_destination()
+	preview_images = list()
+	preview_viewers = list()
 	var/list/observed_turfs = list()
 	// The map portal renderer projects in world coordinates. Show the exit row when the rings turn the route.
 	var/approach_direction = (dir == partner.dir) ? dir : NONE
 	for(var/obj/effect/map_effect/portal/stargate/aperture in apertures)
 		var/turf/exit = get_step(aperture.counterpart, REVERSE_DIR(partner.dir))
 		aperture.render_destination(exit, approach_direction, observed_turfs, limit_to_aperture = TRUE)
+		// Keep the map portal's grouped scene off-screen until a viewer is facing its approach.
+		aperture.icon_state = "blank"
+		aperture.render_target = "*stargate-[REF(aperture)]"
+		var/image/preview = image(aperture.icon, loc = get_turf(aperture), icon_state = aperture.icon_state, layer = ABOVE_OBJ_LAYER)
+		preview.render_source = aperture.render_target
+		preview.plane = GAME_PLANE
+		preview.mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+		preview.appearance_flags = PIXEL_SCALE | KEEP_APART
+		preview.pixel_x = aperture.pixel_x
+		preview.pixel_y = aperture.pixel_y
+		aperture.pixel_x = 0
+		aperture.pixel_y = 0
+		preview_images += preview
+	START_PROCESSING(SSprocessing, src)
+	process()
+
+/obj/structure/stargate/process()
+	for(var/client/viewer as anything in preview_viewers - GLOB.clients)
+		preview_viewers -= viewer
+	for(var/client/viewer as anything in GLOB.clients)
+		update_preview(viewer)
+
+/obj/structure/stargate/proc/is_approach_side(turf/eye_turf)
+	return eye_turf && eye_turf.z == z && (get_dir(src, eye_turf) & dir)
+
+/obj/structure/stargate/proc/update_preview(client/viewer)
+	if(!preview_images || !viewer)
+		return
+	var/turf/eye_turf = get_turf(viewer.eye)
+	var/show_preview = is_approach_side(eye_turf) && (src in view(world.view, viewer.eye))
+	var/has_preview = (viewer in preview_viewers)
+	if(show_preview && !has_preview)
+		viewer.images += preview_images
+		preview_viewers += viewer
+	else if(!show_preview && has_preview)
+		viewer.images -= preview_images
+		preview_viewers -= viewer
+
+/obj/structure/stargate/proc/clear_preview()
+	if(!preview_images)
+		return
+	STOP_PROCESSING(SSprocessing, src)
+	for(var/client/viewer as anything in preview_viewers)
+		if(!QDELETED(viewer))
+			viewer.images -= preview_images
+	preview_images = null
+	preview_viewers = null
 
 /obj/structure/stargate/Destroy()
 	disconnect()
@@ -148,12 +200,14 @@
 
 /obj/structure/stargate/proc/disconnect()
 	unpaired_gates -= src
+	clear_preview()
 	QDEL_NULL_LIST(apertures)
 	icon_state = "idle"
 	if(partner)
 		var/obj/structure/stargate/other = partner
 		partner = null
 		other.partner = null
+		other.clear_preview()
 		QDEL_NULL_LIST(other.apertures)
 		other.icon_state = "idle"
 		other.find_partner()
@@ -161,10 +215,12 @@
 /// Each segment carries travelers straight through the corresponding lane.
 /obj/effect/map_effect/portal/stargate
 	name = "gateway aperture"
-	icon_state = null
+	icon = 'icons/mob/base_32.dmi'
+	icon_state = "blank"
 	opacity = FALSE
-	layer = ABOVE_PROJECTILE_LAYER
+	blocks_emissive = EMISSIVE_BLOCK_NONE
 	vis_flags = VIS_HIDE // Keep nearby rings from recursively rendering each other.
+	var/obj/structure/stargate/gate
 
 /obj/effect/map_effect/portal/stargate/on_entered(datum/source, atom/movable/arrived, atom/old_loc, list/atom/old_locs)
 	SIGNAL_HANDLER
@@ -191,4 +247,9 @@
 	if(istype(traveler, /obj/projectile))
 		var/obj/projectile/projectile = traveler
 		projectile.set_angle(dir2angle(exit_direction))
-	return ..(traveler, exit)
+	. = ..(traveler, exit)
+	if(ismob(traveler))
+		var/mob/arrived = traveler
+		if(arrived.client)
+			gate?.update_preview(arrived.client)
+			gate?.partner?.update_preview(arrived.client)

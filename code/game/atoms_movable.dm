@@ -438,7 +438,8 @@
 			var/mutable_appearance/gen_emissive_blocker = mutable_appearance(icon, icon_state, plane = EMISSIVE_PLANE, alpha = src.alpha)
 			gen_emissive_blocker.color = GLOB.em_block_color
 			gen_emissive_blocker.dir = dir
-			gen_emissive_blocker.appearance_flags |= appearance_flags
+			// A portal can group the item's appearance. Keep the silhouette on the emissive plane.
+			gen_emissive_blocker.appearance_flags |= appearance_flags | KEEP_APART
 			emissive_overlay = gen_emissive_blocker
 			AddOverlays(emissive_overlay)
 
