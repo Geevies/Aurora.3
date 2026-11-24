@@ -71,9 +71,10 @@
 	for(var/turf/simulated/floor/site in world)
 		if(length(sites) && get_dist(sites[1], site) < 5)
 			continue
-		var/turf/corner = length(sites) ? get_offset_target_turf(site, -1, -2) : get_step(site, SOUTH)
-		var/list/footprint = block(corner, get_offset_target_turf(corner, 2, 2))
-		var/clear = length(footprint) == 9
+		var/turf/corner = get_offset_target_turf(site, -1, -1)
+		var/turf/opposite_corner = get_offset_target_turf(site, 1, length(sites) ? 2 : 1)
+		var/list/footprint = block(corner, opposite_corner)
+		var/clear = length(footprint) == (length(sites) ? 12 : 9)
 		for(var/turf/tile in footprint)
 			if(!istype(tile, /turf/simulated/floor) || tile.contains_dense_objects())
 				clear = FALSE
@@ -93,42 +94,48 @@
 		TEST_FAIL("Each ring must open exactly three segments")
 	for(var/offset in -1 to 1)
 		var/turf/entry = get_offset_target_turf(first, 0, offset)
-		var/turf/other_entry = get_offset_target_turf(second, -offset, 0)
-		var/turf/exit = get_step(other_entry, SOUTH)
-		var/turf/return_exit = get_step(entry, EAST)
-		var/obj/effect/map_effect/portal/stargate/near = locate() in entry
-		var/obj/effect/map_effect/portal/stargate/far = locate() in other_entry
-		if(!(exit in near?.vis_contents) || !(return_exit in far?.vis_contents))
-			TEST_FAIL("Segment [offset] must show its matching exit in both directions")
+		var/turf/other_entry = get_offset_target_turf(second, offset, 0)
+		var/turf/north_exit = get_step(other_entry, NORTH)
+		var/turf/south_exit = get_step(other_entry, SOUTH)
+		var/turf/east_exit = get_step(entry, EAST)
+		var/turf/west_exit = get_step(entry, WEST)
+		if(!projection_contains(first.front_view, entry, north_exit) || !projection_contains(first.back_view, entry, south_exit))
+			TEST_FAIL("Segment [offset] must show the correct exit from both sides")
+		if(!projection_contains(first.front_view, west_exit, get_step(north_exit, NORTH)))
+			TEST_FAIL("The view must continue beyond the ring into the destination room")
 
-		var/mob/living/traveler = new(return_exit)
+		var/mob/living/traveler = new(east_exit)
 		step(traveler, WEST)
-		if(traveler.loc != exit)
-			TEST_FAIL("Walking into segment [offset] must reach its matching exit")
+		if(traveler.loc != north_exit)
+			TEST_FAIL("Entering the front of segment [offset] must exit at the back")
 		traveler.throw_at(other_entry, 1, 1)
-		if(traveler.loc != return_exit)
-			TEST_FAIL("A mob thrown back through segment [offset] must return through the same lane")
+		if(traveler.loc != east_exit)
+			TEST_FAIL("Entering the back of segment [offset] must exit at the front")
+		traveler.forceMove(west_exit)
+		step(traveler, EAST)
+		if(traveler.loc != south_exit)
+			TEST_FAIL("Walking into the back of segment [offset] must exit at the front")
 		qdel(traveler)
 
 	var/turf/first_edge = get_step(first, NORTH)
 	var/turf/first_exit = get_step(first_edge, EAST)
-	var/turf/second_exit = get_step(get_step(second, WEST), SOUTH)
+	var/turf/second_exit = get_step(get_step(second, EAST), NORTH)
 	var/obj/item/cargo = new(first_exit)
 	cargo.throw_at(get_step(first_edge, WEST), 2, 4)
 	if(cargo.throwing)
 		cargo.throwing.start_time -= 2
 		cargo.throwing.tick()
-	if(cargo.loc != get_step(second_exit, SOUTH))
+	if(cargo.loc != get_step(second_exit, NORTH))
 		TEST_FAIL("A thrown item must continue out of the receiving ring")
 	qdel(cargo)
 
 	var/obj/projectile/shot = new(first_exit)
 	shot.fire(dir2angle(WEST))
 	for(var/i in 1 to 8)
-		if(QDELETED(shot) || shot.loc == get_step(second_exit, SOUTH))
+		if(QDELETED(shot) || shot.loc == get_step(second_exit, NORTH))
 			break
 		shot.pixel_move(1)
-	if(QDELETED(shot) || shot.loc != get_step(second_exit, SOUTH))
+	if(QDELETED(shot) || shot.loc != get_step(second_exit, NORTH))
 		TEST_FAIL("A projectile must continue out of the receiving ring")
 	qdel(shot)
 
@@ -155,7 +162,7 @@
 
 	var/list/segments = first.apertures + second.apertures
 	qdel(first)
-	if(second.partner || length(second.apertures) || second.icon_state != "idle")
+	if(second.partner || length(second.apertures) || second.front_view || second.back_view || second.icon_state != "idle")
 		TEST_FAIL("Deleting one ring must close the surviving aperture")
 	for(var/obj/effect/map_effect/portal/stargate/segment as anything in segments)
 		if(!QDELETED(segment))
@@ -164,3 +171,9 @@
 	if(GLOB.unit_tests_failures == failures_before)
 		return TEST_PASS("Paired views, walking, throws and disconnection work")
 	return UNIT_TEST_FAILED
+
+/datum/unit_test/stargate/proc/projection_contains(list/projection, turf/position, turf/destination)
+	for(var/image/tile in projection)
+		if(tile.loc == position && (destination in tile.vis_contents))
+			return TRUE
+	return FALSE

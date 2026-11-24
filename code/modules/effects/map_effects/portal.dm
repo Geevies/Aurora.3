@@ -79,7 +79,7 @@ when portals are shortly lived, or when portals are made to be obvious with spec
 	go_through_portal(arrived)
 
 
-/obj/effect/map_effect/portal/proc/go_through_portal(atom/movable/AM)
+/obj/effect/map_effect/portal/proc/go_through_portal(atom/movable/AM, turf/exit = counterpart.get_focused_turf())
 	// TODO: Find a way to fake the glide or something.
 	if(isliving(AM))
 		var/mob/living/L = AM
@@ -88,13 +88,13 @@ when portals are shortly lived, or when portals are made to be obvious with spec
 			L.stop_pulling()
 			// For some reason, trying to put the pulled object behind the person makes the drag stop and it doesn't even move to the other side.
 		//	pulled.forceMove(get_turf(counterpart))
-			pulled.forceMove(counterpart.get_focused_turf())
-			L.forceMove(counterpart.get_focused_turf())
+			pulled.forceMove(exit)
+			L.forceMove(exit)
 			L.start_pulling(pulled)
 		else
-			L.forceMove(counterpart.get_focused_turf())
+			L.forceMove(exit)
 	else
-		AM.forceMove(counterpart.get_focused_turf())
+		AM.forceMove(exit)
 
 // 'Focused turf' is the turf directly in front of a portal,
 // and it is used both as the destination when crossing, as well as the PoV for visuals.
