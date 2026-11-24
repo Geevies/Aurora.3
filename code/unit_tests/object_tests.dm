@@ -132,6 +132,27 @@
 		TEST_FAIL("A projectile must continue out of the receiving ring")
 	qdel(shot)
 
+	var/datum/tgui/controls = new(null, first, "Stargate")
+	controls.status = UI_INTERACTIVE
+	var/original_address = first.gate_id
+	var/new_address = "Outpost [REF(src)]"
+	first.ui_act("set_address", list("address" = "  ", "previous_address" = original_address), controls)
+	if(first.partner != second || first.gate_id != original_address)
+		TEST_FAIL("A blank address must leave the current passage open")
+
+	first.ui_act("set_address", list("address" = "  [new_address]  ", "previous_address" = original_address), controls)
+	var/list/status = first.ui_data()
+	if(status["address"] != new_address || status["linked"] || length(first.apertures) || length(second.apertures))
+		TEST_FAIL("Applying a new address must close both ends and show the saved address")
+	first.ui_act("set_address", list("address" = original_address, "previous_address" = original_address), controls)
+	if(first.gate_id != new_address)
+		TEST_FAIL("A stale editor must not overwrite a newer address")
+	second.set_address(new_address)
+	status = first.ui_data()
+	if(first.partner != second || !status["linked"] || length(first.apertures) != 3 || length(second.apertures) != 3)
+		TEST_FAIL("Setting matching addresses must reopen the full passage")
+	qdel(controls)
+
 	var/list/segments = first.apertures + second.apertures
 	qdel(first)
 	if(second.partner || length(second.apertures) || second.icon_state != "idle")

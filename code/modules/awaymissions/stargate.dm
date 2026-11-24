@@ -22,8 +22,62 @@
 	return INITIALIZE_HINT_LATELOAD
 
 /obj/structure/stargate/LateInitialize()
-	if(isturf(loc) && gate_id && (dir in GLOB.cardinals))
-		find_partner()
+	find_partner()
+
+/obj/structure/stargate/mechanics_hints(mob/user, distance, is_adjacent)
+	. = ..()
+	. += "Use an empty hand on the ring to set its address. Two gates with the same address can connect."
+
+/obj/structure/stargate/attack_hand(mob/living/user)
+	if(user.a_intent == I_HURT)
+		return ..()
+	add_fingerprint(user)
+	ui_interact(user)
+
+/obj/structure/stargate/ui_state(mob/user)
+	return GLOB.physical_state
+
+/obj/structure/stargate/ui_interact(mob/user, datum/tgui/ui)
+	ui = SStgui.try_update_ui(user, src, ui)
+	if(!ui)
+		ui = new(user, src, "Stargate", "Stargate Controls")
+		ui.open()
+
+/obj/structure/stargate/ui_static_data(mob/user)
+	var/static/list/ring_images
+	if(!ring_images)
+		ring_images = list()
+		for(var/state in list("idle", "linked"))
+			var/icon/ring = icon(initial(icon), state, SOUTH)
+			ring.Crop(1, 49, 160, 112)
+			ring_images[state] = icon2base64(ring)
+	return list("ring_images" = ring_images, "max_length" = MAX_NAME_LEN)
+
+/obj/structure/stargate/ui_data(mob/user)
+	var/area/destination = get_area(partner)
+	return list(
+		"address" = gate_id,
+		"linked" = !!partner,
+		"destination" = destination?.name,
+	)
+
+/obj/structure/stargate/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
+	if(..())
+		return TRUE
+	if(action == "set_address" && params["previous_address"] == gate_id)
+		return set_address(params["address"])
+
+/obj/structure/stargate/proc/set_address(address)
+	if(!istext(address) || length_char(address) > MAX_NAME_LEN)
+		return FALSE
+	address = trim(address)
+	var/static/regex/control_character = regex(@"[[:cntrl:]]")
+	if(!length(address) || control_character.Find(address) || address == gate_id)
+		return FALSE
+	disconnect()
+	gate_id = address
+	find_partner()
+	return TRUE
 
 /// Ordered from left to right when facing out of the ring.
 /obj/structure/stargate/proc/get_aperture_turfs()
@@ -35,6 +89,8 @@
 	return lanes
 
 /obj/structure/stargate/proc/find_partner()
+	if(!isturf(loc) || !gate_id || !(dir in GLOB.cardinals))
+		return
 	var/list/lanes = get_aperture_turfs()
 	if(!lanes)
 		return
@@ -79,8 +135,13 @@
 	icon_state = "linked"
 
 /obj/structure/stargate/Destroy()
+	disconnect()
+	return ..()
+
+/obj/structure/stargate/proc/disconnect()
 	unpaired_gates -= src
 	QDEL_NULL_LIST(apertures)
+	icon_state = "idle"
 	if(partner)
 		var/obj/structure/stargate/other = partner
 		partner = null
@@ -88,7 +149,6 @@
 		QDEL_NULL_LIST(other.apertures)
 		other.icon_state = "idle"
 		other.find_partner()
-	return ..()
 
 /// Each segment shows the exact exit tile for travelers crossing that part of the ring.
 /obj/effect/map_effect/portal/stargate
