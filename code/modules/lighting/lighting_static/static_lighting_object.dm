@@ -15,7 +15,8 @@
 		return
 	..()
 
-	current_underlay = mutable_appearance(LIGHTING_ICON, "transparent", FLOAT_LAYER, LIGHTING_PLANE, 255, RESET_COLOR | RESET_ALPHA | RESET_TRANSFORM)
+	// Keep the light on its own plane when a portal groups the turf it belongs to.
+	current_underlay = mutable_appearance(LIGHTING_ICON, "transparent", FLOAT_LAYER, LIGHTING_PLANE, 255, KEEP_APART | RESET_COLOR | RESET_ALPHA | RESET_TRANSFORM)
 
 	affected_turf = source
 	if (affected_turf.static_lighting_object)

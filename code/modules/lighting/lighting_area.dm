@@ -49,6 +49,7 @@
 /area/proc/add_base_lighting()
 	lighting_effect = mutable_appearance('icons/effects/alphacolors.dmi', "white")
 	lighting_effect.plane = LIGHTING_PLANE
+	lighting_effect.appearance_flags |= KEEP_APART
 	lighting_effect.layer = LIGHTING_PRIMARY_LAYER
 	lighting_effect.blend_mode = BLEND_ADD
 	lighting_effect.alpha = base_lighting_alpha

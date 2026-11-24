@@ -4,7 +4,7 @@
 	desc = "A metal ring lined with crystalline chevrons. A matching ring can open a passage through its center."
 	icon = 'icons/obj/machinery/stargate.dmi'
 	icon_state = "idle"
-	layer = ABOVE_OBJ_LAYER
+	layer = SINGULARITY_LAYER
 	pixel_x = -64
 	pixel_y = -64
 	anchored = TRUE
@@ -140,7 +140,7 @@
 	var/approach_direction = (dir == partner.dir) ? dir : NONE
 	for(var/obj/effect/map_effect/portal/stargate/aperture in apertures)
 		var/turf/exit = get_step(aperture.counterpart, REVERSE_DIR(partner.dir))
-		aperture.render_destination(exit, approach_direction, observed_turfs)
+		aperture.render_destination(exit, approach_direction, observed_turfs, limit_to_aperture = TRUE)
 
 /obj/structure/stargate/Destroy()
 	disconnect()
@@ -162,6 +162,8 @@
 /obj/effect/map_effect/portal/stargate
 	name = "gateway aperture"
 	icon_state = null
+	opacity = FALSE
+	layer = ABOVE_PROJECTILE_LAYER
 	vis_flags = VIS_HIDE // Keep nearby rings from recursively rendering each other.
 
 /obj/effect/map_effect/portal/stargate/on_entered(datum/source, atom/movable/arrived, atom/old_loc, list/atom/old_locs)

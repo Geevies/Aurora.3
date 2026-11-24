@@ -96,6 +96,8 @@
 		var/obj/effect/map_effect/portal/stargate/aperture = locate() in entry
 		if(!(north_exit in aperture?.vis_contents))
 			TEST_FAIL("Aligned lane [offset] must show the north exit turf using the map portal effect")
+		if(aperture?.opacity)
+			TEST_FAIL("A freestanding gate must not block sight of the local room")
 		var/mob/living/traveler = new(get_step(entry, SOUTH))
 		step(traveler, NORTH)
 		if(traveler.loc != north_exit)

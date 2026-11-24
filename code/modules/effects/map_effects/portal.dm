@@ -138,7 +138,7 @@ when portals are shortly lived, or when portals are made to be obvious with spec
 
 
 /// Render a destination with the map portal's field of view and pixel alignment.
-/obj/effect/map_effect/portal/proc/render_destination(turf/focus, approach_direction, list/observed_turfs)
+/obj/effect/map_effect/portal/proc/render_destination(turf/focus, approach_direction, list/observed_turfs, limit_to_aperture = FALSE)
 	name = null
 	icon_state = null
 	add_vis_contents(focus)
@@ -148,6 +148,11 @@ when portals are shortly lived, or when portals are made to be obvious with spec
 		for(var/turf/visible_turf in visible)
 			if(!(get_dir(visible_turf, focus) & approach_direction) || (visible_turf in observed_turfs))
 				continue
+			if(limit_to_aperture)
+				var/delta_x = abs(visible_turf.x - focus.x)
+				var/delta_y = abs(visible_turf.y - focus.y)
+				if((approach_direction & (NORTH | SOUTH)) ? (delta_x > delta_y) : (delta_y > delta_x))
+					continue
 			add_vis_contents(visible_turf)
 			observed_turfs += visible_turf
 
