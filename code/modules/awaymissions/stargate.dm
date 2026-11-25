@@ -503,15 +503,14 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	if(eye_turf?.z == z && (src in view(world.view, viewer.eye)))
 		next_images = get_preview_images(eye_turf)
 	var/list/previous_images = preview_viewers[viewer]
-	if(next_images == previous_images)
-		return
-	if(previous_images)
-		viewer.images -= previous_images
-	if(next_images)
-		viewer.images += next_images
-		preview_viewers[viewer] = next_images
-	else
-		preview_viewers -= viewer
+	if(next_images != previous_images)
+		if(previous_images)
+			viewer.images -= previous_images
+		if(next_images)
+			viewer.images += next_images
+			preview_viewers[viewer] = next_images
+		else
+			preview_viewers -= viewer
 	for(var/datum/langchat_bubble/stargate/bubble as anything in projected_langchat?[viewer])
 		bubble.update_position()
 

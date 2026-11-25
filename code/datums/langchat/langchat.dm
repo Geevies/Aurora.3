@@ -40,22 +40,35 @@
 	src.bubble = bubble
 	src.listeners = listeners
 
+/datum/langchat_bubble/Destroy()
+	for(var/mob/listener in listeners)
+		if(listener.client)
+			listener.client.images -= bubble
+	bubble = null
+	listeners = null
+	return ..()
+
 /// A client-private bubble positioned by the same projection map as the speaker's sprite.
 /datum/langchat_bubble/stargate
 	var/mob/speaker
 	var/client/viewer
 	var/obj/structure/stargate/gate
-	var/base_maptext_x
-	var/base_maptext_y
+	var/atom/movable/screen/stargate_speech/screen_text
 
-/datum/langchat_bubble/stargate/New(image/bubble, mob/speaker, client/viewer, obj/structure/stargate/gate)
+/// A screen object cannot be picked up by a portal's world render target.
+/atom/movable/screen/stargate_speech
+	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+
+/datum/langchat_bubble/stargate/New(image/bubble, mob/speaker, client/viewer, obj/structure/stargate/gate, animation_style)
 	. = ..(bubble)
+	listeners = null
 	src.speaker = speaker
 	src.viewer = viewer
 	src.gate = gate
-	base_maptext_x = bubble.maptext_x
-	base_maptext_y = bubble.maptext_y
-	bubble.loc = null
+	screen_text = new
+	screen_text.appearance = bubble.appearance
+	screen_text.mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+	src.bubble = null
 	LAZYINITLIST(gate.projected_langchat)
 	var/list/active = gate.projected_langchat[viewer]
 	if(!active)
@@ -65,22 +78,33 @@
 	RegisterSignal(speaker, COMSIG_MOVABLE_MOVED, PROC_REF(update_position))
 	RegisterSignal(speaker, COMSIG_QDELETING, PROC_REF(on_speaker_deleted))
 	update_position()
+	speaker.animate_style(screen_text, animation_style)
 
 /datum/langchat_bubble/stargate/proc/update_position()
 	SIGNAL_HANDLER
 	if(QDELETED(viewer))
 		return
-	var/turf/projected = gate.get_projected_speaker_turf(speaker, viewer)
-	if(!projected)
-		// A null location alone can leave a client image visible at its old map position.
-		viewer.images -= bubble
-		bubble.loc = null
+	if(!screen_text)
+		// Bubbles created before a hot reload still own the old world image.
+		if(bubble)
+			viewer.images -= bubble
 		return
-	bubble.maptext_x = base_maptext_x + (projected.x - gate.x) * WORLD_ICON_SIZE + speaker.pixel_x
-	bubble.maptext_y = base_maptext_y + (projected.y - gate.y) * WORLD_ICON_SIZE + speaker.pixel_y
-	bubble.loc = gate.preview_anchor
-	if(!(bubble in viewer.images))
-		viewer.images += bubble
+	var/turf/camera = get_turf(viewer.eye)
+	var/turf/projected = gate.get_projected_speaker_turf(speaker, viewer)
+	if(!projected || !camera || projected.z != camera.z)
+		viewer.screen -= screen_text
+		return
+	var/across = projected.x - camera.x
+	var/depth = projected.y - camera.y
+	var/list/view_size = getviewsize(viewer.view)
+	if(abs(across) > floor(view_size[1] / 2) || abs(depth) > floor(view_size[2] / 2))
+		viewer.screen -= screen_text
+		return
+	var/position = "CENTER:[across * WORLD_ICON_SIZE + speaker.pixel_x],CENTER:[depth * WORLD_ICON_SIZE + speaker.pixel_y]"
+	if(screen_text.screen_loc != position)
+		screen_text.screen_loc = position
+	if(!(screen_text in viewer.screen))
+		viewer.screen += screen_text
 
 /datum/langchat_bubble/stargate/proc/on_speaker_deleted()
 	SIGNAL_HANDLER
@@ -89,7 +113,11 @@
 /datum/langchat_bubble/stargate/Destroy()
 	UnregisterSignal(speaker, list(COMSIG_MOVABLE_MOVED, COMSIG_QDELETING))
 	if(!QDELETED(viewer))
-		viewer.images -= bubble
+		if(screen_text)
+			viewer.screen -= screen_text
+		if(bubble)
+			viewer.images -= bubble
+	QDEL_NULL(screen_text)
 	var/list/active = gate.projected_langchat?[viewer]
 	if(active)
 		active -= src
@@ -98,7 +126,7 @@
 	viewer = null
 	speaker = null
 	gate = null
-	bubble = null
+	listeners = null
 	return ..()
 
 /// The floating bubbles currently shown for this atom.
@@ -106,16 +134,7 @@
 
 /// Drops all active bubbles for this atom.
 /atom/proc/langchat_drop_images()
-	for(var/datum/langchat_bubble/entry as anything in langchat_images)
-		if (!entry || !entry.bubble)
-			continue
-
-		for(var/mob/listener as anything in entry.listeners)
-			if (!listener || !listener.client)
-				continue
-			listener.client.images -= entry.bubble
-		qdel(entry)
-	langchat_images = null
+	QDEL_NULL_LIST(langchat_images)
 
 /atom/proc/get_maptext_x_offset(image/maptext_image)
 	return (world.icon_size / 2) - (maptext_image.maptext_width / 2)
@@ -212,8 +231,7 @@
 			if(!length(perceived))
 				continue
 			var/image/projected = langchat_make_image(perceived, override_color, additional_styles)
-			animate_style(projected, animation_style)
-			LAZYADD(langchat_images, new /datum/langchat_bubble/stargate(projected, msg.speaker, listener.client, gate))
+			LAZYADD(langchat_images, new /datum/langchat_bubble/stargate(projected, msg.speaker, listener.client, gate, animation_style))
 	msg.stargate_audiences = null
 	if(!length(langchat_images))
 		return
@@ -252,24 +270,24 @@
 
 	return "<span class='center [styles.Join(" ")] [use_mob_style ? langchat_styles : ""] langchat'>[text_to_display]</span>"
 
-/// Animates the given maptext image.
-/atom/proc/animate_style(var/image/bubble, animation_style = LANGCHAT_DEFAULT_POP)
+/// Animates maptext on either a world image or a screen object.
+/atom/proc/animate_style(bubble, animation_style = LANGCHAT_DEFAULT_POP)
 	if(bubble)
 		switch(animation_style)
 			if(LANGCHAT_DEFAULT_POP)
-				bubble.alpha = 0
-				animate(bubble, pixel_y = bubble.pixel_y + LANGCHAT_MESSAGE_POP_Y_SINK, alpha = LANGCHAT_MAX_ALPHA, time = LANGCHAT_MESSAGE_POP_TIME)
+				bubble:alpha = 0
+				animate(bubble, pixel_y = bubble:pixel_y + LANGCHAT_MESSAGE_POP_Y_SINK, alpha = LANGCHAT_MAX_ALPHA, time = LANGCHAT_MESSAGE_POP_TIME)
 			if(LANGCHAT_PANIC_POP)
-				bubble.alpha = LANGCHAT_MAX_ALPHA
-				animate(bubble, pixel_y = bubble.pixel_y + LANGCHAT_MESSAGE_PANIC_POP_Y_SINK, time = LANGCHAT_MESSAGE_PANIC_POP_TIME)
-				animate(pixel_x = bubble.pixel_x - LANGCHAT_MESSAGE_PANIC_SHAKE_SIZE, time = LANGCHAT_MESSAGE_PANIC_SHAKE_TIME_TAKEN, easing = CUBIC_EASING)
+				bubble:alpha = LANGCHAT_MAX_ALPHA
+				animate(bubble, pixel_y = bubble:pixel_y + LANGCHAT_MESSAGE_PANIC_POP_Y_SINK, time = LANGCHAT_MESSAGE_PANIC_POP_TIME)
+				animate(pixel_x = bubble:pixel_x - LANGCHAT_MESSAGE_PANIC_SHAKE_SIZE, time = LANGCHAT_MESSAGE_PANIC_SHAKE_TIME_TAKEN, easing = CUBIC_EASING)
 				for(var/i = 1 to LANGCHAT_MESSAGE_PANIC_SHAKE_TIMES)
-					animate(pixel_x = bubble.pixel_x + 2*LANGCHAT_MESSAGE_PANIC_SHAKE_SIZE, time = 2*LANGCHAT_MESSAGE_PANIC_SHAKE_TIME_TAKEN, easing = CUBIC_EASING)
-					animate(pixel_x = bubble.pixel_x - 2*LANGCHAT_MESSAGE_PANIC_SHAKE_SIZE, time = LANGCHAT_MESSAGE_PANIC_SHAKE_TIME_TAKEN, easing = CUBIC_EASING)
-				animate(pixel_x = bubble.pixel_x + LANGCHAT_MESSAGE_PANIC_SHAKE_SIZE, time = LANGCHAT_MESSAGE_PANIC_SHAKE_TIME_TAKEN, easing = CUBIC_EASING)
+					animate(pixel_x = bubble:pixel_x + 2*LANGCHAT_MESSAGE_PANIC_SHAKE_SIZE, time = 2*LANGCHAT_MESSAGE_PANIC_SHAKE_TIME_TAKEN, easing = CUBIC_EASING)
+					animate(pixel_x = bubble:pixel_x - 2*LANGCHAT_MESSAGE_PANIC_SHAKE_SIZE, time = LANGCHAT_MESSAGE_PANIC_SHAKE_TIME_TAKEN, easing = CUBIC_EASING)
+				animate(pixel_x = bubble:pixel_x + LANGCHAT_MESSAGE_PANIC_SHAKE_SIZE, time = LANGCHAT_MESSAGE_PANIC_SHAKE_TIME_TAKEN, easing = CUBIC_EASING)
 			if(LANGCHAT_FAST_POP)
-				bubble.alpha = 0
-				animate(bubble, pixel_y = bubble.pixel_y + LANGCHAT_MESSAGE_FAST_POP_Y_SINK, alpha = LANGCHAT_MAX_ALPHA, time = LANGCHAT_MESSAGE_FAST_POP_TIME)
+				bubble:alpha = 0
+				animate(bubble, pixel_y = bubble:pixel_y + LANGCHAT_MESSAGE_FAST_POP_Y_SINK, alpha = LANGCHAT_MAX_ALPHA, time = LANGCHAT_MESSAGE_FAST_POP_TIME)
 
 /// Attempts to return what's holding this item if being contained by something. e.g. Cortical borer returns their host.
 /proc/recursive_holder_check(obj/item/held_item, recursion_limit = 3)
