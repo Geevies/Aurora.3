@@ -10,6 +10,7 @@
 	anchored = TRUE
 	density = FALSE
 	pass_flags_self = PASSSTRUCTURE | LETPASSTHROW
+	vis_flags = VIS_HIDE // Keep the remote ring out of its floor preview.
 
 	var/gate_id = "stargate"
 	var/static/list/unpaired_gates = list()
@@ -17,6 +18,7 @@
 	var/list/apertures
 	var/list/preview_images
 	var/list/rear_preview_images
+	var/list/side_preview_images
 	/// The preview images currently shown to each client.
 	var/list/preview_viewers
 	COOLDOWN_DECLARE(transit_sound)
@@ -143,23 +145,41 @@
 		aperture.gate = src
 		aperture.set_dir(dir)
 		aperture.rear_preview = new /obj/effect/map_effect/portal/stargate_preview(lane)
+		aperture.side_preview = new /obj/effect/map_effect/portal/stargate_preview(lane)
 		apertures += aperture
 	icon_state = "linked"
 
 /obj/structure/stargate/proc/show_destination()
 	preview_images = list()
 	rear_preview_images = list()
+	side_preview_images = list()
 	preview_viewers = list()
 	var/list/front_observed_turfs = list()
 	var/list/rear_observed_turfs = list()
+	var/list/front_projected_turfs = list()
+	var/list/rear_projected_turfs = list()
+	var/list/side_projected_turfs = list()
 	for(var/obj/effect/map_effect/portal/stargate/aperture in apertures)
-		preview_images += make_preview(aperture, aperture.get_exit_turf(dir), dir, front_observed_turfs)
+		preview_images += make_preview(aperture, aperture.get_exit_turf(dir), dir, front_observed_turfs, front_projected_turfs)
 		var/rear = REVERSE_DIR(dir)
-		rear_preview_images += make_preview(aperture.rear_preview, aperture.get_exit_turf(rear), rear, rear_observed_turfs)
+		rear_preview_images += make_preview(aperture.rear_preview, aperture.get_exit_turf(rear), rear, rear_observed_turfs, rear_projected_turfs)
+		side_preview_images += make_preview(aperture.side_preview, get_turf(aperture.counterpart), NONE, null, side_projected_turfs)
+	preview_images += make_preview_outline(front_projected_turfs)
+	rear_preview_images += make_preview_outline(rear_projected_turfs)
+	side_preview_images += make_preview_outline(side_projected_turfs)
+	var/image/rim = image(icon, loc = get_turf(src), icon_state = "linked", dir = dir, layer = ABOVE_OBJ_LAYER + 0.03)
+	rim.pixel_x = pixel_x
+	rim.pixel_y = pixel_y
+	rim.plane = ABOVE_LIGHTING_PLANE
+	rim.mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+	rim.appearance_flags = PIXEL_SCALE | KEEP_APART
+	preview_images += rim
+	rear_preview_images += rim
+	side_preview_images += rim
 	START_PROCESSING(SSprocessing, src)
 	process()
 
-/obj/structure/stargate/proc/make_preview(obj/effect/map_effect/portal/rendered_scene, turf/exit, approach_side, list/observed_turfs)
+/obj/structure/stargate/proc/make_preview(obj/effect/map_effect/portal/rendered_scene, turf/focus, approach_side, list/observed_turfs, list/projected_turfs)
 	// The copied scene is shaded again at the viewer's end. Apply gain to the
 	// preview without changing the renderer or lighting of either room.
 	var/static/list/preview_exposure = list(
@@ -170,13 +190,19 @@
 	)
 	// The map portal renderer projects in world coordinates. Show the exit row when the rings turn the route.
 	var/projection_direction = (dir == partner.dir) ? approach_side : NONE
-	rendered_scene.render_destination(exit, projection_direction, observed_turfs, limit_to_aperture = TRUE)
+	rendered_scene.render_destination(focus, projection_direction, observed_turfs, limit_to_aperture = TRUE)
+	// The renderer aligns the focus turf with the local lane.
+	for(var/turf/remote_turf in rendered_scene.vis_contents)
+		var/turf/projected = locate(rendered_scene.x + remote_turf.x - focus.x, rendered_scene.y + remote_turf.y - focus.y, z)
+		if(projected)
+			projected_turfs |= projected
 	// Keep the grouped scene off-screen until a viewer is on this side.
 	rendered_scene.icon_state = "blank"
 	rendered_scene.render_target = "*stargate-[REF(rendered_scene)]"
 	var/image/preview = image(rendered_scene.icon, loc = get_turf(rendered_scene), icon_state = rendered_scene.icon_state, layer = ABOVE_OBJ_LAYER)
 	preview.render_source = rendered_scene.render_target
-	preview.plane = GAME_PLANE
+	// A wall on this end must not mask the projected room with local blackness.
+	preview.plane = ABOVE_LIGHTING_PLANE
 	preview.color = preview_exposure
 	preview.mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 	preview.appearance_flags = PIXEL_SCALE | KEEP_APART
@@ -185,6 +211,39 @@
 	rendered_scene.pixel_x = 0
 	rendered_scene.pixel_y = 0
 	return preview
+
+/// Outline only the exposed sides of the combined projection so lanes join without seams.
+/obj/structure/stargate/proc/make_preview_outline(list/projected_turfs)
+	var/static/list/outline_icons
+	if(!outline_icons)
+		var/icon/south_edge = icon('icons/mob/base_32.dmi', "blank")
+		var/list/glow_colors = list("#D8FFFFF8", "#64F7FFE0", "#22D9FFAC", "#24B5FF70", "#428CFF48", "#617CFF26", "#617CFF12")
+		for(var/distance in 1 to length(glow_colors))
+			south_edge.DrawBox(glow_colors[distance], 1, distance, WORLD_ICON_SIZE, distance)
+		south_edge.DrawBox("#AAFDFFE8", 7, 3, 13, 3)
+		south_edge.DrawBox("#A2D6FFA0", 8, 4, 12, 4)
+		south_edge.DrawBox("#D2C0FFD0", 22, 3, 26, 3)
+		south_edge.DrawBox("#8B9DFFA0", 23, 4, 25, 4)
+		outline_icons = list()
+		for(var/direction in GLOB.cardinals)
+			var/icon/edge = icon(south_edge)
+			edge.Turn(dir2angle(direction) - dir2angle(SOUTH))
+			outline_icons["[direction]"] = edge
+
+	var/list/outline = list()
+	for(var/turf/projected as anything in projected_turfs)
+		for(var/direction in GLOB.cardinals)
+			if(get_step(projected, direction) in projected_turfs)
+				continue
+			var/image/glow = image(outline_icons["[direction]"], loc = get_turf(src), layer = ABOVE_OBJ_LAYER + 0.02)
+			glow.pixel_x = (projected.x - x) * WORLD_ICON_SIZE
+			glow.pixel_y = (projected.y - y) * WORLD_ICON_SIZE
+			glow.plane = ABOVE_LIGHTING_PLANE
+			glow.blend_mode = BLEND_ADD
+			glow.mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+			glow.appearance_flags = PIXEL_SCALE | KEEP_APART
+			outline += glow
+	return outline
 
 /obj/structure/stargate/process()
 	for(var/client/viewer as anything in preview_viewers - GLOB.clients)
@@ -200,6 +259,8 @@
 		return preview_images
 	if(eye_direction & REVERSE_DIR(dir))
 		return rear_preview_images
+	if(eye_direction)
+		return side_preview_images
 
 /obj/structure/stargate/proc/update_preview(client/viewer)
 	if(!preview_images || !viewer)
@@ -224,10 +285,10 @@
 	STOP_PROCESSING(SSprocessing, src)
 	for(var/client/viewer as anything in preview_viewers)
 		if(!QDELETED(viewer))
-			viewer.images -= preview_images
-			viewer.images -= rear_preview_images
+			viewer.images -= preview_viewers[viewer]
 	preview_images = null
 	rear_preview_images = null
+	side_preview_images = null
 	preview_viewers = null
 
 /obj/structure/stargate/Destroy()
@@ -441,9 +502,11 @@
 	vis_flags = VIS_HIDE // Keep nearby rings from recursively rendering each other.
 	var/obj/structure/stargate/gate
 	var/obj/effect/map_effect/portal/stargate_preview/rear_preview
+	var/obj/effect/map_effect/portal/stargate_preview/side_preview
 
 /obj/effect/map_effect/portal/stargate/Destroy()
 	QDEL_NULL(rear_preview)
+	QDEL_NULL(side_preview)
 	return ..()
 
 /obj/effect/map_effect/portal/stargate/proc/get_exit_turf(approach_side)
@@ -484,7 +547,7 @@
 			gate?.update_preview(arrived.client)
 			gate?.partner?.update_preview(arrived.client)
 
-/// A second render target on each lane for the view from the rear.
+/// An alternate render target on a lane for the rear or side view.
 /obj/effect/map_effect/portal/stargate_preview
 	icon = 'icons/mob/base_32.dmi'
 	icon_state = "blank"

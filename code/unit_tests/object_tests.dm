@@ -89,10 +89,20 @@
 	var/obj/structure/stargate/first = new(sites[1], REF(src))
 	var/obj/structure/stargate/second = new(sites[2], REF(src))
 	var/failures_before = GLOB.unit_tests_failures
-	if(length(first.preview_images) != 3 || length(first.rear_preview_images) != 3)
-		TEST_FAIL("Each approach must have a preview for all three lanes")
-	if(first.get_preview_images(get_step(first, SOUTH)) != first.preview_images || first.get_preview_images(get_step(first, NORTH)) != first.rear_preview_images || first.get_preview_images(get_step(first, EAST)))
+	if(length(first.preview_images) <= 4 || length(first.rear_preview_images) <= 4 || length(first.side_preview_images) <= 4)
+		TEST_FAIL("Each view must show the three lanes and their outline")
+	var/image/front_scene = first.preview_images?[1]
+	var/image/rear_scene = first.rear_preview_images?[1]
+	var/image/side_scene = first.side_preview_images?[1]
+	if(front_scene?.plane <= BLACKNESS_PLANE || rear_scene?.plane <= BLACKNESS_PLANE || side_scene?.plane <= BLACKNESS_PLANE)
+		TEST_FAIL("Every destination preview must draw above the local blackness mask")
+	var/list/adjacent_tiles = list(get_turf(first), get_step(first, EAST))
+	if(length(first.make_preview_outline(adjacent_tiles)) != 6)
+		TEST_FAIL("The glow must omit the seam between adjacent projected tiles")
+	if(first.get_preview_images(get_step(first, SOUTH)) != first.preview_images || first.get_preview_images(get_step(first, NORTH)) != first.rear_preview_images)
 		TEST_FAIL("Viewers must get the preview for their side of the ring")
+	if(first.get_preview_images(get_step(first, EAST)) != first.side_preview_images || first.get_preview_images(get_step(first, WEST)) != first.side_preview_images)
+		TEST_FAIL("Both lateral approaches must show the destination aperture")
 	for(var/offset in -1 to 1)
 		var/turf/entry = get_offset_target_turf(first, offset, 0)
 		var/turf/other_entry = get_offset_target_turf(second, offset, 0)
@@ -103,7 +113,9 @@
 			TEST_FAIL("Aligned lane [offset] must show the north exit turf using the map portal effect")
 		if(!(south_exit in aperture?.rear_preview?.vis_contents))
 			TEST_FAIL("Aligned lane [offset] must show the south exit turf from the north")
-		if(aperture?.opacity || aperture?.rear_preview?.opacity)
+		if(length(aperture?.side_preview?.vis_contents) != 1 || !(other_entry in aperture.side_preview.vis_contents))
+			TEST_FAIL("Side-on lane [offset] must show only the remote aperture turf")
+		if(aperture?.opacity || aperture?.rear_preview?.opacity || aperture?.side_preview?.opacity)
 			TEST_FAIL("The aperture and its preview must leave normal room visibility intact")
 		var/mob/living/traveler = new(get_step(entry, SOUTH))
 		step(traveler, NORTH)
@@ -199,7 +211,7 @@
 
 	var/list/segments = first.apertures + second.apertures
 	qdel(first)
-	if(second.partner || length(second.apertures) || length(second.preview_images) || length(second.rear_preview_images) || second.icon_state != "idle")
+	if(second.partner || length(second.apertures) || length(second.preview_images) || length(second.rear_preview_images) || length(second.side_preview_images) || second.icon_state != "idle")
 		TEST_FAIL("Deleting one ring must close the surviving aperture")
 	for(var/obj/effect/map_effect/portal/stargate/segment as anything in segments)
 		if(!QDELETED(segment))
