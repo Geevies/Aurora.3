@@ -66,6 +66,16 @@
 	warehouse_basearea = /area/runtime/floor_one/warehouse
 	warehouse_packagearea = /area/runtime/floor_one/warehouse/package
 
+/// The construction-area fixtures have a dedicated console two tiles east of each ring.
+/obj/structure/stargate/deployable/runtime
+
+/obj/structure/stargate/deployable/runtime/LateInitialize()
+	var/turf/console_turf = get_ranged_target_turf(src, EAST, 2)
+	var/obj/structure/machinery/computer/stargate/console = locate() in console_turf
+	set_gate_anchored(TRUE)
+	console?.link_gate(src)
+	return ..()
+
 /**
  * This file is the only location in which runtime map areas should be defined.
  * Each department (or other appropriate grouping) will have its own section that you can jump to with ctrl-f.

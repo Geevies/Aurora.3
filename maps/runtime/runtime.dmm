@@ -100,6 +100,13 @@
 /obj/structure/machinery/floodlight,
 /turf/simulated/floor/tiled/gridded,
 /area/runtime/floor_one/main)
+"an" = (
+/obj/structure/stargate/deployable/runtime{
+	gate_id = "Runtime South";
+	name = "southwest stargate"
+	},
+/turf/simulated/floor/plating,
+/area/runtime/floor_one/construction)
 "ao" = (
 /obj/effect/floor_decal/corner_wide/paleblue/full,
 /obj/effect/floor_decal/industrial/outline/red,
@@ -121,6 +128,25 @@
 /obj/structure/machinery/light/floor,
 /turf/simulated/floor/tiled/bitile,
 /area/runtime/floor_one/main)
+"aq" = (
+/obj/structure/machinery/computer/stargate{
+	name = "southwest stargate control computer"
+	},
+/turf/simulated/floor/plating,
+/area/runtime/floor_one/construction)
+"ar" = (
+/obj/structure/stargate/deployable/runtime{
+	gate_id = "Runtime South";
+	name = "southeast stargate"
+	},
+/turf/simulated/floor/plating,
+/area/runtime/floor_one/construction)
+"as" = (
+/obj/structure/machinery/computer/stargate{
+	name = "southeast stargate control computer"
+	},
+/turf/simulated/floor/plating,
+/area/runtime/floor_one/construction)
 "at" = (
 /obj/effect/shuttle_landmark/supply/horizon/dock{
 	dir = 1
@@ -128,6 +154,13 @@
 /obj/structure/railing/retractable,
 /turf/simulated/floor/tiled/dark/full,
 /area/runtime/floor_one/main)
+"au" = (
+/obj/structure/stargate/deployable/runtime{
+	gate_id = "Runtime North";
+	name = "northwest stargate"
+	},
+/turf/simulated/floor/plating,
+/area/runtime/floor_one/construction)
 "av" = (
 /obj/structure/machinery/atmospherics/unary/vent_pump/on,
 /turf/simulated/floor/tiled/full,
@@ -154,6 +187,25 @@
 	},
 /turf/simulated/floor/tiled/full,
 /area/runtime/floor_one/main)
+"az" = (
+/obj/structure/machinery/computer/stargate{
+	name = "northwest stargate control computer"
+	},
+/turf/simulated/floor/plating,
+/area/runtime/floor_one/construction)
+"aA" = (
+/obj/structure/stargate/deployable/runtime{
+	gate_id = "Runtime North";
+	name = "northeast stargate"
+	},
+/turf/simulated/floor/plating,
+/area/runtime/floor_one/construction)
+"aB" = (
+/obj/structure/machinery/computer/stargate{
+	name = "northeast stargate control computer"
+	},
+/turf/simulated/floor/plating,
+/area/runtime/floor_one/construction)
 "aC" = (
 /obj/structure/extinguisher_cabinet/east,
 /obj/structure/machinery/atmospherics/pipe/simple/visible/blue{
@@ -20492,7 +20544,7 @@ fG
 CB
 dt
 dt
-dt
+au
 dt
 dt
 dt
@@ -20510,7 +20562,7 @@ dt
 dt
 dt
 dt
-dt
+an
 CB
 fG
 aa
@@ -21006,6 +21058,7 @@ fG
 CB
 dt
 dt
+az
 dt
 dt
 dt
@@ -21023,8 +21076,7 @@ dt
 dt
 dt
 dt
-dt
-dt
+aq
 CB
 fG
 aa
@@ -25118,6 +25170,7 @@ fG
 CB
 dt
 dt
+aA
 dt
 dt
 dt
@@ -25135,8 +25188,7 @@ dt
 dt
 dt
 dt
-dt
-dt
+ar
 CB
 fG
 aa
@@ -25632,6 +25684,7 @@ fG
 CB
 dt
 dt
+aB
 dt
 dt
 dt
@@ -25649,8 +25702,7 @@ dt
 dt
 dt
 dt
-dt
-dt
+as
 CB
 fG
 aa
