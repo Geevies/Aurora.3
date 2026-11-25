@@ -2,9 +2,20 @@
 	category = "engineering"
 	name = "stargate flatpaks (x2)"
 	supplier = "hephaestus"
-	description = "Two stargate flatpaks for establishing a three-tile passage. Each ring needs a clear floor, a wrench, and local equipment power."
+	description = "Two stargate flatpaks for establishing a three-tile passage. Each ring needs a clear floor, a wrench, local equipment power, and a separately installed stargate control computer."
 	price = 2000
 	items = list(/obj/item/flatpak/stargate)
+	access = /datum/access/engine::id
+	container_type = "crate"
+	spawn_amount = 2
+
+/singleton/cargo_item/stargate_terminal_flatpaks
+	category = "engineering"
+	name = "stargate control computer flatpaks (x2)"
+	supplier = "hephaestus"
+	description = "Two hard-shell consoles for programming and activating stargates. Install each console on powered floor and connect it to a ring with a multitool."
+	price = 600
+	items = list(/obj/item/flatpak/stargate_terminal)
 	access = /datum/access/engine::id
 	container_type = "crate"
 	spawn_amount = 2

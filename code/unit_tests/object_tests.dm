@@ -69,7 +69,7 @@
 /datum/unit_test/stargate/start_test()
 	var/list/sites = list()
 	for(var/turf/simulated/floor/site in world)
-		if(length(sites) && get_dist(sites[1], site) < 5)
+		if(length(sites) && (site.z != sites[1].z || get_dist(sites[1], site) < 5))
 			continue
 		var/turf/corner = get_offset_target_turf(site, -1, length(sites) ? -2 : -1)
 		var/turf/opposite_corner = get_offset_target_turf(site, 1, length(sites) ? 2 : 1)
@@ -286,27 +286,20 @@
 		TEST_FAIL("A projectile must continue out of the receiving ring")
 	qdel(shot)
 
-	var/datum/tgui/controls = new(null, first, "Stargate")
-	controls.status = UI_INTERACTIVE
 	var/original_address = first.gate_id
 	var/new_address = "Outpost [REF(src)]"
-	first.ui_act("set_address", list("address" = "  ", "previous_address" = original_address), controls)
+	first.set_address("  ")
 	if(first.partner != second || first.gate_id != original_address)
 		TEST_FAIL("A blank address must leave the current passage open")
 
-	first.ui_act("set_address", list("address" = "  [new_address]  ", "previous_address" = original_address), controls)
-	var/list/status = first.ui_data()
+	first.set_address("  [new_address]  ")
+	var/list/status = first.control_data()
 	if(status["address"] != new_address || status["linked"] || length(first.apertures) || length(second.apertures))
 		TEST_FAIL("Applying a new address must close both ends and show the saved address")
-	first.ui_act("set_address", list("address" = original_address, "previous_address" = original_address), controls)
-	if(first.gate_id != new_address)
-		TEST_FAIL("A stale editor must not overwrite a newer address")
 	second.set_address(new_address)
-	status = first.ui_data()
+	status = first.control_data()
 	if(first.partner != second || !status["linked"] || length(first.apertures) != 3 || length(second.apertures) != 3)
 		TEST_FAIL("Setting matching addresses must reopen the full passage")
-	qdel(controls)
-
 	var/list/segments = first.apertures + second.apertures
 	qdel(first)
 	if(second.partner || length(second.apertures) || length(second.preview_images) || length(second.rear_preview_images) || length(second.side_preview_images) || second.icon_state != "idle")
@@ -326,47 +319,64 @@
 	qdel(obstacle)
 	qdel(flatpak)
 
+	var/obj/item/flatpak/stargate_terminal/computer_flatpak = new(sites[1])
+	if(computer_flatpak.machine_type != /obj/structure/machinery/computer/stargate)
+		TEST_FAIL("The separate control computer flatpak must deploy a stargate computer")
+	qdel(computer_flatpak)
+
+	var/list/terminal_sites = list()
+	for(var/turf/simulated/floor/site in range(12, sites[1]))
+		if(get_dist(site, sites[1]) <= 2 || get_dist(site, sites[2]) <= 2 || site.contains_dense_objects())
+			continue
+		terminal_sites += site
+		if(length(terminal_sites) == 2)
+			break
+	TEST_ASSERT(length(terminal_sites) == 2, "Two clear computer sites are required")
 	var/obj/structure/stargate/deployable/installed = new(sites[1])
 	var/obj/structure/stargate/deployable/remote = new(sites[2])
 	var/area/local_area = get_area(installed)
 	var/area/remote_area = get_area(remote)
-	var/local_required_power = local_area.requires_power
-	var/remote_required_power = remote_area.requires_power
+	var/list/area_power = list()
+	for(var/area/site_area in list(local_area, remote_area, get_area(terminal_sites[1]), get_area(terminal_sites[2])))
+		if(!(site_area in area_power))
+			area_power[site_area] = site_area.requires_power
+			site_area.requires_power = FALSE
 	var/was_always_unpowered = local_area.always_unpowered
-	local_area.requires_power = FALSE
-	remote_area.requires_power = FALSE
-	var/obj/structure/stargate_control/terminal/terminal = installed.destination_terminal
-	var/obj/structure/stargate_control/lever/lever = installed.lever
-	if(!terminal || !lever || installed.ui_host(null) != terminal)
-		TEST_FAIL("A deployed ring must have a physical lever and host its settings at the destination terminal")
-	var/original_direction = installed.dir
-	installed.set_dir(turn(original_direction, 90))
-	if(terminal.loc != get_step(installed, turn(installed.dir, -90)) || lever.loc != get_step(installed, turn(installed.dir, 90)))
-		TEST_FAIL("The controls must follow the ends of the ring when it rotates")
-	installed.set_dir(original_direction)
-	controls = new(null, installed, "Stargate")
+	var/obj/structure/machinery/computer/stargate/terminal = new(terminal_sites[1])
+	var/obj/structure/machinery/computer/stargate/remote_terminal = new(terminal_sites[2])
+	if(installed.control_terminal || remote.control_terminal || terminal.linked_gate)
+		TEST_FAIL("Rings and computers must start out separate")
+	var/mob/living/carbon/human/operator = new(get_turf(installed))
+	var/obj/item/multitool/tool = new(get_turf(operator))
+	installed.attackby(tool, operator)
+	operator.forceMove(get_turf(terminal))
+	terminal.attackby(tool, operator)
+	remote_terminal.link_gate(remote)
+	if(terminal.linked_gate != installed || installed.control_terminal != terminal || tool.get_buffer())
+		TEST_FAIL("A multitool must transfer the ring link to the separate powered computer")
+	var/datum/tgui/controls = new(null, terminal, "Stargate")
 	controls.status = UI_INTERACTIVE
-	installed.ui_act("set_address", list("address" = new_address), controls)
+	terminal.ui_act("set_address", list("address" = new_address), controls)
+	terminal.ui_act("set_address", list("address" = "Stale"), controls)
+	if(installed.gate_id != new_address)
+		TEST_FAIL("The terminal must set the address and reject a stale editor")
 	remote.set_address(new_address)
-	var/mob/living/carbon/human/operator = new(get_turf(lever))
-	lever.attack_hand(operator)
+	terminal.ui_act("set_activation", list("enabled" = TRUE), controls)
 	if(installed.enabled || installed.partner)
 		TEST_FAIL("An unbolted gate must reject activation")
 	installed.set_gate_anchored(TRUE)
 	remote.set_gate_anchored(TRUE)
-	lever.attack_hand(operator)
+	terminal.ui_act("set_activation", list("enabled" = TRUE), controls)
 	if(!installed.enabled || installed.partner)
 		TEST_FAIL("An enabled gate must wait until its partner is enabled")
-	operator.forceMove(get_turf(remote.lever))
-	remote.lever.attack_hand(operator)
+	remote.set_activation(TRUE)
 	if(installed.partner != remote || !installed.charge_effect || !remote.charge_effect || installed.apertures || remote.apertures)
-		TEST_FAIL("Pulling both levers must start charging both rings before opening either aperture")
-	operator.forceMove(get_turf(lever))
-	lever.attack_hand(operator)
+		TEST_FAIL("Activating both rings must start charging before opening either aperture")
+	terminal.ui_act("set_activation", list("enabled" = FALSE), controls)
 	if(installed.partner || remote.partner || installed.charge_effect || remote.charge_effect || installed.charge_timer || remote.charge_timer)
-		TEST_FAIL("Resetting either lever must cancel the timer and the charge at both gates")
+		TEST_FAIL("Disarming either ring must cancel the timer and the charge at both gates")
 
-	lever.attack_hand(operator)
+	terminal.ui_act("set_activation", list("enabled" = TRUE), controls)
 	if(!installed.charge_timer)
 		TEST_FAIL("Rearming the circuit must schedule a new charge")
 	// The unit test runs inside the master controller. Invoke the timer callback directly.
@@ -382,23 +392,31 @@
 		TEST_FAIL("Losing equipment power must remove both apertures")
 	local_area.requires_power = FALSE
 	local_area.power_change()
+	if(!installed.enabled)
+		installed.set_activation(TRUE)
+	if(!remote.enabled)
+		remote.set_activation(TRUE)
 	if(installed.partner != remote || !installed.charge_effect || !remote.charge_effect || installed.apertures || remote.apertures)
-		TEST_FAIL("Restoring equipment power must restart the charge on rings with both levers pulled")
-	remote.set_gate_anchored(FALSE)
-	if(installed.partner || installed.charge_effect || remote.charge_effect || remote.enabled || remote.power_area)
-		TEST_FAIL("Unbolting a gate during charge must cancel it, reset the lever, and detach the ring from power")
+		TEST_FAIL("Once power is restored, both rings must be able to charge again")
+	terminal.set_broken()
+	if(installed.enabled || installed.partner || installed.charge_effect || remote.charge_effect)
+		TEST_FAIL("Losing the control computer during charge must disarm the ring and cancel both ends")
+	remote.forceMove(get_step(remote, SOUTH))
+	if(installed.partner || installed.charge_effect || remote.charge_effect || remote.enabled || remote.anchored || remote.power_area || remote_terminal.linked_gate != remote)
+		TEST_FAIL("Moving a gate on the same level must unbolt and disarm it while preserving the computer link")
 	qdel(controls)
+	qdel(tool)
 	qdel(operator)
 	qdel(installed)
-	if(!QDELETED(terminal) || !QDELETED(lever))
-		TEST_FAIL("Removing the ring must also remove its controls")
+	if(QDELETED(terminal) || terminal.linked_gate)
+		TEST_FAIL("Removing the ring must clear the link and leave the independent computer in place")
+	qdel(terminal)
+	qdel(remote_terminal)
 	qdel(remote)
-	local_area.requires_power = local_required_power
 	local_area.always_unpowered = was_always_unpowered
-	remote_area.requires_power = remote_required_power
-	local_area.power_change()
-	if(remote_area != local_area)
-		remote_area.power_change()
+	for(var/area/site_area as anything in area_power)
+		site_area.requires_power = area_power[site_area]
+		site_area.power_change()
 	if(GLOB.unit_tests_failures == failures_before)
 		return TEST_PASS("Paired views, traversal, flatpak placement, and powered operation work")
 	return UNIT_TEST_FAILED

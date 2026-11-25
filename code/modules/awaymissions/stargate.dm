@@ -17,7 +17,7 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	var/gate_id = "stargate"
 	var/static/list/unpaired_gates = list()
 	var/obj/structure/stargate/partner
-	var/obj/structure/stargate_control/terminal/destination_terminal
+	var/obj/structure/machinery/computer/stargate/control_terminal
 	/// Mapped rings open immediately unless their partner is a deployable ring.
 	var/charge_duration = 0
 	var/charge_timer
@@ -41,8 +41,7 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	. = ..()
 	if(!isnull(pair_id))
 		gate_id = pair_id
-	RegisterSignal(src, COMSIG_MOVABLE_MOVED, PROC_REF(on_controls_moved))
-	install_controls()
+	RegisterSignal(src, COMSIG_MOVABLE_MOVED, PROC_REF(on_terminal_position_changed))
 	return INITIALIZE_HINT_LATELOAD
 
 /obj/structure/stargate/LateInitialize()
@@ -50,47 +49,22 @@ GLOBAL_LIST_EMPTY(open_stargates)
 
 /obj/structure/stargate/mechanics_hints(mob/user, distance, is_adjacent)
 	. = ..()
-	. += "Set a matching address at the destination terminal mounted beside each ring."
+	. += "Use a multitool on the ring to store its connection, then apply the tool to a stargate control computer."
 
-/obj/structure/stargate/set_dir(new_dir)
-	. = ..()
-	position_controls()
-
-/obj/structure/stargate/proc/install_controls()
-	if(QDELETED(destination_terminal))
-		destination_terminal = new /obj/structure/stargate_control/terminal(src, src)
-	position_controls()
-
-/obj/structure/stargate/proc/on_controls_moved()
+/obj/structure/stargate/proc/on_terminal_position_changed()
 	SIGNAL_HANDLER
-	position_controls()
+	if(control_terminal && (!isturf(loc) || z != control_terminal.z))
+		control_terminal.link_gate(null)
 
-/obj/structure/stargate/proc/position_controls()
-	destination_terminal?.mount(turn(dir, -90))
+/obj/structure/stargate/attackby(obj/item/attacking_item, mob/user, params)
+	if(istype(attacking_item, /obj/item/multitool) && user.a_intent != I_HURT)
+		var/obj/item/multitool/tool = attacking_item
+		tool.set_buffer(src)
+		to_chat(user, SPAN_NOTICE("You store the ring's connection in [tool]. Apply it to a powered stargate control computer."))
+		return TRUE
+	return ..()
 
-/obj/structure/stargate/ui_host(mob/user)
-	return destination_terminal
-
-/obj/structure/stargate/ui_state(mob/user)
-	return GLOB.physical_state
-
-/obj/structure/stargate/ui_interact(mob/user, datum/tgui/ui)
-	ui = SStgui.try_update_ui(user, src, ui)
-	if(!ui)
-		ui = new(user, src, "Stargate", "Stargate Destination Terminal")
-		ui.open()
-
-/obj/structure/stargate/ui_static_data(mob/user)
-	var/static/list/ring_images
-	if(!ring_images)
-		ring_images = list()
-		for(var/state in list("idle", "linked"))
-			var/icon/ring = icon(initial(icon), state, SOUTH)
-			ring.Crop(1, 49, 160, 112)
-			ring_images[state] = icon2base64(ring)
-	return list("ring_images" = ring_images, "max_length" = MAX_NAME_LEN)
-
-/obj/structure/stargate/ui_data(mob/user)
+/obj/structure/stargate/proc/control_data()
 	var/area/destination = get_area(partner)
 	return list(
 		"address" = gate_id,
@@ -102,11 +76,9 @@ GLOBAL_LIST_EMPTY(open_stargates)
 /obj/structure/stargate/proc/can_link()
 	return isturf(loc) && gate_id && (dir in GLOB.cardinals)
 
-/obj/structure/stargate/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
-	if(..())
-		return TRUE
-	if(action == "set_address" && params["previous_address"] == gate_id)
-		return set_address(params["address"])
+/obj/structure/stargate/proc/update_terminal()
+	if(control_terminal)
+		SStgui.update_uis(control_terminal)
 
 /obj/structure/stargate/proc/set_address(address)
 	if(!istext(address) || length_char(address) > MAX_NAME_LEN)
@@ -118,6 +90,7 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	disconnect()
 	gate_id = address
 	find_partner()
+	update_terminal()
 	return TRUE
 
 /// Ordered from left to right when facing out of the ring.
@@ -167,7 +140,7 @@ GLOBAL_LIST_EMPTY(open_stargates)
 /obj/structure/stargate/proc/begin_charge(duration)
 	charge_effect = new(get_turf(src), dir, duration)
 	playsound(get_turf(src), 'sound/magic/Charge.ogg', 60, FALSE, ignore_walls = FALSE)
-	SStgui.update_uis(src)
+	update_terminal()
 
 /obj/structure/stargate/proc/finish_charge()
 	charge_timer = null
@@ -529,8 +502,8 @@ GLOBAL_LIST_EMPTY(open_stargates)
 		return aim
 
 /obj/structure/stargate/Destroy()
+	control_terminal?.link_gate(null)
 	disconnect()
-	QDEL_NULL(destination_terminal)
 	return ..()
 
 /obj/structure/stargate/proc/disconnect()
@@ -551,12 +524,13 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	QDEL_NULL(charge_effect)
 	if(!apertures)
 		if(was_charging)
-			SStgui.update_uis(src)
+			update_terminal()
 		return FALSE
 	clear_preview()
 	QDEL_NULL_LIST(apertures)
 	icon_state = "idle"
 	playsound(get_turf(src), 'sound/magic/Teleport_diss.ogg', 35, FALSE)
+	update_terminal()
 	return TRUE
 
 /obj/structure/stargate/proc/on_passage_opened(charged)
@@ -566,6 +540,7 @@ GLOBAL_LIST_EMPTY(open_stargates)
 		new /obj/effect/stargate_transit(center, dir, TRUE)
 		new /obj/effect/shockwave/stargate(center, 7, 3, SINE_EASING | EASE_OUT)
 		playsound(center, 'sound/effects/EMPulse.ogg', 65, FALSE, frequency = 32000, ignore_walls = FALSE)
+	update_terminal()
 
 /obj/structure/stargate/proc/play_transit_effects()
 	if(!COOLDOWN_FINISHED(src, transit_effects))
@@ -609,20 +584,6 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	charge_duration = 2 SECONDS
 	var/enabled = FALSE
 	var/area/power_area
-	var/obj/structure/stargate_control/lever/lever
-
-/obj/structure/stargate/deployable/Initialize(mapload, pair_id)
-	. = ..()
-	RegisterSignal(src, COMSIG_MOVABLE_MOVED, PROC_REF(on_gate_moved))
-
-/obj/structure/stargate/deployable/install_controls()
-	if(QDELETED(lever))
-		lever = new /obj/structure/stargate_control/lever(src, src)
-	return ..()
-
-/obj/structure/stargate/deployable/position_controls()
-	..()
-	lever?.mount(turn(dir, 90))
 
 /obj/structure/stargate/deployable/set_dir(new_dir)
 	if(new_dir in GLOB.diagonals)
@@ -633,16 +594,15 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	if(power_area)
 		UnregisterSignal(power_area, COMSIG_AREA_POWER_CHANGE)
 		power_area = null
-	QDEL_NULL(lever)
 	return ..()
 
 /obj/structure/stargate/deployable/mechanics_hints(mob/user, distance, is_adjacent)
 	. = ..()
-	. += "Wrench the ring into place on a clear three-by-three area. Set matching addresses at the terminals, then pull the activation lever beside each ring."
+	. += "Bolt the ring to a clear three-by-three floor with a wrench. Use the linked computers to set matching addresses and activate both rings."
 	. += "Unbolt the ring, then use a crowbar to fold it back into a flatpak."
 
 /obj/structure/stargate/deployable/can_link()
-	return anchored && enabled && equipment_powered() && ..()
+	return anchored && enabled && equipment_powered() && control_terminal?.can_operate_gate() && ..()
 
 /obj/structure/stargate/deployable/get_aperture_turfs()
 	if(stargate_site_is_clear(get_turf(src), src))
@@ -656,23 +616,22 @@ GLOBAL_LIST_EMPTY(open_stargates)
 		return
 	anchored = new_anchored
 	if(anchored)
-		install_controls()
 		power_area = get_area(src)
 		if(power_area)
 			RegisterSignal(power_area, COMSIG_AREA_POWER_CHANGE, PROC_REF(on_equipment_power_change))
 	else
 		enabled = FALSE
-		lever?.show_lever_position(FALSE)
 		if(power_area)
 			UnregisterSignal(power_area, COMSIG_AREA_POWER_CHANGE)
 			power_area = null
 		disconnect()
-	SStgui.update_uis(src)
+	update_terminal()
 
-/obj/structure/stargate/deployable/proc/on_gate_moved()
+/obj/structure/stargate/deployable/on_terminal_position_changed()
 	SIGNAL_HANDLER
 	if(anchored)
 		set_gate_anchored(FALSE)
+	return ..()
 
 /obj/structure/stargate/deployable/proc/on_equipment_power_change()
 	SIGNAL_HANDLER
@@ -680,17 +639,11 @@ GLOBAL_LIST_EMPTY(open_stargates)
 		find_partner()
 	else
 		disconnect()
-	SStgui.update_uis(src)
+	update_terminal()
 
 /obj/structure/stargate/deployable/on_passage_opened(charged)
-	..()
 	power_area?.use_power_oneoff(2500, AREA_USAGE_EQUIP)
-	SStgui.update_uis(src)
-
-/obj/structure/stargate/deployable/close_apertures()
-	. = ..()
-	if(.)
-		SStgui.update_uis(src)
+	return ..()
 
 /obj/structure/stargate/deployable/attackby(obj/item/attacking_item, mob/living/user, params)
 	if(user.a_intent == I_HURT)
@@ -719,141 +672,172 @@ GLOBAL_LIST_EMPTY(open_stargates)
 		return
 	return ..()
 
-/obj/structure/stargate/deployable/ui_data(mob/user)
+/obj/structure/stargate/deployable/control_data()
 	. = ..()
 	.["deployable"] = TRUE
 	.["anchored"] = anchored
 	.["powered"] = equipment_powered()
 	.["enabled"] = enabled
 
-/obj/structure/stargate/deployable/proc/set_lever(should_enable, mob/user)
+/obj/structure/stargate/deployable/proc/set_activation(should_enable, mob/user)
 	if(should_enable == enabled)
 		return FALSE
 	if(should_enable)
-		if(!anchored || !equipment_powered() || !gate_id)
+		if(!anchored || !equipment_powered() || !gate_id || !control_terminal?.can_operate_gate())
 			if(user)
-				to_chat(user, SPAN_WARNING("Secure the ring, connect it to equipment power, and set an address before pulling the lever."))
+				to_chat(user, SPAN_WARNING("Secure and power the ring, link a powered control computer, and set an address before activating it."))
 			return FALSE
 		if(!stargate_site_is_clear(get_turf(src), src))
 			if(user)
-				to_chat(user, SPAN_WARNING("Clear the floor around the ring before pulling the lever."))
+				to_chat(user, SPAN_WARNING("Clear the floor around the ring before activating it."))
 			return FALSE
 	enabled = should_enable
-	lever?.show_lever_position(enabled)
-	if(user)
-		user.visible_message(SPAN_NOTICE("[user] [enabled ? "pulls" : "resets"] the activation lever on [src]."), SPAN_NOTICE("You [enabled ? "pull" : "reset"] the activation lever."))
-	playsound(get_turf(lever) || get_turf(src), 'sound/arcade/sloto_lever.ogg', 45, FALSE, extrarange = -5)
+	if(user && control_terminal)
+		playsound(control_terminal, 'sound/arcade/sloto_lever.ogg', 35, FALSE, extrarange = -5)
 	if(enabled)
 		find_partner()
 	else
 		disconnect()
+	update_terminal()
+	return TRUE
+
+/obj/structure/machinery/computer/stargate
+	name = "stargate control computer"
+	desc = "A hard-shell terminal used to program and activate a stargate. It has a port for the linkage stored in a multitool."
+	icon = 'icons/obj/primitive_computer.dmi'
+	icon_screen = "engi"
+	is_holographic = FALSE
+	can_pass_under = FALSE
+	circuit = /obj/item/circuitboard/stargate_terminal
+	var/obj/structure/stargate/linked_gate
+
+/obj/structure/machinery/computer/stargate/mechanics_hints(mob/user, distance, is_adjacent)
+	. = ..()
+	. += "Use a multitool on a stargate on this level, then use it on this powered computer to link them."
+
+/obj/structure/machinery/computer/stargate/attackby(obj/item/attacking_item, mob/user)
+	if(!istype(attacking_item, /obj/item/multitool) || user.a_intent == I_HURT)
+		return ..()
+	var/obj/item/multitool/tool = attacking_item
+	var/obj/structure/stargate/buffered_gate = tool.get_buffer(/obj/structure/stargate)
+	if(!operable(MAINT) || !powered())
+		to_chat(user, SPAN_WARNING("The control computer must be operational to accept a link."))
+	else if(!buffered_gate)
+		to_chat(user, SPAN_WARNING("Use the multitool on a stargate first."))
+	else if(buffered_gate == linked_gate)
+		to_chat(user, SPAN_NOTICE("This computer already controls that ring."))
+	else if(!link_gate(buffered_gate))
+		to_chat(user, SPAN_WARNING("The ring must be on this level and available for a new computer connection."))
+	else
+		add_fingerprint(user)
+		tool.set_buffer(null)
+		to_chat(user, SPAN_NOTICE("You link [src] to [buffered_gate]."))
+	return TRUE
+
+/obj/structure/machinery/computer/stargate/attack_hand(mob/user)
+	if(..())
+		return TRUE
+	ui_interact(user)
+	return TRUE
+
+/obj/structure/machinery/computer/stargate/Destroy()
+	link_gate(null)
+	return ..()
+
+/obj/structure/machinery/computer/stargate/Moved(atom/old_loc, movement_dir, forced, list/old_locs, momentum_change = TRUE)
+	. = ..()
+	if(linked_gate && (!isturf(loc) || linked_gate.z != z))
+		link_gate(null)
+	else if(!can_operate_gate())
+		reset_activation()
+
+/obj/structure/machinery/computer/stargate/power_change()
+	. = ..()
+	if(linked_gate && !can_operate_gate())
+		reset_activation()
+	SStgui.update_uis(src)
+
+/obj/structure/machinery/computer/stargate/set_broken()
+	. = ..()
+	reset_activation()
+	SStgui.update_uis(src)
+
+/obj/structure/machinery/computer/stargate/proc/link_gate(obj/structure/stargate/new_gate)
+	if(new_gate == linked_gate)
+		return FALSE
+	if(new_gate && (QDELETED(new_gate) || !isturf(new_gate.loc) || new_gate.z != z || new_gate.control_terminal))
+		return FALSE
+	reset_activation()
+	if(linked_gate?.control_terminal == src)
+		linked_gate.control_terminal = null
+	linked_gate = new_gate
+	if(new_gate)
+		new_gate.control_terminal = src
 	SStgui.update_uis(src)
 	return TRUE
 
-/// Controls sit at the outer edges of the end tiles and travel with the flat-packed ring.
-/obj/structure/stargate_control
-	anchored = TRUE
-	density = FALSE
-	icon = 'icons/mob/base_32.dmi'
-	icon_state = ""
-	layer = SINGULARITY_LAYER + 0.01
-	appearance_flags = PIXEL_SCALE
-	vis_flags = VIS_HIDE
-	var/obj/structure/stargate/gate
+/obj/structure/machinery/computer/stargate/proc/reset_activation()
+	var/obj/structure/stargate/deployable/deployed_gate = linked_gate
+	if(istype(deployed_gate) && !QDELETED(deployed_gate))
+		deployed_gate.set_activation(FALSE)
 
-/obj/structure/stargate_control/Initialize(mapload, obj/structure/stargate/parent_gate)
-	. = ..()
-	gate = parent_gate
+/obj/structure/machinery/computer/stargate/proc/can_operate_gate()
+	return !QDELETED(linked_gate) && isturf(loc) && anchored && linked_gate.z == z && operable(MAINT) && powered()
 
-/obj/structure/stargate_control/proc/mount(side)
-	var/atom/mounting_point = gate
-	if(isturf(gate.loc))
-		mounting_point = get_step(gate, side) || gate.loc
-	pixel_x = side == EAST ? 22 : side == WEST ? -22 : 0
-	pixel_y = side == NORTH ? 22 : side == SOUTH ? -22 : 0
-	if(loc != mounting_point)
-		forceMove(mounting_point)
+/obj/structure/machinery/computer/stargate/ui_state(mob/user)
+	return GLOB.physical_state
 
-/obj/structure/stargate_control/terminal
-	name = "stargate destination terminal"
-	desc = "A compact terminal for setting the ring's destination address and monitoring the connection."
+/obj/structure/machinery/computer/stargate/ui_interact(mob/user, datum/tgui/ui)
+	if(!operable(MAINT) || !powered())
+		ui?.close()
+		return
+	ui = SStgui.try_update_ui(user, src, ui)
+	if(!ui)
+		ui = new(user, src, "Stargate", "Stargate Control Computer")
+		ui.open()
 
-/obj/structure/stargate_control/terminal/Initialize(mapload, obj/structure/stargate/parent_gate)
-	. = ..()
-	var/static/icon/terminal_sprite
-	if(!terminal_sprite)
-		terminal_sprite = icon('icons/mob/base_32.dmi', "blank")
-		terminal_sprite.DrawBox("#101B22", 10, 6, 23, 26)
-		terminal_sprite.DrawBox("#445661", 11, 7, 22, 25)
-		terminal_sprite.DrawBox("#8195A0", 11, 24, 22, 25)
-		terminal_sprite.DrawBox("#112630", 12, 15, 21, 23)
-		terminal_sprite.DrawBox("#4BA4B2", 13, 16, 20, 22)
-		terminal_sprite.DrawBox("#B0F2E8", 14, 20, 19, 21)
-		terminal_sprite.DrawBox("#243139", 12, 9, 21, 13)
-		terminal_sprite.DrawBox("#899EA8", 13, 12, 20, 12)
-		terminal_sprite.DrawBox("#899EA8", 14, 10, 19, 10)
-	icon = terminal_sprite
+/obj/structure/machinery/computer/stargate/ui_static_data(mob/user)
+	var/static/list/ring_images
+	if(!ring_images)
+		ring_images = list()
+		for(var/state in list("idle", "linked"))
+			var/icon/ring = icon('icons/obj/machinery/stargate.dmi', state, SOUTH)
+			ring.Crop(1, 49, 160, 112)
+			ring_images[state] = icon2base64(ring)
+	return list("ring_images" = ring_images, "max_length" = MAX_NAME_LEN)
 
-/obj/structure/stargate_control/terminal/attack_hand(mob/living/user)
-	if(user.a_intent == I_HURT || user.incapacitated() || QDELETED(gate) || !user.Adjacent(src))
-		return ..()
-	add_fingerprint(user)
-	gate.ui_interact(user)
-	return TRUE
+/obj/structure/machinery/computer/stargate/ui_data(mob/user)
+	. = linked_gate ? linked_gate.control_data() : list()
+	.["has_ring"] = !!linked_gate
 
-/obj/structure/stargate_control/terminal/Destroy()
-	if(gate?.destination_terminal == src)
-		gate.destination_terminal = null
-	gate = null
-	return ..()
-
-/obj/structure/stargate_control/lever
-	name = "stargate activation lever"
-	desc = "A heavy orange lever beside the ring. Pull the lever at both gates to start the charge."
-
-/obj/structure/stargate_control/lever/Initialize(mapload, obj/structure/stargate/parent_gate)
-	. = ..()
-	var/obj/structure/stargate/deployable/deployable = gate
-	show_lever_position(deployable?.enabled)
-
-/obj/structure/stargate_control/lever/proc/show_lever_position(pulled)
-	var/static/list/lever_sprites
-	if(!lever_sprites)
-		lever_sprites = list()
-		for(var/is_pulled in list(FALSE, TRUE))
-			var/icon/lever_sprite = icon('icons/mob/base_32.dmi', "blank")
-			lever_sprite.DrawBox("#101B22", 10, 8, 23, 24)
-			lever_sprite.DrawBox("#465762", 11, 9, 22, 23)
-			lever_sprite.DrawBox("#202C32", 12, 11, 19, 21)
-			lever_sprite.DrawBox("#A0ADB3", 15, 12, 16, 20)
-			var/handle_row = is_pulled ? 12 : 19
-			lever_sprite.DrawBox("#AC502D", 12, handle_row, 19, handle_row + 2)
-			lever_sprite.DrawBox("#F2A16B", 12, handle_row + 2, 19, handle_row + 2)
-			lever_sprite.DrawBox(is_pulled ? "#84FACC" : "#EDB472", 20, 20, 21, 21)
-			lever_sprites += lever_sprite
-	icon = lever_sprites[pulled ? 2 : 1]
-
-/obj/structure/stargate_control/lever/attack_hand(mob/living/user)
-	var/obj/structure/stargate/deployable/deployable = gate
-	if(user.a_intent == I_HURT || user.incapacitated() || QDELETED(deployable) || !user.Adjacent(src))
-		return ..()
-	if(deployable.set_lever(!deployable.enabled, user))
-		add_fingerprint(user)
-	return TRUE
-
-/obj/structure/stargate_control/lever/Destroy()
-	var/obj/structure/stargate/deployable/deployable = gate
-	if(deployable?.lever == src)
-		deployable.lever = null
-		if(!QDELETED(deployable))
-			deployable.set_lever(FALSE)
-	gate = null
-	return ..()
+/obj/structure/machinery/computer/stargate/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
+	if(..())
+		return TRUE
+	if(!can_operate_gate())
+		return FALSE
+	if(action == "set_address" && params["previous_address"] == linked_gate.gate_id)
+		return linked_gate.set_address(params["address"])
+	if(action == "unlink_ring")
+		return link_gate(null)
+	var/obj/structure/stargate/deployable/deployed_gate = linked_gate
+	if(action == "set_activation" && istype(deployed_gate))
+		return deployed_gate.set_activation(!!params["enabled"], usr)
 
 /obj/item/circuitboard/stargate
 	name = T_BOARD("stargate controller")
 	build_path = /obj/structure/stargate/deployable
 	board_type = BOARD_MACHINE
+
+/obj/item/circuitboard/stargate_terminal
+	name = T_BOARD("stargate control computer")
+	build_path = /obj/structure/machinery/computer/stargate
+	board_type = BOARD_COMPUTER
+
+/obj/item/flatpak/stargate_terminal
+	circuit_type = /obj/item/circuitboard/stargate_terminal
+
+/obj/item/flatpak/stargate_terminal/Initialize(mapload, new_circuit_type, list/material_cost)
+	return ..(mapload, circuit_type, material_cost)
 
 /obj/item/flatpak/stargate
 	circuit_type = /obj/item/circuitboard/stargate
@@ -893,7 +877,7 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	SIGNAL_HANDLER
 	if(!counterpart || !arrived || arrived.loc != loc)
 		return
-	if(istype(arrived, /obj/structure/stargate_control) || istype(arrived, /obj/effect/stargate_image_anchor) || istype(arrived, /obj/effect/map_effect/portal/stargate_preview) || istype(arrived, /obj/effect/stargate_transit) || istype(arrived, /obj/effect/shockwave/stargate))
+	if(istype(arrived, /obj/effect/stargate_image_anchor) || istype(arrived, /obj/effect/map_effect/portal/stargate_preview) || istype(arrived, /obj/effect/stargate_transit) || istype(arrived, /obj/effect/shockwave/stargate))
 		return
 	var/approach_side = dir
 	var/turf/entry = get_turf(old_loc)
