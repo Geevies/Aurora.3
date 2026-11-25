@@ -162,10 +162,17 @@
 	var/list/rear_projected_turfs = list()
 	var/list/side_projected_turfs = list()
 	for(var/obj/effect/map_effect/portal/stargate/aperture in apertures)
-		preview_images += make_preview(aperture, aperture.get_exit_turf(dir), dir, front_observed_turfs, front_projected_turfs)
+		var/turf/remote_aperture = get_turf(aperture.counterpart)
+		preview_images += make_preview(aperture, aperture.get_exit_turf(dir), dir, front_observed_turfs, front_projected_turfs, remote_aperture)
 		var/rear = REVERSE_DIR(dir)
-		rear_preview_images += make_preview(aperture.rear_preview, aperture.get_exit_turf(rear), rear, rear_observed_turfs, rear_projected_turfs)
-		side_preview_images += make_preview(aperture.side_preview, get_turf(aperture.counterpart), NONE, null, side_projected_turfs)
+		rear_preview_images += make_preview(aperture.rear_preview, aperture.get_exit_turf(rear), rear, rear_observed_turfs, rear_projected_turfs, remote_aperture)
+		side_preview_images += make_preview(aperture.side_preview, remote_aperture, NONE, null, side_projected_turfs)
+	if(dir != partner.dir)
+		// Turned views draw the aperture and the exit as separate rows.
+		preview_images += side_preview_images
+		rear_preview_images += side_preview_images
+		front_projected_turfs |= side_projected_turfs
+		rear_projected_turfs |= side_projected_turfs
 	preview_images += make_preview_outline(front_projected_turfs)
 	rear_preview_images += make_preview_outline(rear_projected_turfs)
 	side_preview_images += make_preview_outline(side_projected_turfs)
@@ -181,7 +188,7 @@
 	START_PROCESSING(SSprocessing, src)
 	process()
 
-/obj/structure/stargate/proc/make_preview(obj/effect/map_effect/portal/rendered_scene, turf/focus, approach_side, list/observed_turfs, list/projected_turfs)
+/obj/structure/stargate/proc/make_preview(obj/effect/map_effect/portal/rendered_scene, turf/focus, approach_side, list/observed_turfs, list/projected_turfs, turf/remote_aperture = focus)
 	// The copied scene is shaded again at the viewer's end. Apply gain to the
 	// preview without changing the renderer or lighting of either room.
 	var/static/list/preview_exposure = list(
@@ -190,12 +197,15 @@
 		0, 0, 2.5,
 		0, 0, 0,
 	)
-	// The map portal renderer projects in world coordinates. Show the exit row when the rings turn the route.
+	// Aligned rings keep the remote aperture and its floor aligned with the local ring.
 	var/projection_direction = (dir == partner.dir) ? approach_side : NONE
-	rendered_scene.render_destination(focus, projection_direction, observed_turfs, limit_to_aperture = TRUE)
-	// The renderer aligns the focus turf with the local lane.
+	var/turf/alignment_turf = projection_direction ? remote_aperture : focus
+	var/turf/local_anchor = get_turf(rendered_scene)
+	if(approach_side && !projection_direction)
+		local_anchor = get_step(local_anchor, REVERSE_DIR(approach_side))
+	rendered_scene.render_destination(focus, projection_direction, observed_turfs, limit_to_aperture = TRUE, alignment_turf = alignment_turf)
 	for(var/turf/remote_turf in rendered_scene.vis_contents)
-		var/turf/projected = locate(rendered_scene.x + remote_turf.x - focus.x, rendered_scene.y + remote_turf.y - focus.y, z)
+		var/turf/projected = locate(local_anchor.x + remote_turf.x - alignment_turf.x, local_anchor.y + remote_turf.y - alignment_turf.y, z)
 		if(projected)
 			projected_turfs |= projected
 	// Keep the grouped scene off-screen until a viewer is on this side.
@@ -208,8 +218,8 @@
 	preview.color = preview_exposure
 	preview.mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 	preview.appearance_flags = PIXEL_SCALE | KEEP_APART
-	preview.pixel_x = rendered_scene.pixel_x
-	preview.pixel_y = rendered_scene.pixel_y
+	preview.pixel_x = rendered_scene.pixel_x + WORLD_ICON_SIZE * (local_anchor.x - rendered_scene.x)
+	preview.pixel_y = rendered_scene.pixel_y + WORLD_ICON_SIZE * (local_anchor.y - rendered_scene.y)
 	rendered_scene.pixel_x = 0
 	rendered_scene.pixel_y = 0
 	return preview

@@ -94,6 +94,9 @@
 	var/image/front_scene = first.preview_images?[1]
 	var/image/rear_scene = first.rear_preview_images?[1]
 	var/image/side_scene = first.side_preview_images?[1]
+	var/obj/effect/map_effect/portal/stargate/first_lane = first.apertures?[1]
+	if(front_scene?.pixel_y != 0 || rear_scene?.pixel_y != (1 - first_lane?.rear_preview?.total_height) * WORLD_ICON_SIZE)
+		TEST_FAIL("The far aperture row must line up with the near ring from both approaches")
 	if(front_scene?.plane <= BLACKNESS_PLANE || rear_scene?.plane <= BLACKNESS_PLANE || side_scene?.plane <= BLACKNESS_PLANE)
 		TEST_FAIL("Every destination preview must draw above the local blackness mask")
 	var/list/adjacent_tiles = list(get_turf(first), get_step(first, EAST))
@@ -113,6 +116,8 @@
 			TEST_FAIL("Aligned lane [offset] must show the north exit turf using the map portal effect")
 		if(!(south_exit in aperture?.rear_preview?.vis_contents))
 			TEST_FAIL("Aligned lane [offset] must show the south exit turf from the north")
+		if(!(other_entry in aperture?.vis_contents) || !(other_entry in aperture?.rear_preview?.vis_contents))
+			TEST_FAIL("Aligned lane [offset] must include the floor beneath the far ring")
 		if(length(aperture?.side_preview?.vis_contents) != 1 || !(other_entry in aperture.side_preview.vis_contents))
 			TEST_FAIL("Side-on lane [offset] must show only the remote aperture turf")
 		if(aperture?.opacity || aperture?.rear_preview?.opacity || aperture?.side_preview?.opacity)
@@ -140,6 +145,11 @@
 	first.set_address(second.gate_id)
 	if(length(first.apertures) != 3 || length(second.apertures) != 3)
 		TEST_FAIL("Each ring must open exactly three segments")
+	front_scene = first.preview_images?[1]
+	rear_scene = first.rear_preview_images?[1]
+	side_scene = first.side_preview_images?[1]
+	if(front_scene?.pixel_x != -WORLD_ICON_SIZE || rear_scene?.pixel_x != WORLD_ICON_SIZE || !(side_scene in first.preview_images) || !(side_scene in first.rear_preview_images))
+		TEST_FAIL("A turned view must keep the aperture row and show the exit one tile beyond it")
 	for(var/offset in -1 to 1)
 		var/turf/entry = get_offset_target_turf(first, 0, offset)
 		var/turf/other_entry = get_offset_target_turf(second, offset, 0)

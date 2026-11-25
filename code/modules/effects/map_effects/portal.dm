@@ -138,9 +138,11 @@ when portals are shortly lived, or when portals are made to be obvious with spec
 
 
 /// Render a destination with the map portal's field of view and pixel alignment.
-/obj/effect/map_effect/portal/proc/render_destination(turf/focus, approach_direction, list/observed_turfs, limit_to_aperture = FALSE)
+/obj/effect/map_effect/portal/proc/render_destination(turf/focus, approach_direction, list/observed_turfs, limit_to_aperture = FALSE, turf/alignment_turf = focus)
 	name = null
 	icon_state = null
+	if(alignment_turf != focus)
+		add_vis_contents(alignment_turf)
 	add_vis_contents(focus)
 	if(approach_direction)
 		var/list/visible
@@ -156,8 +158,8 @@ when portals are shortly lived, or when portals are made to be obvious with spec
 			add_vis_contents(visible_turf)
 			observed_turfs += visible_turf
 
-	calculate_dimensions(focus)
-	// BYOND anchors the group at the bottom-left turf. Align the focus with the aperture.
+	calculate_dimensions(alignment_turf)
+	// BYOND anchors the group at the bottom-left turf. Offset it to the alignment turf.
 	pixel_x = WORLD_ICON_SIZE * portal_distance_x
 	pixel_y = WORLD_ICON_SIZE * portal_distance_y
 
