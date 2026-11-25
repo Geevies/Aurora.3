@@ -19,6 +19,9 @@
 	var/list/preview_images
 	var/list/rear_preview_images
 	var/list/side_preview_images
+	var/list/angled_preview_images
+	var/list/angled_preview_scenes
+	var/image/preview_rim
 	/// The preview images currently shown to each client.
 	var/list/preview_viewers
 	/// Nearby movable eyes and the clients looking through each one.
@@ -176,19 +179,19 @@
 	preview_images += make_preview_outline(front_projected_turfs)
 	rear_preview_images += make_preview_outline(rear_projected_turfs)
 	side_preview_images += make_preview_outline(side_projected_turfs)
-	var/image/rim = image(icon, loc = get_turf(src), icon_state = "linked", dir = dir, layer = ABOVE_OBJ_LAYER + 0.03)
-	rim.pixel_x = pixel_x
-	rim.pixel_y = pixel_y
-	rim.plane = ABOVE_LIGHTING_PLANE
-	rim.mouse_opacity = MOUSE_OPACITY_TRANSPARENT
-	rim.appearance_flags = PIXEL_SCALE | KEEP_APART
-	preview_images += rim
-	rear_preview_images += rim
-	side_preview_images += rim
+	preview_rim = image(icon, loc = get_turf(src), icon_state = "linked", dir = dir, layer = ABOVE_OBJ_LAYER + 0.03)
+	preview_rim.pixel_x = pixel_x
+	preview_rim.pixel_y = pixel_y
+	preview_rim.plane = ABOVE_LIGHTING_PLANE
+	preview_rim.mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+	preview_rim.appearance_flags = PIXEL_SCALE | KEEP_APART
+	preview_images += preview_rim
+	rear_preview_images += preview_rim
+	side_preview_images += preview_rim
 	START_PROCESSING(SSprocessing, src)
 	process()
 
-/obj/structure/stargate/proc/make_preview(obj/effect/map_effect/portal/rendered_scene, turf/focus, approach_side, list/observed_turfs, list/projected_turfs, turf/remote_aperture = focus)
+/obj/structure/stargate/proc/make_preview(obj/effect/map_effect/portal/rendered_scene, turf/focus, approach_side, list/observed_turfs, list/projected_turfs, turf/remote_aperture = focus, view_slope = 0)
 	// The copied scene is shaded again at the viewer's end. Apply gain to the
 	// preview without changing the renderer or lighting of either room.
 	var/static/list/preview_exposure = list(
@@ -203,7 +206,7 @@
 	var/turf/local_anchor = get_turf(rendered_scene)
 	if(approach_side && !projection_direction)
 		local_anchor = get_step(local_anchor, REVERSE_DIR(approach_side))
-	rendered_scene.render_destination(focus, projection_direction, observed_turfs, limit_to_aperture = TRUE, alignment_turf = alignment_turf)
+	rendered_scene.render_destination(focus, projection_direction, observed_turfs, limit_to_aperture = TRUE, alignment_turf = alignment_turf, view_slope = view_slope)
 	for(var/turf/remote_turf in rendered_scene.vis_contents)
 		var/turf/projected = locate(local_anchor.x + remote_turf.x - alignment_turf.x, local_anchor.y + remote_turf.y - alignment_turf.y, z)
 		if(projected)
@@ -298,22 +301,49 @@
 			update_preview(viewer)
 
 /obj/structure/stargate/proc/get_preview_images(turf/eye_turf)
-	if(!eye_turf || eye_turf.z != z)
+	if(!partner || !eye_turf || eye_turf.z != z)
 		return
 	var/eye_direction = get_dir(src, eye_turf)
-	if(eye_direction & dir)
-		return preview_images
-	if(eye_direction & REVERSE_DIR(dir))
-		return rear_preview_images
-	if(eye_direction)
+	if(!eye_direction)
+		return
+	var/approach_side = eye_direction & (dir | REVERSE_DIR(dir))
+	if(!approach_side)
 		return side_preview_images
+	if(dir == partner.dir && preview_rim)
+		var/north_south = dir & (NORTH | SOUTH)
+		var/depth = abs(north_south ? eye_turf.y - y : eye_turf.x - x)
+		var/across = north_south ? x - eye_turf.x : y - eye_turf.y
+		// Quantize the sight line so nearby viewpoints can share render targets.
+		var/view_slope = clamp(round(across / depth, 0.5), -2, 2)
+		if(view_slope)
+			return get_angled_preview(approach_side, view_slope)
+	return (approach_side == dir) ? preview_images : rear_preview_images
+
+/obj/structure/stargate/proc/get_angled_preview(approach_side, view_slope)
+	LAZYINITLIST(angled_preview_images)
+	var/key = "[approach_side],[view_slope]"
+	var/list/images = angled_preview_images[key]
+	if(images)
+		return images
+	images = list()
+	var/list/observed_turfs = list()
+	var/list/projected_turfs = list()
+	for(var/obj/effect/map_effect/portal/stargate/aperture in apertures)
+		var/obj/effect/map_effect/portal/stargate_preview/scene = new(get_turf(aperture))
+		LAZYADD(angled_preview_scenes, scene)
+		images += make_preview(scene, aperture.get_exit_turf(approach_side), approach_side, observed_turfs, projected_turfs, get_turf(aperture.counterpart), view_slope)
+	images += make_preview_outline(projected_turfs)
+	images += preview_rim
+	angled_preview_images[key] = images
+	return images
 
 /obj/structure/stargate/proc/update_preview(client/viewer)
 	if(!preview_images || !viewer)
 		return
-	var/list/next_images = get_preview_images(get_turf(viewer.eye))
-	if(next_images && !(src in view(world.view, viewer.eye)))
-		next_images = null
+	var/turf/eye_turf = get_turf(viewer.eye)
+	var/list/next_images
+	if(eye_turf?.z == z && (src in view(world.view, viewer.eye)))
+		next_images = get_preview_images(eye_turf)
 	var/list/previous_images = preview_viewers[viewer]
 	if(next_images == previous_images)
 		return
@@ -338,6 +368,9 @@
 	preview_images = null
 	rear_preview_images = null
 	side_preview_images = null
+	angled_preview_images = null
+	QDEL_NULL_LIST(angled_preview_scenes)
+	preview_rim = null
 	preview_viewers = null
 	preview_eyes = null
 
@@ -565,7 +598,7 @@
 
 /obj/effect/map_effect/portal/stargate/on_entered(datum/source, atom/movable/arrived, atom/old_loc, list/atom/old_locs)
 	SIGNAL_HANDLER
-	if(!counterpart || !arrived || arrived.loc != loc)
+	if(!counterpart || !arrived || arrived.loc != loc || istype(arrived, /obj/effect/map_effect/portal/stargate_preview))
 		return
 	var/approach_side = dir
 	var/turf/entry = get_turf(old_loc)
