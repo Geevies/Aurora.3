@@ -236,7 +236,7 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	rendered_scene.pixel_y = 0
 	return preview
 
-/// Outline only the exposed sides of the combined projection so lanes join without seams.
+/// Trace the perimeter of the combined projection so adjacent lanes join without seams.
 /obj/structure/stargate/proc/make_preview_outline(list/projected_turfs)
 	var/list/outline = list()
 	for(var/turf/projected as anything in projected_turfs)
@@ -244,9 +244,13 @@ GLOBAL_LIST_EMPTY(open_stargates)
 		for(var/direction in GLOB.cardinals)
 			if(!(get_step(projected, direction) in projected_turfs))
 				exposed_edges |= direction
-		if(!exposed_edges)
+		var/list/inside_corners = list()
+		for(var/direction in GLOB.diagonals)
+			if(!(exposed_edges & direction) && !(get_step(projected, direction) in projected_turfs))
+				inside_corners += direction
+		if(!exposed_edges && !length(inside_corners))
 			continue
-		var/image/edge = image(get_preview_outline_icon(exposed_edges), loc = preview_anchor, layer = ABOVE_OBJ_LAYER + 0.02)
+		var/image/edge = image(get_preview_outline_icon(exposed_edges, inside_corners), loc = preview_anchor, layer = ABOVE_OBJ_LAYER + 0.02)
 		edge.pixel_x = (projected.x - x) * WORLD_ICON_SIZE
 		edge.pixel_y = (projected.y - y) * WORLD_ICON_SIZE
 		edge.plane = ABOVE_LIGHTING_PLANE
@@ -256,16 +260,27 @@ GLOBAL_LIST_EMPTY(open_stargates)
 		outline += edge
 	return outline
 
-/obj/structure/stargate/proc/get_preview_outline_icon(exposed_edges)
-	var/static/list/contour_patterns
-	LAZYINITLIST(contour_patterns)
-	var/pattern_key = "[exposed_edges]"
-	if(contour_patterns[pattern_key])
-		return contour_patterns[pattern_key]
+/obj/structure/stargate/proc/get_preview_outline_icon(exposed_edges, list/inside_corners)
+	var/static/list/outline_patterns
+	LAZYINITLIST(outline_patterns)
+	var/pattern_key = "[exposed_edges]:[jointext(inside_corners, ",")]"
+	if(outline_patterns[pattern_key])
+		return outline_patterns[pattern_key]
 	var/icon/pattern = icon('icons/mob/base_32.dmi', "blank")
-	// Paint from the inner falloff to the outer stroke so corners share the same profile.
 	var/list/band_colors = list("#6AAEB9", "#5C9AA8DD", "#477C8BA8", "#33596768", "#203D4A30")
-	for(var/band = length(band_colors), band >= 1, band--)
+	var/band_count = length(band_colors)
+	// Wrap the fade around each missing diagonal tile so the neighboring strokes meet.
+	for(var/direction in inside_corners)
+		for(var/horizontal in 1 to band_count)
+			for(var/vertical in 1 to band_count)
+				var/band = ceil(sqrt((horizontal - 0.5) ** 2 + (vertical - 0.5) ** 2))
+				if(band > band_count)
+					continue
+				var/pixel_column = (direction & EAST) ? WORLD_ICON_SIZE + 1 - horizontal : horizontal
+				var/pixel_row = (direction & NORTH) ? WORLD_ICON_SIZE + 1 - vertical : vertical
+				pattern.DrawBox(band_colors[band], pixel_column, pixel_row, pixel_column, pixel_row)
+	// Paint from the inner falloff to the outer stroke for an even width around turns.
+	for(var/band = band_count, band >= 1, band--)
 		var/band_color = band_colors[band]
 		var/opposite = WORLD_ICON_SIZE + 1 - band
 		if(exposed_edges & NORTH)
@@ -276,7 +291,14 @@ GLOBAL_LIST_EMPTY(open_stargates)
 			pattern.DrawBox(band_color, opposite, 1, opposite, WORLD_ICON_SIZE)
 		if(exposed_edges & WEST)
 			pattern.DrawBox(band_color, band, 1, band, WORLD_ICON_SIZE)
-	contour_patterns[pattern_key] = pattern
+	// Soften the tip of each outside corner while keeping the edge continuous.
+	for(var/direction in GLOB.diagonals)
+		if((exposed_edges & direction) != direction)
+			continue
+		var/corner_column = (direction & EAST) ? WORLD_ICON_SIZE : 1
+		var/corner_row = (direction & NORTH) ? WORLD_ICON_SIZE : 1
+		pattern.DrawBox(band_colors[2], corner_column, corner_row, corner_column, corner_row)
+	outline_patterns[pattern_key] = pattern
 	return pattern
 
 /obj/structure/stargate/process()
