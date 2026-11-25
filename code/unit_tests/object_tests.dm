@@ -154,6 +154,42 @@
 	if(!found_north_room || !found_south_room)
 		TEST_FAIL("The map portal effect must show the destination room beyond both exit rows")
 
+	var/obj/effect/map_effect/portal/stargate/aim_lane = first.apertures[2]
+	var/turf/aim_origin = get_step(aim_lane, SOUTH)
+	var/turf/aim_destination = get_offset_target_turf(second, 1, 2)
+	var/datum/stargate_aim/aim = new
+	aim.lane = aim_lane
+	aim.receiving_lane = aim_lane.counterpart
+	aim.approach = SOUTH
+	aim.destination = aim_destination
+	aim.target = aim_destination
+	var/turf/aim_projection = get_offset_target_turf(first, 1, 2)
+	var/list/aim_targets = first.preview_targets[REF(first.preview_images)]
+	if(aim_targets[aim_projection] != aim_destination)
+		TEST_FAIL("The projected floor must map back to its remote turf")
+
+	var/obj/projectile/aimed_shot = new(aim_origin)
+	aimed_shot.preparePixelProjectile(aim_destination, aim_origin, list("stargate_aim" = aim))
+	aimed_shot.fire()
+	for(var/i in 1 to 45)
+		if(QDELETED(aimed_shot) || aimed_shot.loc == aim_destination)
+			break
+		aimed_shot.pixel_move(1)
+	if(QDELETED(aimed_shot) || aimed_shot.loc != aim_destination)
+		TEST_FAIL("A projectile aimed through a lane must reach the off-axis destination")
+	qdel(aimed_shot)
+
+	var/obj/item/aimed_throw = new(aim_origin)
+	aimed_throw.throw_at(aim_destination, 4, 2, null, FALSE, FALSE, null, MOVE_FORCE_STRONG, FALSE, FALSE, aim)
+	for(var/i in 1 to 6)
+		if(!aimed_throw.throwing)
+			break
+		aimed_throw.throwing.start_time -= 1
+		aimed_throw.throwing.tick()
+	if(aimed_throw.loc != aim_destination)
+		TEST_FAIL("A throw aimed through a lane must continue to the off-axis destination")
+	qdel(aimed_throw)
+
 	var/list/old_angled_scenes = first.angled_preview_scenes?.Copy()
 	first.set_address("Unpaired [REF(src)]")
 	for(var/obj/effect/map_effect/portal/stargate_preview/old_scene as anything in old_angled_scenes)

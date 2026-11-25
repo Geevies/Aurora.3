@@ -34,6 +34,13 @@
 /obj/item/spell/proc/within_range(var/atom/target, var/max_range = 7) // Beyond 7 is off the screen.
 	if(target in view(max_range, owner))
 		return TRUE
+	var/datum/stargate_aim/aim = owner?.find_stargate_aim(remote_target = target)
+	if(aim)
+		var/turf/exit = aim.lane.get_exit_turf(aim.approach)
+		if(exit && !exit.density && get_dist(owner, aim.lane) + get_dist(exit, aim.destination) <= max_range)
+			var/list/visible
+			DVIEW(visible, max_range, exit, owner.see_invisible)
+			return aim.destination in visible
 	return FALSE
 
 /obj/item/spell/proc/calculate_spell_power(var/amount)

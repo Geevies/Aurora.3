@@ -334,7 +334,7 @@
 
 	return TRUE
 
-/atom/movable/proc/throw_at(atom/target, range, speed, mob/thrower, spin = TRUE, diagonals_first = FALSE, datum/callback/callback, force = MOVE_FORCE_STRONG, gentle = FALSE, quickstart = TRUE)
+/atom/movable/proc/throw_at(atom/target, range, speed, mob/thrower, spin = TRUE, diagonals_first = FALSE, datum/callback/callback, force = MOVE_FORCE_STRONG, gentle = FALSE, quickstart = TRUE, datum/stargate_aim/gateway_aim)
 	. = FALSE
 
 	if(QDELETED(src))
@@ -342,6 +342,10 @@
 
 	if (!target || speed <= 0)
 		return
+	if(gateway_aim)
+		if(!gateway_aim.can_launch_from(src))
+			return
+		target = get_turf(gateway_aim.lane)
 
 	if(SEND_SIGNAL(src, COMSIG_MOVABLE_PRE_THROW, args) & COMPONENT_CANCEL_THROW)
 		return
@@ -382,27 +386,9 @@
 		target_zone = thrower.zone_sel
 
 	var/datum/thrownthing/thrown_thing = new(src, target, get_dir(src, target), range, speed, thrower, diagonals_first, force, gentle, callback, target_zone)
+	thrown_thing.stargate_aim = gateway_aim
+	thrown_thing.set_throw_heading(src, target)
 
-	var/dist_x = abs(target.x - src.x)
-	var/dist_y = abs(target.y - src.y)
-	var/dx = (target.x > src.x) ? EAST : WEST
-	var/dy = (target.y > src.y) ? NORTH : SOUTH
-
-	if (dist_x == dist_y)
-		thrown_thing.pure_diagonal = 1
-
-	else if(dist_x <= dist_y)
-		var/olddist_x = dist_x
-		var/olddx = dx
-		dist_x = dist_y
-		dist_y = olddist_x
-		dx = dy
-		dy = olddx
-	thrown_thing.dist_x = dist_x
-	thrown_thing.dist_y = dist_y
-	thrown_thing.dx = dx
-	thrown_thing.dy = dy
-	thrown_thing.diagonal_error = dist_x/2 - dist_y
 	thrown_thing.start_time = world.time
 
 	// if(pulledby)

@@ -28,6 +28,8 @@
 	var/xo = null
 	/// The original target clicked.
 	var/atom/original
+	var/datum/stargate_aim/stargate_aim
+	var/stargate_entry_angle
 	/// The projectile's starting turf.
 	var/turf/starting
 	var/p_x = 16
@@ -816,6 +818,12 @@
 			return
 		var/turf/target = locate(clamp(starting + xo, 1, world.maxx), clamp(starting + yo, 1, world.maxy), starting.z)
 		set_angle(get_angle(src, target))
+	if(!stargate_aim && isnull(angle) && ismob(firer) && original && get_turf(firer) == starting)
+		var/mob/shooter = firer
+		if(!(original in view(world.view, shooter)))
+			var/datum/stargate_aim/aim = shooter.find_stargate_aim(remote_target = original)
+			if(aim)
+				set_stargate_aim(aim, starting)
 	if(spread)
 		set_angle(Angle + (rand() - 0.5) * spread)
 	original_angle = Angle
@@ -1034,6 +1042,13 @@
 	pixel_w = source_position.pixel_w
 	pixel_z = source_position.pixel_z
 	original = target
+	var/datum/stargate_aim/aim = modifiers?["stargate_aim"]
+	if(istype(aim))
+		if(!aim.can_launch_from(source))
+			qdel(src)
+			return FALSE
+		set_stargate_aim(aim, source_position, deviation)
+		return TRUE
 	if(length(modifiers))
 		var/list/calculated = calculate_projectile_angle_and_pixel_offsets(source_position, target_loc && target, modifiers)
 
@@ -1054,6 +1069,12 @@
 	stack_trace("WARNING: Projectile [type] fired without a target or mouse parameters to aim with.")
 	qdel(src)
 	return FALSE
+
+/obj/projectile/proc/set_stargate_aim(datum/stargate_aim/aim, atom/source, deviation = 0)
+	stargate_aim = aim
+	var/list/launch = calculate_projectile_angle_and_pixel_offsets(source, get_turf(aim.lane), null)
+	stargate_entry_angle = launch[1]
+	set_angle(stargate_entry_angle + deviation)
 
 /**
  * Calculates the pixel offsets and angle that a projectile should be launched at.

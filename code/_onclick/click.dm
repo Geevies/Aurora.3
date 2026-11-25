@@ -48,7 +48,7 @@
  * * [obj/item/proc/afterattack] (atom,user,adjacent,params) - used both ranged and adjacent
  * * [mob/proc/RangedAttack] (atom,modifiers) - used only ranged, only used for tk and laser eyes but could be changed
  */
-/mob/proc/ClickOn(atom/A, params)
+/mob/proc/ClickOn(atom/A, params, datum/stargate_aim/gateway_aim)
 	if(world.time <= next_click) // Hard check, before anything else, to avoid crashing
 		return
 	next_click = world.time + 1
@@ -105,7 +105,7 @@
 	if(stat || paralysis || stunned || weakened) // In TG it's if(INCAPACITATED_IGNORING(src, INCAPABLE_RESTRAINTS|INCAPABLE_STASIS))
 		return
 
-	face_atom(A) // change direction to face what you clicked on
+	face_atom(gateway_aim ? gateway_aim.lane : A)
 
 	/* START Aurora snowflake */
 	if(LAZYACCESS(modifiers, RIGHT_CLICK))
@@ -121,12 +121,20 @@
 		RestrainedClickOn(A)
 		return 1
 
-	if(in_throw_mode && (isturf(A) || isturf(A.loc)) && throw_item(A))
+	if(in_throw_mode && (isturf(A) || isturf(A.loc)) && throw_item(A, gateway_aim))
 		trigger_aiming(TARGET_CAN_CLICK)
 		throw_mode_off()
 		return TRUE
 
 	var/obj/item/W = get_active_hand()
+
+	if(gateway_aim)
+		if(istype(W, /obj/item/gun))
+			W.afterattack(A, src, FALSE, list("stargate_aim" = gateway_aim))
+			trigger_aiming(TARGET_CAN_CLICK)
+		else if(W ? W.afterattack(A, src, FALSE, params) : RangedAttack(A, params))
+			trigger_aiming(TARGET_CAN_CLICK)
+		return TRUE
 
 	if(W == A)
 		if(LAZYACCESS(modifiers, RIGHT_CLICK))

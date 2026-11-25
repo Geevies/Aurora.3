@@ -65,6 +65,8 @@ SUBSYSTEM_DEF(throwing)
 	var/pure_diagonal
 	///Tracks how far a thrownthing has traveled mid-throw for the purposes of maxrange
 	var/dist_travelled = 0
+	var/trajectory_start_distance = 0
+	var/datum/stargate_aim/stargate_aim
 	///The start_time obtained via world.time for the purposes of tiles moved/tick.
 	var/start_time
 	///Distance to travel in the X axis/direction.
@@ -131,6 +133,24 @@ SUBSYSTEM_DEF(throwing)
 	if(isnull(.))
 		thrower = null
 
+/datum/thrownthing/proc/set_throw_heading(atom/origin, atom/target)
+	if(!origin || !target)
+		return
+	init_dir = get_dir(origin, target)
+	dist_x = abs(target.x - origin.x)
+	dist_y = abs(target.y - origin.y)
+	dx = target.x > origin.x ? EAST : WEST
+	dy = target.y > origin.y ? NORTH : SOUTH
+	pure_diagonal = dist_x == dist_y
+	if(dist_x < dist_y)
+		var/old_distance = dist_x
+		var/old_direction = dx
+		dist_x = dist_y
+		dist_y = old_distance
+		dx = dy
+		dy = old_direction
+	diagonal_error = dist_x / 2 - dist_y
+
 /datum/thrownthing/proc/tick()
 	var/atom/movable/AM = thrownthing
 	if (!isturf(AM.loc) || !AM.throwing)
@@ -167,13 +187,14 @@ SUBSYSTEM_DEF(throwing)
 			finalize()
 			return
 
-		if (dist_travelled <= max(dist_x, dist_y)) //if we haven't reached the target yet we home in on it, otherwise we use the initial direction
+		var/segment_distance = dist_travelled - trajectory_start_distance
+		if (segment_distance <= max(dist_x, dist_y)) //if we haven't reached the target yet we home in on it, otherwise we use the initial direction
 			step = get_step(AM, get_dir(AM, target_turf))
 		else
 			step = get_step(AM, init_dir)
 
 		if (!pure_diagonal && !diagonals_first) // not a purely diagonal trajectory and we don't want all diagonal moves to be done first
-			if (diagonal_error >= 0 && max(dist_x,dist_y) - dist_travelled != 1) //we do a step forward unless we're right before the target
+			if (diagonal_error >= 0 && max(dist_x,dist_y) - segment_distance != 1) //we do a step forward unless we're right before the target
 				step = get_step(AM, dx)
 			diagonal_error += (diagonal_error < 0) ? dist_x/2 : -dist_y
 
@@ -187,6 +208,8 @@ SUBSYSTEM_DEF(throwing)
 			return
 
 		dist_travelled++
+		if(trajectory_start_distance == dist_travelled)
+			actual_target = initial_target?.resolve()
 
 		if(actual_target && !(actual_target.pass_flags_self & LETPASSTHROW) && actual_target.loc == AM.loc) // we crossed a movable with no density (e.g. a mouse or APC) we intend to hit anyway.
 			finalize(TRUE, actual_target)

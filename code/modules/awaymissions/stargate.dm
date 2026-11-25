@@ -1,3 +1,5 @@
+GLOBAL_LIST_EMPTY(open_stargates)
+
 /// Place the center of each three-tile ring with the same gate_id. Its cardinal dir defines the front of the ring.
 /obj/structure/stargate
 	name = "stargate"
@@ -22,6 +24,7 @@
 	var/list/angled_preview_images
 	var/list/angled_preview_scenes
 	var/image/preview_rim
+	var/list/preview_targets
 	/// The preview images currently shown to each client.
 	var/list/preview_viewers
 	/// Nearby movable eyes and the clients looking through each one.
@@ -155,6 +158,9 @@
 	icon_state = "linked"
 
 /obj/structure/stargate/proc/show_destination()
+	LAZYINITLIST(GLOB.open_stargates)
+	GLOB.open_stargates |= src
+	preview_targets = list()
 	preview_images = list()
 	rear_preview_images = list()
 	side_preview_images = list()
@@ -188,6 +194,8 @@
 	preview_images += preview_rim
 	rear_preview_images += preview_rim
 	side_preview_images += preview_rim
+	preview_targets[REF(preview_images)] = front_projected_turfs
+	preview_targets[REF(rear_preview_images)] = rear_projected_turfs
 	START_PROCESSING(SSprocessing, src)
 	process()
 
@@ -210,7 +218,7 @@
 	for(var/turf/remote_turf in rendered_scene.vis_contents)
 		var/turf/projected = locate(local_anchor.x + remote_turf.x - alignment_turf.x, local_anchor.y + remote_turf.y - alignment_turf.y, z)
 		if(projected)
-			projected_turfs |= projected
+			projected_turfs[projected] = remote_turf
 	// Keep the grouped scene off-screen until a viewer is on this side.
 	rendered_scene.icon_state = "blank"
 	rendered_scene.render_target = "*stargate-[REF(rendered_scene)]"
@@ -335,6 +343,8 @@
 	images += make_preview_outline(projected_turfs)
 	images += preview_rim
 	angled_preview_images[key] = images
+	LAZYINITLIST(preview_targets)
+	preview_targets[REF(images)] = projected_turfs
 	return images
 
 /obj/structure/stargate/proc/update_preview(client/viewer)
@@ -358,6 +368,8 @@
 /obj/structure/stargate/proc/clear_preview()
 	if(!preview_images)
 		return
+	if(GLOB.open_stargates)
+		GLOB.open_stargates -= src
 	STOP_PROCESSING(SSprocessing, src)
 	for(var/client/viewer as anything in preview_viewers)
 		if(!QDELETED(viewer))
@@ -371,8 +383,73 @@
 	angled_preview_images = null
 	QDEL_NULL_LIST(angled_preview_scenes)
 	preview_rim = null
+	preview_targets = null
 	preview_viewers = null
 	preview_eyes = null
+
+/// A validated route for one ranged action. The near lane is traversed by normal projectile movement.
+/datum/stargate_aim
+	var/obj/effect/map_effect/portal/stargate/lane
+	var/obj/effect/map_effect/portal/stargate/receiving_lane
+	var/turf/destination
+	var/atom/target
+	var/approach
+	var/target_pixel_x = WORLD_ICON_SIZE / 2
+	var/target_pixel_y = WORLD_ICON_SIZE / 2
+
+/datum/stargate_aim/proc/can_launch_from(atom/source)
+	var/turf/origin = get_turf(source)
+	return receiving_lane && lane?.counterpart == receiving_lane && origin && origin.z == lane.z && (get_dir(lane.gate, origin) & approach) && (lane.loc in view(world.view, origin))
+
+/datum/stargate_aim/proc/routes_through(obj/structure/stargate/gate)
+	return gate && lane?.gate == gate && receiving_lane?.gate == gate.partner
+
+/mob/proc/find_stargate_aim(turf/clicked_turf, atom/remote_target)
+	if(!length(GLOB.open_stargates) || !isliving(src) || !client || client.eye != src || !isturf(loc))
+		return
+	var/turf/remote_turf = get_turf(remote_target)
+	if(!clicked_turf && !remote_turf)
+		return
+	var/list/visible = view(world.view, src)
+	for(var/obj/structure/stargate/gate as anything in GLOB.open_stargates)
+		if(!gate.partner || gate.z != z || !(gate in visible))
+			continue
+		var/list/images = gate.preview_viewers?[client]
+		var/list/targets = gate.preview_targets?[REF(images)]
+		if(!length(targets))
+			continue
+		var/turf/projected = clicked_turf
+		if(remote_turf)
+			for(var/turf/shown as anything in targets)
+				if(targets[shown] == remote_turf)
+					projected = shown
+					break
+		var/turf/destination = targets[projected]
+		if(!destination)
+			continue
+		var/approach = get_dir(gate, src) & (gate.dir | REVERSE_DIR(gate.dir))
+		if(!approach || !(get_dir(gate, projected) & REVERSE_DIR(approach)))
+			continue
+		var/list/path = get_line(src, projected)
+		var/obj/effect/map_effect/portal/stargate/chosen
+		for(var/obj/effect/map_effect/portal/stargate/lane in gate.apertures)
+			if(lane.loc in path)
+				chosen = lane
+				break
+			if(!chosen || get_dist(lane, projected) < get_dist(chosen, projected))
+				chosen = lane
+		if(!chosen?.counterpart || !(chosen.loc in visible))
+			continue
+		var/turf/exit = chosen.get_exit_turf(approach)
+		if(destination == get_turf(chosen.counterpart) || !(get_dir(chosen.counterpart, destination) & get_dir(chosen.counterpart, exit)))
+			continue
+		var/datum/stargate_aim/aim = new
+		aim.lane = chosen
+		aim.receiving_lane = chosen.counterpart
+		aim.destination = destination
+		aim.target = remote_target || destination
+		aim.approach = approach
+		return aim
 
 /obj/structure/stargate/Destroy()
 	disconnect()
@@ -622,13 +699,27 @@
 	// remaining distance out through the far ring, including on another z-level.
 	var/datum/thrownthing/flight = traveler.throwing
 	if(flight)
-		flight.target_turf = get_ranged_target_turf(exit, exit_direction, get_dist(src, flight.target_turf))
-		flight.initial_target = null
-		flight.init_dir = exit_direction
-		flight.dx = exit_direction // The throw's primary step is now along the exit axis.
+		var/datum/stargate_aim/aim = flight.stargate_aim
+		flight.stargate_aim = null
+		if(aim?.routes_through(gate))
+			flight.target_turf = aim.destination
+			flight.initial_target = ismovable(aim.target) && get_turf(aim.target) == aim.destination ? WEAKREF(aim.target) : null
+			flight.set_throw_heading(exit, aim.destination)
+			flight.trajectory_start_distance = flight.dist_travelled + 1
+		else
+			flight.target_turf = get_ranged_target_turf(exit, exit_direction, get_dist(src, flight.target_turf))
+			flight.initial_target = null
+			flight.init_dir = exit_direction
+			flight.dx = exit_direction // The throw's primary step is now along the exit axis.
 	if(istype(traveler, /obj/projectile))
 		var/obj/projectile/projectile = traveler
-		projectile.set_angle(dir2angle(exit_direction))
+		var/datum/stargate_aim/aim = projectile.stargate_aim
+		projectile.stargate_aim = null
+		if(aim?.routes_through(gate) && aim.destination != exit)
+			var/list/heading = calculate_projectile_angle_and_pixel_offsets(exit, aim.destination, list(ICON_X = aim.target_pixel_x, ICON_Y = aim.target_pixel_y))
+			projectile.set_angle(heading[1] + closer_angle_difference(projectile.stargate_entry_angle, projectile.Angle))
+		else
+			projectile.set_angle(dir2angle(exit_direction))
 	. = ..(traveler, exit)
 	if(isliving(traveler) && traveler.loc == exit)
 		gate?.play_transit_effects()

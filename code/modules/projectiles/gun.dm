@@ -415,6 +415,9 @@ ABSTRACT_TYPE(/obj/item/gun)
 /obj/item/gun/proc/pre_fire(atom/target, mob/living/user, clickparams, pointblank=FALSE, reflex=FALSE, atom/controller)
 	if(QDELETED(target))
 		return FALSE
+	var/datum/stargate_aim/aim = islist(clickparams) ? clickparams["stargate_aim"] : null
+	if(istype(aim) && !aim.can_launch_from(user))
+		return FALSE
 
 	if(!user)
 		// Automated controllers must explicitly own and authorize this gun. Preserve their
@@ -452,7 +455,7 @@ ABSTRACT_TYPE(/obj/item/gun)
 		handle_reliability_fail(user)
 		return FALSE
 
-	user.face_atom(target, TRUE)
+	user.face_atom(istype(aim) ? aim.lane : target, TRUE)
 
 	return TRUE
 

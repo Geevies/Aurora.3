@@ -428,10 +428,10 @@ GLOBAL_LIST_INIT(slot_equipment_priority, list(
 
 
 //Throwing stuff
-/mob/proc/throw_item(atom/target)
+/mob/proc/throw_item(atom/target, datum/stargate_aim/gateway_aim)
 	return FALSE
 
-/mob/living/carbon/throw_item(atom/target)
+/mob/living/carbon/throw_item(atom/target, datum/stargate_aim/gateway_aim)
 	if(stat || !target || istype(target, /atom/movable/screen))
 		return FALSE
 
@@ -492,7 +492,7 @@ GLOBAL_LIST_INIT(slot_equipment_priority, list(
 			drop_item()
 		return FALSE
 
-	if(a_intent == I_HELP && Adjacent(target) && isitem(item))
+	if(!gateway_aim && a_intent == I_HELP && Adjacent(target) && isitem(item))
 		var/obj/item/I = item
 		if(ishuman(target))
 			var/mob/living/carbon/human/H = target
@@ -550,7 +550,7 @@ GLOBAL_LIST_INIT(slot_equipment_priority, list(
 		// Animate the mob throwing.
 		animate_throw()
 
-		item.throw_at(target, throw_range, item.throw_speed, src)
+		item.throw_at(target, throw_range, item.throw_speed, src, TRUE, FALSE, null, MOVE_FORCE_STRONG, FALSE, TRUE, gateway_aim)
 
 		return TRUE
 

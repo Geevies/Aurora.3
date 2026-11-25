@@ -947,7 +947,43 @@ GLOBAL_LIST_INIT(localhost_addresses, list(
 
 /client/Click(atom/object, atom/location, control, params)
 	SEND_SIGNAL(src, COMSIG_CLIENT_CLICK, object, location, control, params, usr)
+	if(mob && istype(mob.GetClickHandler(), /datum/click_handler/default))
+		var/obj/item/held = mob.get_active_hand()
+		if(mob.in_throw_mode || !held || istype(held, /obj/item/gun) || istype(held, /obj/item/spell))
+			var/datum/stargate_aim/aim = stargate_aim_for_click(object, control, params)
+			if(aim)
+				mob.ClickOn(aim.target, params, aim)
+				return
 	..()
+
+/client/proc/stargate_aim_for_click(atom/object, control, params)
+	if(!length(GLOB.open_stargates) || !isliving(mob) || eye != mob || (control != "mapwindow.map" && control != "map"))
+		return
+	if(istype(object, /atom/movable/screen) && !istype(object, /atom/movable/screen/click_catcher))
+		return
+	var/list/modifiers = params2list(params)
+	if(!modifiers[SCREEN_LOC] || modifiers[SHIFT_CLICK] || modifiers[CTRL_CLICK] || modifiers[ALT_CLICK] || modifiers[RIGHT_CLICK] || modifiers[MIDDLE_CLICK])
+		return
+	var/turf/origin = get_turf(mob)
+	if(!origin)
+		return
+	var/turf/clicked = parse_caught_click_modifiers(modifiers, origin, src)
+	var/datum/stargate_aim/aim = mob.find_stargate_aim(clicked)
+	if(!aim)
+		return
+	aim.target_pixel_x = clamp(text2num(modifiers[ICON_X]), 1, WORLD_ICON_SIZE)
+	aim.target_pixel_y = clamp(text2num(modifiers[ICON_Y]), 1, WORLD_ICON_SIZE)
+	if(get_turf(object) == aim.destination && object.invisibility <= mob.see_invisible && object.alpha)
+		aim.target = object
+	else
+		for(var/obj/target in aim.destination)
+			if(!istype(target, /obj/effect) && !(target.vis_flags & VIS_HIDE) && target.invisibility <= mob.see_invisible && target.alpha && target.mouse_opacity && target.layer >= aim.target.layer)
+				aim.target = target
+		for(var/mob/living/target in aim.destination)
+			if(target.invisibility <= mob.see_invisible && target.alpha && target.mouse_opacity)
+				aim.target = target
+				break
+	return aim
 
 /client/MouseDrag(src_object, over_object, src_location, over_location, src_control, over_control, params)
 	var/list/modifiers = params2list(params)
@@ -960,8 +996,9 @@ GLOBAL_LIST_INIT(localhost_addresses, list(
 
 	if(over_object)
 		if(autofire_aiming_at[1])
-			autofire_aiming_at[1] = over_object
-			autofire_aiming_at[2] = params
+			var/datum/stargate_aim/aim = stargate_aim_for_click(over_object, over_control, params)
+			autofire_aiming_at[1] = aim ? aim.target : over_object
+			autofire_aiming_at[2] = aim ? list("stargate_aim" = aim) : params
 		var/mob/living/M = mob
 
 		if(istype(M) && !M.incapacitated())
@@ -994,6 +1031,9 @@ GLOBAL_LIST_INIT(localhost_addresses, list(
 		var/can_autofire = G.can_autofire(O, location, params)
 		if(!can_autofire)
 			return
+		var/datum/stargate_aim/aim = stargate_aim_for_click(O, control, params)
+		if(aim)
+			O = aim.target
 
 		// check if the object we're clicking is auto clickable
 		var/can_autoclick_object = O.is_auto_clickable()
@@ -1033,15 +1073,17 @@ GLOBAL_LIST_INIT(localhost_addresses, list(
 			return
 
 		autofire_aiming_at[1] = O
-		autofire_aiming_at[2] = params
+		autofire_aiming_at[2] = aim ? list("stargate_aim" = aim) : params
 
 		var/accuracy_dec = 0
 		while(autofire_aiming_at[1])
 			// stop shooting if we drop our gun
 			if(G.loc != mob)
 				break
-			G.fire_gun(autofire_aiming_at[1], mob, autofire_aiming_at[2], (get_dist(mob, location) <= 1), FALSE, accuracy_dec)
-			mob.set_dir(get_dir(mob, autofire_aiming_at[1]))
+			var/shot_params = autofire_aiming_at[2]
+			var/datum/stargate_aim/shot_aim = islist(shot_params) ? shot_params["stargate_aim"] : null
+			G.fire_gun(autofire_aiming_at[1], mob, shot_params, !shot_aim && (get_dist(mob, location) <= 1), FALSE, accuracy_dec)
+			mob.set_dir(get_dir(mob, shot_aim ? shot_aim.lane : autofire_aiming_at[1]))
 			accuracy_dec = min(accuracy_dec + 0.25, 2)
 			sleep(G.fire_delay)
 
