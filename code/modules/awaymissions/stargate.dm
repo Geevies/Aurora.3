@@ -250,6 +250,7 @@ GLOBAL_LIST_EMPTY(open_stargates)
 		edge.pixel_x = (projected.x - x) * WORLD_ICON_SIZE
 		edge.pixel_y = (projected.y - y) * WORLD_ICON_SIZE
 		edge.plane = ABOVE_LIGHTING_PLANE
+		edge.alpha = 128
 		edge.mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 		edge.appearance_flags = PIXEL_SCALE | KEEP_APART
 		outline += edge
