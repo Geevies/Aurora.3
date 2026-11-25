@@ -40,6 +40,64 @@
 	src.bubble = bubble
 	src.listeners = listeners
 
+/// A client-private bubble positioned by the same projection map as the speaker's sprite.
+/datum/langchat_bubble/stargate
+	var/mob/speaker
+	var/client/viewer
+	var/obj/structure/stargate/gate
+	var/base_maptext_x
+	var/base_maptext_y
+
+/datum/langchat_bubble/stargate/New(image/bubble, mob/speaker, client/viewer, obj/structure/stargate/gate)
+	. = ..(bubble)
+	src.speaker = speaker
+	src.viewer = viewer
+	src.gate = gate
+	base_maptext_x = bubble.maptext_x
+	base_maptext_y = bubble.maptext_y
+	bubble.loc = null
+	LAZYINITLIST(gate.projected_langchat)
+	var/list/active = gate.projected_langchat[viewer]
+	if(!active)
+		active = list()
+		gate.projected_langchat[viewer] = active
+	active += src
+	RegisterSignal(speaker, COMSIG_MOVABLE_MOVED, PROC_REF(update_position))
+	RegisterSignal(speaker, COMSIG_QDELETING, PROC_REF(on_speaker_deleted))
+	update_position()
+	viewer.images += bubble
+
+/datum/langchat_bubble/stargate/proc/update_position()
+	SIGNAL_HANDLER
+	if(QDELETED(viewer))
+		return
+	var/turf/projected = gate.get_projected_speaker_turf(speaker, viewer)
+	if(!projected)
+		bubble.loc = null
+		return
+	bubble.maptext_x = base_maptext_x + (projected.x - gate.x) * WORLD_ICON_SIZE + speaker.pixel_x
+	bubble.maptext_y = base_maptext_y + (projected.y - gate.y) * WORLD_ICON_SIZE + speaker.pixel_y
+	bubble.loc = gate.preview_anchor
+
+/datum/langchat_bubble/stargate/proc/on_speaker_deleted()
+	SIGNAL_HANDLER
+	qdel(src)
+
+/datum/langchat_bubble/stargate/Destroy()
+	UnregisterSignal(speaker, list(COMSIG_MOVABLE_MOVED, COMSIG_QDELETING))
+	if(!QDELETED(viewer))
+		viewer.images -= bubble
+	var/list/active = gate.projected_langchat?[viewer]
+	if(active)
+		active -= src
+		if(!length(active))
+			gate.projected_langchat -= viewer
+	viewer = null
+	speaker = null
+	gate = null
+	bubble = null
+	return ..()
+
 /// The floating bubbles currently shown for this atom.
 /atom/var/list/langchat_images
 
@@ -53,6 +111,7 @@
 			if (!listener || !listener.client)
 				continue
 			listener.client.images -= entry.bubble
+		qdel(entry)
 	langchat_images = null
 
 /atom/proc/get_maptext_x_offset(image/maptext_image)
@@ -69,6 +128,14 @@
 	if(!length(listeners))
 		return
 
+	var/image/bubble = langchat_make_image(maptext_string, override_color, additional_styles)
+	for(var/mob/listener as anything in listeners)
+		listener.client.images += bubble
+
+	animate_style(bubble, animation_style)
+	LAZYADD(langchat_images, new /datum/langchat_bubble(bubble, listeners))
+
+/atom/proc/langchat_make_image(maptext_string, override_color, list/additional_styles)
 	var/image/bubble = image(null, src)
 	bubble.layer = 20
 	bubble.plane = RUNECHAT_PLANE
@@ -85,12 +152,7 @@
 	bubble.maptext_width = LANGCHAT_WIDTH
 	bubble.maptext_x = get_maptext_x_offset(bubble)
 	bubble.loc = isturf(loc) ? src : recursive_holder_check(src)
-
-	for(var/mob/listener as anything in listeners)
-		listener.client.images += bubble
-
-	animate_style(bubble, animation_style)
-	LAZYADD(langchat_images, new /datum/langchat_bubble(bubble, listeners))
+	return bubble
 
 /// Per-type appearance tweaks applied to a freshly built bubble.
 /atom/proc/langchat_configure_bubble(image/bubble, override_color)
@@ -126,14 +188,7 @@
 	// Group listeners by exact text perceived.
 	var/list/groups = list()
 	for(var/mob/listener in listeners)
-		if(!LANGCHAT_CLIENT_ENABLED(listener))
-			continue
-		var/clarity = listener.get_clarity(msg, feedback = FALSE)
-		if(clarity == CLARITY_NONE || clarity == CLARITY_DROWSY)
-			continue
-		var/perceived = msg.plain_text_for(listener)
-		if(clarity == CLARITY_FAINT)
-			perceived = stars(perceived)
+		var/perceived = langchat_perceived_text(msg, listener)
 		if(!length(perceived))
 			continue
 		var/list/group = groups[perceived]
@@ -141,15 +196,37 @@
 			group = list()
 			groups[perceived] = group
 		group += listener
-	if(!length(groups))
-		return
-
 	for(var/perceived in groups)
 		langchat_build_image(perceived, groups[perceived], override_color, animation_style, additional_styles)
+
+	for(var/obj/structure/stargate/gate as anything in msg.stargate_audiences)
+		if(QDELETED(gate) || !gate.preview_anchor)
+			continue
+		var/list/audience = msg.stargate_audiences[gate]
+		for(var/mob/listener as anything in audience)
+			var/datum/say_message/heard_message = audience[listener] == TRUE ? msg : audience[listener]
+			var/perceived = langchat_perceived_text(heard_message, listener)
+			if(!length(perceived))
+				continue
+			var/image/projected = langchat_make_image(perceived, override_color, additional_styles)
+			animate_style(projected, animation_style)
+			LAZYADD(langchat_images, new /datum/langchat_bubble/stargate(projected, msg.speaker, listener.client, gate))
+	msg.stargate_audiences = null
+	if(!length(langchat_images))
+		return
 
 	// One-off timer for duration. Disappears for all listeners at the same time.
 	var/timer = (length(msg.to_string()) / LANGCHAT_LONGEST_TEXT) * 4 SECONDS + 2 SECONDS
 	addtimer(CALLBACK(src, TYPE_PROC_REF(/atom, langchat_drop_images)), timer, TIMER_UNIQUE|TIMER_OVERRIDE|TIMER_NO_HASH_WAIT)
+
+/atom/proc/langchat_perceived_text(datum/say_message/msg, mob/listener)
+	if(!LANGCHAT_CLIENT_ENABLED(listener))
+		return
+	var/clarity = listener.get_clarity(msg, feedback = FALSE)
+	if(clarity == CLARITY_NONE || clarity == CLARITY_DROWSY)
+		return
+	var/perceived = msg.plain_text_for(listener)
+	return (clarity == CLARITY_FAINT) ? stars(perceived) : perceived
 
 /// Builds the maptext span for a floating message.
 /atom/proc/generate_text_image(message, list/additional_styles = list("langchat"))

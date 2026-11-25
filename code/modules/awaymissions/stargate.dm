@@ -38,6 +38,8 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	var/list/preview_light_shades
 	/// The preview images currently shown to each client.
 	var/list/preview_viewers
+	/// Active floating speech images by client.
+	var/list/projected_langchat
 	/// Nearby movable eyes and the clients looking through each one.
 	var/list/preview_eyes
 
@@ -230,6 +232,7 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	side_preview_images += preview_rim
 	preview_targets[REF(preview_images)] = front_projected_turfs
 	preview_targets[REF(rear_preview_images)] = rear_projected_turfs
+	preview_targets[REF(side_preview_images)] = side_projected_turfs
 	START_PROCESSING(SSprocessing, src)
 	process()
 
@@ -509,6 +512,20 @@ GLOBAL_LIST_EMPTY(open_stargates)
 		preview_viewers[viewer] = next_images
 	else
 		preview_viewers -= viewer
+	for(var/datum/langchat_bubble/stargate/bubble as anything in projected_langchat?[viewer])
+		bubble.update_position()
+
+/// Returns where this client currently sees the speaker in this gate's preview.
+/obj/structure/stargate/proc/get_projected_speaker_turf(mob/speaker, client/viewer)
+	if(!isturf(speaker.loc) || !speaker.alpha || (speaker.vis_flags & VIS_HIDE) || speaker.invisibility > viewer.mob?.see_invisible)
+		return
+	var/list/images = preview_viewers?[viewer]
+	if(!images)
+		return
+	var/list/targets = preview_targets?[REF(images)]
+	for(var/turf/projected as anything in targets)
+		if(targets[projected] == speaker.loc)
+			return projected
 
 /obj/structure/stargate/proc/clear_preview()
 	if(!preview_images)
@@ -516,6 +533,12 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	if(GLOB.open_stargates)
 		GLOB.open_stargates -= src
 	STOP_PROCESSING(SSprocessing, src)
+	var/list/active_bubbles = projected_langchat
+	projected_langchat = null
+	for(var/client/viewer as anything in active_bubbles)
+		var/list/bubbles = active_bubbles[viewer]
+		for(var/datum/langchat_bubble/stargate/bubble as anything in bubbles.Copy())
+			qdel(bubble)
 	for(var/client/viewer as anything in preview_viewers)
 		if(!QDELETED(viewer))
 			viewer.images -= preview_viewers[viewer]
@@ -1064,22 +1087,38 @@ GLOBAL_LIST_EMPTY(open_stargates)
 		return
 	var/list/relayed
 	for(var/obj/effect/map_effect/portal/stargate/lane in local_listeners)
-		if(QDELETED(lane) || QDELETED(lane.counterpart))
+		var/obj/effect/map_effect/portal/stargate/receiving_lane = lane.counterpart
+		if(QDELETED(lane) || QDELETED(receiving_lane))
 			continue
-		var/turf/remote = get_turf(lane.counterpart)
+		var/turf/remote = get_turf(receiving_lane)
+		var/obj/structure/stargate/receiver = receiving_lane.gate
 		var/remaining_range = message.message_range - get_dist(origin, lane)
 		if(!remote || remaining_range < 0)
 			continue
 		var/datum/say_message/forwarded
 		for(var/mob/listener in get_hearers_in_view(remaining_range, remote))
-			if(QDELETED(listener) || (listener in local_listeners) || (listener in relayed))
+			if(QDELETED(listener))
 				continue
-			LAZYADD(relayed, listener)
-			if(!forwarded)
-				forwarded = message.copy()
-				forwarded.acoustic_origin = remote
-				forwarded.message_range = remaining_range
-			listener.Hear(forwarded)
+			var/datum/say_message/heard_message = message
+			if(listener in local_listeners)
+				if(!message.delivered_to[listener])
+					continue
+			else
+				if(!(listener in relayed))
+					if(!forwarded)
+						forwarded = message.copy()
+						forwarded.acoustic_origin = remote
+						forwarded.message_range = remaining_range
+					LAZYINITLIST(relayed)
+					relayed[listener] = listener.Hear(forwarded) ? forwarded : FALSE
+				heard_message = relayed[listener]
+			if(heard_message && listener.client && ismob(message.speaker) && !QDELETED(receiver))
+				LAZYINITLIST(message.stargate_audiences)
+				var/list/audience = message.stargate_audiences[receiver]
+				if(!audience)
+					audience = list()
+					message.stargate_audiences[receiver] = audience
+				audience[listener] = (heard_message == message) ? TRUE : heard_message
 
 /// Each segment carries travelers straight through the corresponding lane.
 /obj/effect/map_effect/portal/stargate

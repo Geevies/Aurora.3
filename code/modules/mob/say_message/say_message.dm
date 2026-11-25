@@ -6,6 +6,9 @@
 	/// The local source of a relayed sound. Attribution still uses the speaker.
 	var/turf/acoustic_origin
 
+	/// Receiving stargates and the speech each of their nearby listeners heard.
+	var/list/stargate_audiences
+
 	/// Event-owned attribution, name suffix, and presentation modifiers.
 	var/list/message_mods = list()
 	/// Event-owned CSS classes for chat presentation.
