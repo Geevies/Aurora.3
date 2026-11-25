@@ -879,10 +879,13 @@ GLOBAL_LIST_EMPTY(open_stargates)
 		return
 	if(istype(arrived, /obj/effect/stargate_image_anchor) || istype(arrived, /obj/effect/map_effect/portal/stargate_preview) || istype(arrived, /obj/effect/stargate_transit) || istype(arrived, /obj/effect/shockwave/stargate))
 		return
-	var/approach_side = dir
 	var/turf/entry = get_turf(old_loc)
-	if(entry && entry.z == z && (get_dir(src, entry) & REVERSE_DIR(dir)))
-		approach_side = REVERSE_DIR(dir)
+	if(!entry || entry.z != z || get_dist(src, entry) != 1)
+		return
+	// Diagonal entries can cross a face, but movement along the aperture cannot.
+	var/approach_side = get_dir(src, entry) & (dir | REVERSE_DIR(dir))
+	if(!approach_side)
+		return
 	go_through_portal(arrived, get_exit_turf(approach_side))
 
 /obj/effect/map_effect/portal/stargate/go_through_portal(atom/movable/traveler, turf/exit)

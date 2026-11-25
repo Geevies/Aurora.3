@@ -187,6 +187,25 @@
 		TEST_FAIL("The map portal effect must show the destination room beyond both exit rows")
 
 	var/obj/effect/map_effect/portal/stargate/aim_lane = first.apertures[2]
+	var/turf/center_lane = get_turf(aim_lane)
+	var/mob/living/side_traveler = new(get_step(center_lane, WEST))
+	step(side_traveler, EAST)
+	if(side_traveler.loc != center_lane)
+		TEST_FAIL("Walking along the aperture from the side must stay at the local ring")
+	qdel(side_traveler)
+
+	var/obj/item/side_throw = new(get_step(center_lane, EAST))
+	side_throw.throw_at(center_lane, 1, 1)
+	if(side_throw.loc != center_lane)
+		TEST_FAIL("A sideways throw must stay at the local ring")
+	qdel(side_throw)
+
+	var/mob/living/diagonal_traveler = new(get_step(center_lane, SOUTHWEST))
+	step(diagonal_traveler, NORTHEAST)
+	if(diagonal_traveler.loc != get_step(second, NORTH))
+		TEST_FAIL("A diagonal step across the front face must still enter the ring")
+	qdel(diagonal_traveler)
+
 	var/turf/aim_origin = get_step(aim_lane, SOUTH)
 	var/turf/aim_destination = get_offset_target_turf(second, 1, 2)
 	var/datum/stargate_aim/aim = new
