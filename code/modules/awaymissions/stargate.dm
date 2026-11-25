@@ -1058,6 +1058,29 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	. = ..()
 	. += "The ring faces the way you face during assembly. Leave three tiles clear across the ring and on both sides."
 
+/// Carry audible speech across one gateway, using the same range budget on both sides.
+/proc/relay_stargate_speech(datum/say_message/message, list/local_listeners, turf/origin)
+	if(!origin)
+		return
+	var/list/relayed
+	for(var/obj/effect/map_effect/portal/stargate/lane in local_listeners)
+		if(QDELETED(lane) || QDELETED(lane.counterpart))
+			continue
+		var/turf/remote = get_turf(lane.counterpart)
+		var/remaining_range = message.message_range - get_dist(origin, lane)
+		if(!remote || remaining_range < 0)
+			continue
+		var/datum/say_message/forwarded
+		for(var/mob/listener in get_hearers_in_view(remaining_range, remote))
+			if(QDELETED(listener) || (listener in local_listeners) || (listener in relayed))
+				continue
+			LAZYADD(relayed, listener)
+			if(!forwarded)
+				forwarded = message.copy()
+				forwarded.acoustic_origin = remote
+				forwarded.message_range = remaining_range
+			listener.Hear(forwarded)
+
 /// Each segment carries travelers straight through the corresponding lane.
 /obj/effect/map_effect/portal/stargate
 	name = "gateway aperture"
@@ -1069,6 +1092,14 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	var/obj/structure/stargate/gate
 	var/obj/effect/map_effect/portal/stargate_preview/rear_preview
 	var/obj/effect/map_effect/portal/stargate_preview/side_preview
+
+/obj/effect/map_effect/portal/stargate/Initialize()
+	. = ..()
+	become_hearing_sensitive()
+
+/obj/effect/map_effect/portal/stargate/Hear(datum/say_message/msg)
+	// The speech dispatcher relays after local delivery so a listener can only hear it once.
+	return FALSE
 
 /obj/effect/map_effect/portal/stargate/Destroy()
 	QDEL_NULL(rear_preview)

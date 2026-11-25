@@ -14,10 +14,12 @@
 		if(T)
 			var/datum/gas_mixture/air = T.return_air()
 			var/pressure = SAFE_XGM_PRESSURE(air)
-			if(pressure < SOUND_MINIMUM_PRESSURE && get_dist(speaker, src) > 1)
-				if(feedback && get_dist(speaker, src) <= 4 && !msg.italics)
-					to_chat(src, SPAN_NOTICE("[speaker?.name] talks, but you're in a vacuum. Maybe if you were close enough for the sound to transmit through touch..."))
-				return CLARITY_NONE
+			if(pressure < SOUND_MINIMUM_PRESSURE)
+				var/distance = get_dist(msg.acoustic_origin || speaker, src)
+				if(distance > 1)
+					if(feedback && distance <= 4 && !msg.italics)
+						to_chat(src, SPAN_NOTICE("[speaker?.name] talks, but you're in a vacuum. Maybe if you were close enough for the sound to transmit through touch..."))
+					return CLARITY_NONE
 
 	// vr_mob is a Psionic mob in the dream. They hear clearly even when not conscious.
 	if(!vr_mob && (sleeping || stat == UNCONSCIOUS))
@@ -257,6 +259,10 @@
 
 /// Plays the speech sound for a given message.
 /mob/proc/play_speech_sound(datum/say_message/msg, sound_vol)
+	if(msg.acoustic_origin)
+		if(msg.speech_sound && client)
+			playsound_local(msg.acoustic_origin, msg.speech_sound, sound_vol, vary = TRUE, max_distance = msg.message_range + 2)
+		return
 	var/atom/movable/speaker = msg.speaker
 	if(msg.speech_sound && (get_dist(speaker, src) <= world.view && src.z == speaker?.z))
 		var/turf/source = speaker ? get_turf(speaker) : get_turf(src)

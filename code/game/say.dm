@@ -134,6 +134,8 @@
 		var/received = listener.Hear(msg)
 		if(received && ismob(listener))
 			heard |= listener
+	if(msg.say_mode == SAYMODE_SPOKEN && length(GLOB.open_stargates))
+		relay_stargate_speech(msg, listeners, get_turf(src))
 	listeners.Cut()
 	return heard
 

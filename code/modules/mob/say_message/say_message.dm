@@ -3,6 +3,9 @@
 	/// The atom saying the message.
 	var/atom/movable/speaker
 
+	/// The local source of a relayed sound. Attribution still uses the speaker.
+	var/turf/acoustic_origin
+
 	/// Event-owned attribution, name suffix, and presentation modifiers.
 	var/list/message_mods = list()
 	/// Event-owned CSS classes for chat presentation.
@@ -169,6 +172,7 @@
 /datum/say_message/proc/copy()
 	var/datum/say_message/copy = new
 	copy.speaker = speaker
+	copy.acoustic_origin = acoustic_origin
 	copy.message_mods = message_mods.Copy()
 	copy.spans = spans.Copy()
 	copy.raw_message = raw_message
