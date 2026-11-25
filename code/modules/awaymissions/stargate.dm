@@ -415,7 +415,7 @@
 	name = "gateway aperture"
 	icon = 'icons/mob/base_32.dmi'
 	icon_state = "blank"
-	opacity = FALSE
+	opacity = TRUE
 	blocks_emissive = EMISSIVE_BLOCK_NONE
 	vis_flags = VIS_HIDE // Keep nearby rings from recursively rendering each other.
 	var/obj/structure/stargate/gate

@@ -98,8 +98,14 @@
 		var/obj/effect/map_effect/portal/stargate/aperture = locate() in entry
 		if(!(north_exit in aperture?.vis_contents))
 			TEST_FAIL("Aligned lane [offset] must show the north exit turf using the map portal effect")
-		if(aperture?.opacity)
-			TEST_FAIL("A freestanding gate must not block sight of the local room")
+		if(!aperture?.opacity)
+			TEST_FAIL("Open lane [offset] must block direct sight of the local room")
+		var/turf/south_approach = get_step(entry, SOUTH)
+		var/turf/local_north_approach = get_step(entry, NORTH)
+		var/list/visible_turfs
+		DVIEW(visible_turfs, 2, south_approach, INVISIBILITY_LIGHTING)
+		if(local_north_approach in visible_turfs)
+			TEST_FAIL("Standing south of lane [offset] must hide the local floor directly behind it")
 		var/mob/living/traveler = new(get_step(entry, SOUTH))
 		step(traveler, NORTH)
 		if(traveler.loc != north_exit)
