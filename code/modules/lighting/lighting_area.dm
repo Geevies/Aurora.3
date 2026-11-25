@@ -41,10 +41,11 @@
 		add_base_lighting()
 
 /area/proc/remove_base_lighting()
+	area_has_base_lighting = FALSE
 	for(var/turf/T in src)
 		T.overlays -= lighting_effect
+		SEND_SIGNAL(T, COMSIG_TURF_LIGHTING_CHANGED)
 	QDEL_NULL(lighting_effect)
-	area_has_base_lighting = FALSE
 
 /area/proc/add_base_lighting()
 	lighting_effect = mutable_appearance('icons/effects/alphacolors.dmi', "white")
@@ -54,7 +55,8 @@
 	lighting_effect.blend_mode = BLEND_ADD
 	lighting_effect.alpha = base_lighting_alpha
 	lighting_effect.color = base_lighting_color
+	area_has_base_lighting = TRUE
 	for(var/turf/T in src)
 		T.overlays += lighting_effect
 		T.luminosity = 1
-	area_has_base_lighting = TRUE
+		SEND_SIGNAL(T, COMSIG_TURF_LIGHTING_CHANGED)

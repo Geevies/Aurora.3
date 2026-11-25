@@ -139,6 +139,13 @@
 	var/obj/effect/stargate_image_anchor/old_anchor = first.preview_anchor
 	if(!(old_anchor?.vis_flags & VIS_HIDE))
 		TEST_FAIL("The preview anchor must stay out of copied turf appearances")
+	var/list/projected_lighting = first.preview_light_shades?[get_step(second, NORTH)]
+	if(!length(projected_lighting))
+		TEST_FAIL("The destination floor must have a projected lighting image")
+	for(var/image/shade as anything in projected_lighting)
+		if(shade.loc != old_anchor || shade.plane != ABOVE_LIGHTING_PLANE || shade.blend_mode != BLEND_MULTIPLY)
+			TEST_FAIL("Destination lighting must stay on the isolated preview and multiply its projected tiles")
+			break
 	for(var/image/preview as anything in first.preview_images + first.rear_preview_images + first.side_preview_images + from_west + from_east)
 		if(preview.loc != old_anchor)
 			TEST_FAIL("Every preview image must be attached to the isolated anchor")

@@ -37,6 +37,7 @@
 		affected_turf.static_lighting_object = null
 		affected_turf.luminosity = 1
 		affected_turf.underlays -= current_underlay
+		SEND_SIGNAL(affected_turf, COMSIG_TURF_LIGHTING_CHANGED)
 	affected_turf = null
 	return ..()
 
@@ -114,3 +115,4 @@
 	//We are not lit by static light OR dynamic light.
 	else if(!LAZYLEN(affected_turf.hybrid_lights_affecting) && !A.base_lighting_alpha)
 		affected_turf.luminosity = 0
+	SEND_SIGNAL(affected_turf, COMSIG_TURF_LIGHTING_CHANGED)

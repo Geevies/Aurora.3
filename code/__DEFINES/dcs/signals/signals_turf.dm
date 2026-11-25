@@ -10,3 +10,6 @@
 
 ///from base of /datum/turf_reservation/proc/Release: (datum/turf_reservation/reservation)
 #define COMSIG_TURF_RESERVATION_RELEASED "turf_reservation_released"
+
+/// The turf's static or area lighting appearance changed. No additional arguments.
+#define COMSIG_TURF_LIGHTING_CHANGED "turf_lighting_changed"

@@ -31,6 +31,8 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	var/image/preview_rim
 	var/obj/effect/stargate_image_anchor/preview_anchor
 	var/list/preview_targets
+	/// Destination turf to its lighting overlay in each viewer-facing projection.
+	var/list/preview_light_shades
 	/// The preview images currently shown to each client.
 	var/list/preview_viewers
 	/// Nearby movable eyes and the clients looking through each one.
@@ -187,6 +189,7 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	GLOB.open_stargates |= src
 	preview_anchor = new(get_turf(src))
 	preview_targets = list()
+	preview_light_shades = list()
 	preview_images = list()
 	rear_preview_images = list()
 	side_preview_images = list()
@@ -208,6 +211,9 @@ GLOBAL_LIST_EMPTY(open_stargates)
 		rear_preview_images += side_preview_images
 		front_projected_turfs |= side_projected_turfs
 		rear_projected_turfs |= side_projected_turfs
+	preview_images += make_preview_lighting(front_projected_turfs)
+	rear_preview_images += make_preview_lighting(rear_projected_turfs)
+	side_preview_images += make_preview_lighting(side_projected_turfs)
 	preview_images += make_preview_outline(front_projected_turfs)
 	rear_preview_images += make_preview_outline(rear_projected_turfs)
 	side_preview_images += make_preview_outline(side_projected_turfs)
@@ -259,6 +265,51 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	rendered_scene.pixel_x = 0
 	rendered_scene.pixel_y = 0
 	return preview
+
+/obj/structure/stargate/proc/make_preview_lighting(list/projected_turfs)
+	var/list/lighting = list()
+	for(var/turf/projected as anything in projected_turfs)
+		var/turf/remote = projected_turfs[projected]
+		var/list/tile_shades = preview_light_shades[remote]
+		if(!tile_shades)
+			tile_shades = list()
+			preview_light_shades[remote] = tile_shades
+			RegisterSignal(remote, COMSIG_TURF_LIGHTING_CHANGED, PROC_REF(on_preview_light_changed))
+		var/image/shade = image(LIGHTING_ICON, loc = preview_anchor, layer = ABOVE_OBJ_LAYER + 0.01)
+		shade.plane = ABOVE_LIGHTING_PLANE
+		shade.blend_mode = BLEND_MULTIPLY
+		shade.mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+		shade.appearance_flags = PIXEL_SCALE | KEEP_APART
+		shade.pixel_x = (projected.x - x) * WORLD_ICON_SIZE
+		shade.pixel_y = (projected.y - y) * WORLD_ICON_SIZE
+		set_preview_light(remote, shade)
+		tile_shades += shade
+		lighting += shade
+	return lighting
+
+/obj/structure/stargate/proc/on_preview_light_changed(turf/remote)
+	SIGNAL_HANDLER
+	for(var/image/shade as anything in preview_light_shades?[remote])
+		set_preview_light(remote, shade)
+
+/obj/structure/stargate/proc/set_preview_light(turf/remote, image/shade)
+	var/mutable_appearance/static_light = remote.static_lighting_object?.current_underlay
+	shade.icon_state = static_light ? static_light.icon_state : "lighting_transparent"
+	shade.color = static_light?.color
+	var/area/destination_area = get_area(remote)
+	if(!destination_area?.area_has_base_lighting || !istext(destination_area.base_lighting_color))
+		return
+	var/list/ambient = rgb2num(destination_area.base_lighting_color)
+	var/intensity = destination_area.base_lighting_alpha / 255
+	if(shade.icon_state == "lighting_dark")
+		shade.icon_state = "lighting_transparent"
+		shade.color = rgb(round(ambient[1] * intensity), round(ambient[2] * intensity), round(ambient[3] * intensity))
+	else if(islist(shade.color))
+		var/list/matrix = shade.color
+		matrix = matrix.Copy()
+		for(var/channel in 1 to 3)
+			matrix[16 + channel] += ambient[channel] * intensity / 255
+		shade.color = matrix
 
 /// Trace the perimeter of the combined projection so adjacent lanes join without seams.
 /obj/structure/stargate/proc/make_preview_outline(list/projected_turfs)
@@ -389,6 +440,7 @@ GLOBAL_LIST_EMPTY(open_stargates)
 		var/obj/effect/map_effect/portal/stargate_preview/scene = new(get_turf(aperture))
 		LAZYADD(angled_preview_scenes, scene)
 		images += make_preview(scene, aperture.get_exit_turf(approach_side), approach_side, observed_turfs, projected_turfs, get_turf(aperture.counterpart), view_slope)
+	images += make_preview_lighting(projected_turfs)
 	images += make_preview_outline(projected_turfs)
 	images += preview_rim
 	angled_preview_images[key] = images
@@ -426,6 +478,9 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	for(var/atom/movable/eye as anything in preview_eyes)
 		if(!QDELETED(eye))
 			UnregisterSignal(eye, COMSIG_MOVABLE_MOVED)
+	for(var/turf/remote as anything in preview_light_shades)
+		UnregisterSignal(remote, COMSIG_TURF_LIGHTING_CHANGED)
+	preview_light_shades = null
 	preview_images = null
 	rear_preview_images = null
 	side_preview_images = null
