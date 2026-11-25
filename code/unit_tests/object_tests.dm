@@ -350,8 +350,20 @@
 	var/datum/tgui/remote_controls = new(null, remote, "Stargate")
 	remote_controls.status = UI_INTERACTIVE
 	remote.ui_act("set_enabled", list("enabled" = TRUE), remote_controls)
-	if(installed.partner != remote || length(installed.apertures) != 3)
-		TEST_FAIL("Two powered and enabled gates must open a three-tile passage")
+	if(installed.partner != remote || !installed.charge_effect || !remote.charge_effect || installed.apertures || remote.apertures)
+		TEST_FAIL("Pulling both levers must start charging both rings before opening either aperture")
+	installed.ui_act("set_enabled", list("enabled" = FALSE), controls)
+	if(installed.partner || remote.partner || installed.charge_effect || remote.charge_effect || installed.charge_timer || remote.charge_timer)
+		TEST_FAIL("Resetting either lever must cancel the timer and the charge at both gates")
+
+	installed.ui_act("set_enabled", list("enabled" = TRUE), controls)
+	if(!installed.charge_timer)
+		TEST_FAIL("Rearming the circuit must schedule a new charge")
+	// The unit test runs inside the master controller. Invoke the timer callback directly.
+	deltimer(installed.charge_timer)
+	installed.finish_charge()
+	if(installed.partner != remote || length(installed.apertures) != 3 || length(remote.apertures) != 3 || installed.charge_effect || remote.charge_effect)
+		TEST_FAIL("Finishing the charge must open both three-tile apertures and remove the charge effects")
 
 	local_area.requires_power = TRUE
 	local_area.always_unpowered = TRUE
@@ -360,11 +372,11 @@
 		TEST_FAIL("Losing equipment power must remove both apertures")
 	local_area.requires_power = FALSE
 	local_area.power_change()
-	if(installed.partner != remote)
-		TEST_FAIL("Restoring equipment power must reconnect gates that are still enabled")
+	if(installed.partner != remote || !installed.charge_effect || !remote.charge_effect || installed.apertures || remote.apertures)
+		TEST_FAIL("Restoring equipment power must restart the charge on rings with both levers pulled")
 	remote.set_gate_anchored(FALSE)
-	if(installed.partner || remote.enabled || remote.power_area)
-		TEST_FAIL("Unbolting a gate must close the passage and detach it from power")
+	if(installed.partner || installed.charge_effect || remote.charge_effect || remote.enabled || remote.power_area)
+		TEST_FAIL("Unbolting a gate during charge must cancel it, reset the lever, and detach the ring from power")
 	qdel(controls)
 	qdel(remote_controls)
 	qdel(installed)

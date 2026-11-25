@@ -17,6 +17,10 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	var/gate_id = "stargate"
 	var/static/list/unpaired_gates = list()
 	var/obj/structure/stargate/partner
+	/// Mapped rings open immediately unless their partner is a deployable ring.
+	var/charge_duration = 0
+	var/charge_timer
+	var/obj/effect/stargate_charge/charge_effect
 	var/list/apertures
 	var/list/preview_images
 	var/list/rear_preview_images
@@ -74,7 +78,8 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	var/area/destination = get_area(partner)
 	return list(
 		"address" = gate_id,
-		"linked" = !!partner,
+		"linked" = !!length(apertures),
+		"charging" = !!partner && !length(apertures),
 		"destination" = destination?.name,
 	)
 
@@ -133,19 +138,49 @@ GLOBAL_LIST_EMPTY(open_stargates)
 		unpaired_gates -= other
 		partner = other
 		other.partner = src
-		create_apertures(lanes)
-		other.create_apertures(other_lanes)
-		for(var/i in 1 to length(apertures))
-			var/obj/effect/map_effect/portal/stargate/near = apertures[i]
-			var/obj/effect/map_effect/portal/stargate/far = other.apertures[i]
-			near.counterpart = far
-			far.counterpart = near
-		show_destination()
-		other.show_destination()
-		on_passage_opened()
-		other.on_passage_opened()
+		var/duration = max(charge_duration, other.charge_duration)
+		if(duration)
+			charge_timer = addtimer(CALLBACK(src, PROC_REF(finish_charge)), duration, TIMER_STOPPABLE)
+			begin_charge(duration)
+			other.begin_charge(duration)
+		else
+			open_passage(lanes, other_lanes)
 		return
 	unpaired_gates |= src
+
+/obj/structure/stargate/proc/begin_charge(duration)
+	charge_effect = new(get_turf(src), dir, duration)
+	playsound(get_turf(src), 'sound/magic/Charge.ogg', 60, FALSE, ignore_walls = FALSE)
+	SStgui.update_uis(src)
+
+/obj/structure/stargate/proc/finish_charge()
+	charge_timer = null
+	if(!partner)
+		return
+	if(!can_link() || !partner.can_link())
+		disconnect()
+		return
+	var/list/lanes = get_aperture_turfs()
+	var/list/other_lanes = partner.get_aperture_turfs()
+	if(!lanes || !other_lanes)
+		disconnect()
+		return
+	QDEL_NULL(charge_effect)
+	QDEL_NULL(partner.charge_effect)
+	open_passage(lanes, other_lanes, TRUE)
+
+/obj/structure/stargate/proc/open_passage(list/lanes, list/other_lanes, charged = FALSE)
+	create_apertures(lanes)
+	partner.create_apertures(other_lanes)
+	for(var/i in 1 to length(apertures))
+		var/obj/effect/map_effect/portal/stargate/near = apertures[i]
+		var/obj/effect/map_effect/portal/stargate/far = partner.apertures[i]
+		near.counterpart = far
+		far.counterpart = near
+	show_destination()
+	partner.show_destination()
+	on_passage_opened(charged)
+	partner.on_passage_opened(charged)
 
 /obj/structure/stargate/proc/create_apertures(list/lanes)
 	apertures = list()
@@ -492,16 +527,28 @@ GLOBAL_LIST_EMPTY(open_stargates)
 		other.find_partner()
 
 /obj/structure/stargate/proc/close_apertures()
+	var/was_charging = !!charge_effect
+	if(charge_timer)
+		deltimer(charge_timer)
+		charge_timer = null
+	QDEL_NULL(charge_effect)
 	if(!apertures)
-		return
+		if(was_charging)
+			SStgui.update_uis(src)
+		return FALSE
 	clear_preview()
 	QDEL_NULL_LIST(apertures)
 	icon_state = "idle"
 	playsound(get_turf(src), 'sound/magic/Teleport_diss.ogg', 35, FALSE)
 	return TRUE
 
-/obj/structure/stargate/proc/on_passage_opened()
-	playsound(get_turf(src), 'sound/effects/phasein.ogg', 45, FALSE)
+/obj/structure/stargate/proc/on_passage_opened(charged)
+	var/turf/center = get_turf(src)
+	playsound(center, 'sound/effects/phasein.ogg', charged ? 80 : 45, FALSE)
+	if(charged)
+		new /obj/effect/stargate_transit(center, dir, TRUE)
+		new /obj/effect/shockwave/stargate(center, 7, 3, SINE_EASING | EASE_OUT)
+		playsound(center, 'sound/effects/EMPulse.ogg', 65, FALSE, frequency = 32000, ignore_walls = FALSE)
 
 /obj/structure/stargate/proc/play_transit_effects()
 	if(!COOLDOWN_FINISHED(src, transit_effects))
@@ -542,12 +589,15 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	desc = "A collapsible transit ring. It must be bolted to the floor and connected to local equipment power before it can open a passage."
 	anchored = FALSE
 	gate_id = null
+	charge_duration = 2 SECONDS
 	var/enabled = FALSE
 	var/area/power_area
+	var/mutable_appearance/activation_lever
 
 /obj/structure/stargate/deployable/Initialize(mapload, pair_id)
 	. = ..()
 	RegisterSignal(src, COMSIG_MOVABLE_MOVED, PROC_REF(on_gate_moved))
+	update_activation_lever()
 
 /obj/structure/stargate/deployable/set_dir(new_dir)
 	if(new_dir in GLOB.diagonals)
@@ -562,11 +612,15 @@ GLOBAL_LIST_EMPTY(open_stargates)
 
 /obj/structure/stargate/deployable/mechanics_hints(mob/user, distance, is_adjacent)
 	. = ..()
-	. += "Wrench the ring into place on a clear three-by-three area. Match both addresses and enable each ring from its controls."
+	. += "Wrench the ring into place on a clear three-by-three area. Set matching addresses, then pull both activation levers. Alt-click the ring to move its lever by hand."
 	. += "Unbolt the ring, then use a crowbar to fold it back into a flatpak."
 
 /obj/structure/stargate/deployable/can_link()
 	return anchored && enabled && equipment_powered() && ..()
+
+/obj/structure/stargate/deployable/get_aperture_turfs()
+	if(stargate_site_is_clear(get_turf(src), src))
+		return ..()
 
 /obj/structure/stargate/deployable/proc/equipment_powered()
 	return !!power_area?.powered(AREA_USAGE_EQUIP)
@@ -581,6 +635,7 @@ GLOBAL_LIST_EMPTY(open_stargates)
 			RegisterSignal(power_area, COMSIG_AREA_POWER_CHANGE, PROC_REF(on_equipment_power_change))
 	else
 		enabled = FALSE
+		update_activation_lever()
 		if(power_area)
 			UnregisterSignal(power_area, COMSIG_AREA_POWER_CHANGE)
 			power_area = null
@@ -600,7 +655,7 @@ GLOBAL_LIST_EMPTY(open_stargates)
 		disconnect()
 	SStgui.update_uis(src)
 
-/obj/structure/stargate/deployable/on_passage_opened()
+/obj/structure/stargate/deployable/on_passage_opened(charged)
 	..()
 	power_area?.use_power_oneoff(2500, AREA_USAGE_EQUIP)
 	SStgui.update_uis(src)
@@ -649,20 +704,57 @@ GLOBAL_LIST_EMPTY(open_stargates)
 		return TRUE
 	if(action != "set_enabled")
 		return FALSE
-	var/should_enable = !!params["enabled"]
+	return set_lever(!!params["enabled"], usr)
+
+/obj/structure/stargate/deployable/AltClick(mob/user)
+	var/turf/site = get_turf(src)
+	if(!site || !isliving(user) || user.incapacitated() || !user.TurfAdjacent(site))
+		return ..()
+	return set_lever(!enabled, user)
+
+/obj/structure/stargate/deployable/proc/update_activation_lever()
+	var/static/list/lever_sprites
+	if(!lever_sprites)
+		lever_sprites = list()
+		for(var/pulled in list(FALSE, TRUE))
+			var/icon/lever = icon('icons/mob/base_32.dmi', "blank")
+			lever.Scale(160, 160)
+			lever.DrawBox("#141C23", 73, 52, 88, 62)
+			lever.DrawBox("#3A4A57", 74, 53, 87, 61)
+			lever.DrawBox("#1F2932", 76, 54, 82, 60)
+			lever.DrawBox("#9BADB4", 78, 55, 80, 59)
+			var/handle_row = pulled ? 55 : 59
+			lever.DrawBox("#D77942", 76, handle_row, 82, handle_row + 1)
+			lever.DrawBox(pulled ? "#84FACC" : "#EDB472", 85, 57, 86, 58)
+			lever_sprites += mutable_appearance(lever)
+	if(activation_lever)
+		CutOverlays(activation_lever)
+	activation_lever = lever_sprites[enabled ? 2 : 1]
+	AddOverlays(activation_lever)
+
+/obj/structure/stargate/deployable/proc/set_lever(should_enable, mob/user)
 	if(should_enable == enabled)
 		return FALSE
 	if(should_enable)
 		if(!anchored || !equipment_powered() || !gate_id)
+			if(user)
+				to_chat(user, SPAN_WARNING("Secure the ring, connect it to equipment power, and set an address before pulling the lever."))
 			return FALSE
 		if(!stargate_site_is_clear(get_turf(src), src))
-			to_chat(usr, SPAN_WARNING("Clear the floor around the ring before enabling it."))
+			if(user)
+				to_chat(user, SPAN_WARNING("Clear the floor around the ring before pulling the lever."))
 			return FALSE
-		enabled = TRUE
+	enabled = should_enable
+	update_activation_lever()
+	if(user)
+		add_fingerprint(user)
+		user.visible_message(SPAN_NOTICE("[user] [enabled ? "pulls" : "resets"] the activation lever on [src]."), SPAN_NOTICE("You [enabled ? "pull" : "reset"] the activation lever."))
+	playsound(get_turf(src), 'sound/arcade/sloto_lever.ogg', 45, FALSE, extrarange = -5)
+	if(enabled)
 		find_partner()
 	else
-		enabled = FALSE
 		disconnect()
+	SStgui.update_uis(src)
 	return TRUE
 
 /obj/item/circuitboard/stargate
@@ -805,16 +897,39 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	vis_flags = VIS_HIDE
 	z_flags = ZMM_IGNORE
 
-/obj/effect/stargate_transit/Initialize(mapload, gate_direction)
+/obj/effect/stargate_transit/Initialize(mapload, gate_direction, opening = FALSE)
 	. = ..()
 	var/static/icon/burst = icon('icons/effects/effects.dmi', "emppulse", frame = 5)
 	icon = burst
 	icon_state = ""
 	var/angle = (gate_direction & (EAST | WEST)) ? 90 : 0
-	var/duration = 0.5 SECONDS
-	transform = matrix().Scale(3.8, 1.1).Turn(angle)
-	animate(src, transform = matrix().Scale(5.6, 2.4).Turn(angle), alpha = 0, time = duration, easing = SINE_EASING | EASE_OUT)
+	var/duration = opening ? 0.9 SECONDS : 0.5 SECONDS
+	transform = matrix().Scale(3.8, opening ? 1.6 : 1.1).Turn(angle)
+	var/matrix/expanded = opening ? matrix().Scale(9, 4.2) : matrix().Scale(5.6, 2.4)
+	animate(src, transform = expanded.Turn(angle), alpha = 0, time = duration, easing = SINE_EASING | EASE_OUT)
 	AddElement(/datum/element/temporary, duration)
+
+/obj/effect/stargate_charge
+	name = "gathering energy"
+	icon = 'icons/effects/effects.dmi'
+	plane = ABOVE_LIGHTING_PLANE
+	layer = ABOVE_OBJ_LAYER + 0.04
+	blend_mode = BLEND_ADD
+	appearance_flags = PIXEL_SCALE
+	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+	vis_flags = VIS_HIDE
+	z_flags = ZMM_IGNORE
+	alpha = 0
+
+/obj/effect/stargate_charge/Initialize(mapload, gate_direction, duration)
+	. = ..()
+	var/static/icon/pulse = icon('icons/effects/effects.dmi', "emppulse", frame = 5)
+	icon = pulse
+	var/angle = (gate_direction & (EAST | WEST)) ? 90 : 0
+	transform = matrix().Scale(6, 3.1).Turn(angle)
+	animate(src, transform = matrix().Scale(5.6, 2.8).Turn(angle), alpha = 95, time = duration * 0.25, easing = SINE_EASING)
+	animate(transform = matrix().Scale(4.7, 2.2).Turn(angle), alpha = 60, time = duration * 0.2, easing = SINE_EASING)
+	animate(transform = matrix().Scale(3.6, 0.95).Turn(angle), alpha = 230, time = duration * 0.55, easing = SINE_EASING | EASE_IN)
 
 /obj/effect/shockwave/stargate
 	vis_flags = VIS_HIDE

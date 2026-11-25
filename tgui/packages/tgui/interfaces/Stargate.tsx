@@ -14,6 +14,7 @@ import { Window } from '../layouts';
 type StargateData = {
   address: string | null;
   anchored?: BooleanLike;
+  charging: BooleanLike;
   deployable?: BooleanLike;
   destination: string | null;
   enabled?: BooleanLike;
@@ -28,6 +29,7 @@ export function Stargate() {
   const {
     address,
     anchored,
+    charging,
     deployable,
     destination,
     enabled,
@@ -35,10 +37,12 @@ export function Stargate() {
     powered,
     ring_images,
   } = data;
-  const accent = linked ? '#73e4d6' : '#e9bd79';
-  let status = 'Awaiting a match';
+  const accent = linked ? '#73e4d6' : charging ? '#9edff9' : '#e9bd79';
+  let status = 'Awaiting the remote lever';
   if (linked) {
     status = 'Passage open';
+  } else if (charging) {
+    status = 'Charging both rings';
   } else if (deployable) {
     if (!anchored) {
       status = 'Anchor the ring';
@@ -47,8 +51,10 @@ export function Stargate() {
     } else if (!address) {
       status = 'Set a gate address';
     } else if (!enabled) {
-      status = 'Ready to enable';
+      status = 'Ready to pull';
     }
+  } else {
+    status = 'Awaiting a match';
   }
 
   return (
@@ -75,7 +81,7 @@ export function Stargate() {
                 {status}
               </Box>
               <Box mt={0.25} style={{ overflowWrap: 'anywhere' }}>
-                {linked
+                {linked || charging
                   ? destination || 'Remote gate'
                   : address || 'No address configured'}
               </Box>
@@ -90,16 +96,16 @@ export function Stargate() {
               <Button
                 color={enabled ? 'average' : 'teal'}
                 disabled={!enabled && (!anchored || !powered || !address)}
-                icon="power-off"
+                icon="bolt"
                 onClick={() => act('set_enabled', { enabled: !enabled })}
               >
-                {enabled ? 'Disable' : 'Enable'}
+                {enabled ? 'Reset lever' : 'Pull lever'}
               </Button>
             }
           >
             <Box>
               {anchored
-                ? 'Both rings need power and must be enabled to open a passage.'
+                ? 'Pull both rings’ levers to start the charge. Reset either lever to stop it.'
                 : 'Secure the ring to a clear three-by-three floor with a wrench.'}
             </Box>
           </Section>
@@ -111,7 +117,7 @@ export function Stargate() {
 
 function AddressEditor() {
   const { act, data } = useBackend<StargateData>();
-  const { address, linked, max_length } = data;
+  const { address, charging, linked, max_length } = data;
   const [draft, setDraft] = useState(address ?? '');
   const nextAddress = draft.trim();
   const changed = !!nextAddress && nextAddress !== address;
@@ -147,9 +153,11 @@ function AddressEditor() {
           </Button>
         </Stack.Item>
       </Stack>
-      {!!linked && changed && (
+      {!!(linked || charging) && changed && (
         <Box color="average" mt={1}>
-          Applying this address will close the current passage.
+          {charging
+            ? 'Applying this address will cancel the charge.'
+            : 'Applying this address will close the current passage.'}
         </Box>
       )}
     </Section>
