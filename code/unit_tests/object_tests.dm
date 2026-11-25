@@ -188,10 +188,18 @@
 
 	var/obj/effect/map_effect/portal/stargate/aim_lane = first.apertures[2]
 	var/turf/center_lane = get_turf(aim_lane)
-	var/mob/living/side_traveler = new(get_step(center_lane, WEST))
+	var/turf/side_lane = get_step(center_lane, WEST)
+	var/mob/living/side_traveler = new(side_lane)
 	step(side_traveler, EAST)
+	if(side_traveler.loc != side_lane)
+		TEST_FAIL("A sideways step must be blocked before entering the aperture")
+	side_traveler.forceMove(center_lane)
+	step(side_traveler, WEST)
 	if(side_traveler.loc != center_lane)
-		TEST_FAIL("Walking along the aperture from the side must stay at the local ring")
+		TEST_FAIL("A sideways step from inside the aperture must also be blocked")
+	step(side_traveler, SOUTH)
+	if(side_traveler.loc != get_step(center_lane, SOUTH))
+		TEST_FAIL("Leaving an aperture through either face must still be possible")
 	qdel(side_traveler)
 
 	var/obj/item/side_throw = new(get_step(center_lane, EAST))

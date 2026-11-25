@@ -873,6 +873,22 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	var/exit_direction = (approach_side == dir) ? REVERSE_DIR(counterpart.dir) : counterpart.dir
 	return get_step(counterpart, exit_direction)
 
+/obj/effect/map_effect/portal/stargate/proc/is_sideways_step(atom/movable/mover, atom/position)
+	if(!counterpart || !isliving(mover) || mover.throwing || (mover.movement_type & PHASING))
+		return FALSE
+	var/direction = get_dir(src, position)
+	return direction && !(direction & (dir | REVERSE_DIR(dir)))
+
+/obj/effect/map_effect/portal/stargate/CanPass(atom/movable/mover, turf/target, height = 1.5, air_group = 0)
+	if(height && !air_group && is_sideways_step(mover, target || mover))
+		return FALSE
+	return ..()
+
+/obj/effect/map_effect/portal/stargate/CheckExit(atom/movable/mover, turf/target)
+	if(is_sideways_step(mover, target))
+		return FALSE
+	return ..()
+
 /obj/effect/map_effect/portal/stargate/on_entered(datum/source, atom/movable/arrived, atom/old_loc, list/atom/old_locs)
 	SIGNAL_HANDLER
 	if(!counterpart || !arrived || arrived.loc != loc)
