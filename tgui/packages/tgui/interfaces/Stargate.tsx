@@ -51,7 +51,7 @@ export function Stargate() {
     if (!anchored) {
       status = 'Anchor the ring';
     } else if (!powered) {
-      status = 'No equipment power';
+      status = 'Ring has no power';
     } else if (!address) {
       status = 'Set a gate address';
     } else if (!enabled) {

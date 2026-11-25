@@ -2,7 +2,7 @@
 	category = "engineering"
 	name = "stargate flatpaks (x2)"
 	supplier = "hephaestus"
-	description = "Two stargate flatpaks for establishing a three-tile passage. Each ring needs a clear floor, a wrench, local equipment power, and a separately installed stargate control computer."
+	description = "Two stargate flatpaks for establishing a three-tile passage. Each ring needs a clear floor, a wrench, and a separately installed stargate control computer. Both devices accept area equipment power or a live cable knot beneath them."
 	price = 2000
 	items = list(/obj/item/flatpak/stargate)
 	access = /datum/access/engine::id

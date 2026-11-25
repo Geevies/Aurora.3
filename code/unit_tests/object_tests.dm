@@ -69,6 +69,8 @@
 /datum/unit_test/stargate/start_test()
 	var/list/sites = list()
 	for(var/turf/simulated/floor/site in world)
+		if(site.get_cable_node())
+			continue
 		if(length(sites) && (site.z != sites[1].z || get_dist(sites[1], site) < 5))
 			continue
 		var/turf/corner = get_offset_target_turf(site, -1, length(sites) ? -2 : -1)
@@ -360,7 +362,7 @@
 
 	var/list/terminal_sites = list()
 	for(var/turf/simulated/floor/site in range(12, sites[1]))
-		if(get_dist(site, sites[1]) <= 2 || get_dist(site, sites[2]) <= 2 || site.contains_dense_objects())
+		if(get_dist(site, sites[1]) <= 2 || get_dist(site, sites[2]) <= 2 || site.contains_dense_objects() || site.get_cable_node())
 			continue
 		terminal_sites += site
 		if(length(terminal_sites) == 2)
@@ -435,6 +437,50 @@
 	terminal.set_broken()
 	if(installed.enabled || installed.partner || installed.charge_effect || remote.charge_effect)
 		TEST_FAIL("Losing the control computer during charge must disarm the ring and cancel both ends")
+	terminal.stat &= ~BROKEN
+	remote.set_activation(FALSE)
+	var/list/saved_outage_flags = list()
+	for(var/area/site_area as anything in area_power)
+		saved_outage_flags[site_area] = site_area.always_unpowered
+		site_area.requires_power = TRUE
+		site_area.always_unpowered = TRUE
+		site_area.power_change()
+	var/datum/powernet/test_network = new
+	test_network.avail = 5600
+	var/list/test_cables = list()
+	for(var/turf/site as anything in sites + terminal_sites)
+		var/obj/structure/cable/cable = new(site)
+		test_network.add_cable(cable)
+		test_cables += cable
+	installed.cable_feed.process()
+	remote.cable_feed.process()
+	terminal.cable_feed.process()
+	remote_terminal.cable_feed.process()
+	if(!terminal.powered() || !remote_terminal.powered() || !installed.equipment_powered() || test_network.load != 1200)
+		TEST_FAIL("Four cable-fed devices must receive and pay for standby power during an area outage")
+	installed.set_activation(TRUE)
+	remote.set_activation(TRUE)
+	test_network.load = 0
+	installed.cable_feed.process()
+	remote.cable_feed.process()
+	terminal.cable_feed.process()
+	remote_terminal.cable_feed.process()
+	if(!remote.charge_timer || installed.partner != remote || test_network.load != 5600)
+		TEST_FAIL("Cable-powered gates must pay the armed load before starting the charge")
+	else
+		deltimer(remote.charge_timer)
+		remote.finish_charge()
+		if(length(installed.apertures) != 3 || length(remote.apertures) != 3)
+			TEST_FAIL("Both wired apertures must open without APC power")
+	test_network.remove_cable(test_cables[4])
+	remote_terminal.cable_feed.process()
+	if(remote_terminal.powered() || remote.enabled || installed.partner || remote.partner)
+		TEST_FAIL("Disconnecting a wired terminal must shut down its ring and close both apertures")
+	qdel(test_network)
+	QDEL_LIST(test_cables)
+	for(var/area/site_area as anything in saved_outage_flags)
+		site_area.always_unpowered = saved_outage_flags[site_area]
+
 	remote.forceMove(get_step(remote, SOUTH))
 	if(installed.partner || installed.charge_effect || remote.charge_effect || remote.enabled || remote.anchored || remote.power_area || remote_terminal.linked_gate != remote)
 		TEST_FAIL("Moving a gate on the same level must unbolt and disarm it while preserving the computer link")

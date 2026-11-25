@@ -1,5 +1,8 @@
 GLOBAL_LIST_EMPTY(open_stargates)
 
+#define STARGATE_CABLE_STANDBY_WATTS 300
+#define STARGATE_CABLE_ARMED_WATTS 2500
+
 /// Place the center of each three-tile ring with the same gate_id. Its cardinal dir defines the front of the ring.
 /obj/structure/stargate
 	name = "stargate"
@@ -633,12 +636,13 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	return TRUE
 
 /obj/structure/stargate/deployable
-	desc = "A collapsible transit ring. It must be bolted to the floor and connected to local equipment power before it can open a passage."
+	desc = "A collapsible transit ring. It must be bolted down and powered by the area or a cable node beneath it."
 	anchored = FALSE
 	gate_id = null
 	charge_duration = 2 SECONDS
 	var/enabled = FALSE
 	var/area/power_area
+	var/obj/structure/machinery/stargate_cable_feed/cable_feed
 
 /obj/structure/stargate/deployable/set_dir(new_dir)
 	if(new_dir in GLOB.diagonals)
@@ -646,6 +650,7 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	return ..(new_dir)
 
 /obj/structure/stargate/deployable/Destroy()
+	QDEL_NULL(cable_feed)
 	if(power_area)
 		UnregisterSignal(power_area, COMSIG_AREA_POWER_CHANGE)
 		power_area = null
@@ -654,17 +659,22 @@ GLOBAL_LIST_EMPTY(open_stargates)
 /obj/structure/stargate/deployable/mechanics_hints(mob/user, distance, is_adjacent)
 	. = ..()
 	. += "Bolt the ring to a clear three-by-three floor with a wrench. Use the linked computers to set matching addresses and activate both rings."
+	. += "Where area equipment power is unavailable, run a live cable knot directly beneath the bolted ring."
 	. += "Unbolt the ring, then use a crowbar to fold it back into a flatpak."
 
 /obj/structure/stargate/deployable/can_link()
-	return anchored && enabled && equipment_powered() && control_terminal?.can_operate_gate() && ..()
+	return anchored && enabled && equipment_powered(STARGATE_CABLE_ARMED_WATTS) && control_terminal?.can_operate_gate() && ..()
 
 /obj/structure/stargate/deployable/get_aperture_turfs()
 	if(stargate_site_is_clear(get_turf(src), src))
 		return ..()
 
-/obj/structure/stargate/deployable/proc/equipment_powered()
-	return !!power_area?.powered(AREA_USAGE_EQUIP)
+/obj/structure/stargate/deployable/proc/equipment_powered(cable_watts = STARGATE_CABLE_STANDBY_WATTS)
+	return !!power_area?.powered(AREA_USAGE_EQUIP) || !!cable_feed?.has_supply(cable_watts)
+
+/obj/structure/stargate/deployable/proc/setup_cable_feed()
+	if(!cable_feed && anchored)
+		cable_feed = new /obj/structure/machinery/stargate_cable_feed(src, enabled ? STARGATE_CABLE_ARMED_WATTS : STARGATE_CABLE_STANDBY_WATTS, CALLBACK(src, PROC_REF(on_equipment_power_change)))
 
 /obj/structure/stargate/deployable/proc/set_gate_anchored(new_anchored)
 	if(anchored == new_anchored)
@@ -672,10 +682,12 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	anchored = new_anchored
 	if(anchored)
 		power_area = get_area(src)
+		setup_cable_feed()
 		if(power_area)
 			RegisterSignal(power_area, COMSIG_AREA_POWER_CHANGE, PROC_REF(on_equipment_power_change))
 	else
 		enabled = FALSE
+		QDEL_NULL(cable_feed)
 		if(power_area)
 			UnregisterSignal(power_area, COMSIG_AREA_POWER_CHANGE)
 			power_area = null
@@ -690,14 +702,15 @@ GLOBAL_LIST_EMPTY(open_stargates)
 
 /obj/structure/stargate/deployable/proc/on_equipment_power_change()
 	SIGNAL_HANDLER
-	if(equipment_powered())
+	if(equipment_powered(enabled ? STARGATE_CABLE_ARMED_WATTS : STARGATE_CABLE_STANDBY_WATTS))
 		find_partner()
 	else
 		disconnect()
 	update_terminal()
 
 /obj/structure/stargate/deployable/on_passage_opened(charged)
-	power_area?.use_power_oneoff(2500, AREA_USAGE_EQUIP)
+	if(power_area?.powered(AREA_USAGE_EQUIP))
+		power_area.use_power_oneoff(2500, AREA_USAGE_EQUIP)
 	return ..()
 
 /obj/structure/stargate/deployable/attackby(obj/item/attacking_item, mob/living/user, params)
@@ -747,6 +760,8 @@ GLOBAL_LIST_EMPTY(open_stargates)
 				to_chat(user, SPAN_WARNING("Clear the floor around the ring before activating it."))
 			return FALSE
 	enabled = should_enable
+	if(cable_feed)
+		cable_feed.requested_watts = enabled ? STARGATE_CABLE_ARMED_WATTS : STARGATE_CABLE_STANDBY_WATTS
 	if(user)
 		playsound(get_turf(src), 'sound/arcade/sloto_lever.ogg', 35, FALSE, extrarange = -5)
 	if(enabled)
@@ -770,10 +785,25 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	light_power_on = 1
 	circuit = /obj/item/circuitboard/stargate_terminal
 	var/obj/structure/stargate/linked_gate
+	var/obj/structure/machinery/stargate_cable_feed/cable_feed
+
+/obj/structure/machinery/computer/stargate/Initialize()
+	. = ..()
+	setup_cable_feed()
+
+/obj/structure/machinery/computer/stargate/proc/setup_cable_feed()
+	if(!cable_feed)
+		cable_feed = new /obj/structure/machinery/stargate_cable_feed(src, idle_power_usage, CALLBACK(src, PROC_REF(power_change)))
+
+/obj/structure/machinery/computer/stargate/powered(chan = -1, area/check_area = null)
+	if(..())
+		return TRUE
+	return !check_area && (chan == -1 || chan == AREA_USAGE_EQUIP) && !!cable_feed?.has_supply(idle_power_usage)
 
 /obj/structure/machinery/computer/stargate/mechanics_hints(mob/user, distance, is_adjacent)
 	. = ..()
 	. += "Use a multitool on a stargate on this level, then use it on this powered computer to link them."
+	. += "Where area equipment power is unavailable, run a live cable knot directly beneath the computer."
 
 /obj/structure/machinery/computer/stargate/attackby(obj/item/attacking_item, mob/user)
 	if(!istype(attacking_item, /obj/item/multitool) || user.a_intent == I_HURT)
@@ -802,6 +832,7 @@ GLOBAL_LIST_EMPTY(open_stargates)
 
 /obj/structure/machinery/computer/stargate/Destroy()
 	link_gate(null)
+	QDEL_NULL(cable_feed)
 	return ..()
 
 /obj/structure/machinery/computer/stargate/Moved(atom/old_loc, movement_dir, forced, list/old_locs, momentum_change = TRUE)
@@ -893,6 +924,53 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	var/obj/structure/stargate/deployable/deployed_gate = linked_gate
 	if(action == "set_activation" && istype(deployed_gate))
 		return deployed_gate.set_activation(!!params["enabled"], usr)
+
+/// Uses machinery ticks to take a single allocation from the cable network per cycle.
+/obj/structure/machinery/stargate_cable_feed
+	name = "stargate cable feed"
+	use_power = POWER_USE_OFF
+	var/requested_watts
+	var/supplied_watts = 0
+	var/datum/powernet/supply_network
+	var/datum/callback/power_changed
+
+/obj/structure/machinery/stargate_cable_feed/Initialize(mapload, draw, datum/callback/on_power_changed)
+	requested_watts = draw
+	power_changed = on_power_changed
+	return ..(mapload, 0, FALSE, TRUE)
+
+/obj/structure/machinery/stargate_cable_feed/Destroy()
+	power_changed = null
+	supply_network = null
+	return ..()
+
+/obj/structure/machinery/stargate_cable_feed/proc/get_supply_network()
+	var/obj/structure/device = loc
+	if(!istype(device) || QDELETED(device) || !device.anchored || !isturf(device.loc))
+		return null
+	var/turf/floor = device.loc
+	return floor.get_cable_node()?.powernet
+
+/obj/structure/machinery/stargate_cable_feed/proc/has_supply(watts)
+	return supplied_watts >= watts && !QDELETED(supply_network) && supply_network == get_supply_network() && supply_network.avail >= watts
+
+/obj/structure/machinery/stargate_cable_feed/process(seconds_per_tick)
+	var/datum/powernet/network
+	var/area/current_area = get_area(loc)
+	if(!current_area?.powered(AREA_USAGE_EQUIP))
+		network = get_supply_network()
+	var/watts = 0
+	if(!QDELETED(network) && POWERNET_POWER_DRAW(network, requested_watts) >= requested_watts)
+		DRAW_FROM_POWERNET(network, requested_watts)
+		watts = requested_watts
+	if(supplied_watts == watts && supply_network == network)
+		return
+	supplied_watts = watts
+	supply_network = network
+	power_changed.Invoke()
+
+#undef STARGATE_CABLE_STANDBY_WATTS
+#undef STARGATE_CABLE_ARMED_WATTS
 
 /obj/item/circuitboard/stargate
 	name = T_BOARD("stargate controller")
