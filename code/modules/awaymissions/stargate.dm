@@ -820,11 +820,13 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	SStgui.update_uis(src)
 
 /obj/structure/machinery/computer/stargate/update_icon()
+	// South-facing computers rise above mobs. Their screen must rise with the case.
+	overlay_layer = dir == SOUTH ? ABOVE_HUMAN_LAYER : layer
 	. = ..()
 	if(stat & (BROKEN | NOPOWER))
 		set_light(0)
 		return
-	AddOverlays(emissive_appearance(icon, icon_screen))
+	AddOverlays(emissive_appearance(icon, icon_screen, layer + 0.01))
 
 /obj/structure/machinery/computer/stargate/set_broken()
 	. = ..()
