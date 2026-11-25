@@ -71,10 +71,10 @@
 	for(var/turf/simulated/floor/site in world)
 		if(length(sites) && get_dist(sites[1], site) < 5)
 			continue
-		var/turf/corner = get_offset_target_turf(site, -1, -1)
+		var/turf/corner = get_offset_target_turf(site, -1, length(sites) ? -2 : -1)
 		var/turf/opposite_corner = get_offset_target_turf(site, 1, length(sites) ? 2 : 1)
 		var/list/footprint = block(corner, opposite_corner)
-		var/clear = length(footprint) == (length(sites) ? 12 : 9)
+		var/clear = length(footprint) == (length(sites) ? 15 : 9)
 		for(var/turf/tile in footprint)
 			if(!istype(tile, /turf/simulated/floor) || tile.contains_dense_objects())
 				clear = FALSE
@@ -89,23 +89,22 @@
 	var/obj/structure/stargate/first = new(sites[1], REF(src))
 	var/obj/structure/stargate/second = new(sites[2], REF(src))
 	var/failures_before = GLOB.unit_tests_failures
-	if(length(first.preview_images) != 3 || !first.is_approach_side(get_step(first, SOUTH)) || first.is_approach_side(get_step(first, NORTH)))
-		TEST_FAIL("All three previews must be limited to viewers on the approach side")
+	if(length(first.preview_images) != 3 || length(first.rear_preview_images) != 3)
+		TEST_FAIL("Each approach must have a preview for all three lanes")
+	if(first.get_preview_images(get_step(first, SOUTH)) != first.preview_images || first.get_preview_images(get_step(first, NORTH)) != first.rear_preview_images || first.get_preview_images(get_step(first, EAST)))
+		TEST_FAIL("Viewers must get the preview for their side of the ring")
 	for(var/offset in -1 to 1)
 		var/turf/entry = get_offset_target_turf(first, offset, 0)
 		var/turf/other_entry = get_offset_target_turf(second, offset, 0)
 		var/turf/north_exit = get_step(other_entry, NORTH)
+		var/turf/south_exit = get_step(other_entry, SOUTH)
 		var/obj/effect/map_effect/portal/stargate/aperture = locate() in entry
 		if(!(north_exit in aperture?.vis_contents))
 			TEST_FAIL("Aligned lane [offset] must show the north exit turf using the map portal effect")
-		if(!aperture?.opacity)
-			TEST_FAIL("Open lane [offset] must block direct sight of the local room")
-		var/turf/south_approach = get_step(entry, SOUTH)
-		var/turf/local_north_approach = get_step(entry, NORTH)
-		var/list/visible_turfs
-		DVIEW(visible_turfs, 2, south_approach, INVISIBILITY_LIGHTING)
-		if(local_north_approach in visible_turfs)
-			TEST_FAIL("Standing south of lane [offset] must hide the local floor directly behind it")
+		if(!(south_exit in aperture?.rear_preview?.vis_contents))
+			TEST_FAIL("Aligned lane [offset] must show the south exit turf from the north")
+		if(aperture?.opacity || aperture?.rear_preview?.opacity)
+			TEST_FAIL("The aperture and its preview must leave normal room visibility intact")
 		var/mob/living/traveler = new(get_step(entry, SOUTH))
 		step(traveler, NORTH)
 		if(traveler.loc != north_exit)
@@ -114,14 +113,15 @@
 		if(traveler.loc != get_step(entry, SOUTH))
 			TEST_FAIL("Entering aligned lane [offset] from the north must exit south")
 		qdel(traveler)
-	var/turf/beyond_exit = get_offset_target_turf(second, 0, 2)
-	var/found_room_view = FALSE
+	var/turf/beyond_north_exit = get_offset_target_turf(second, 0, 2)
+	var/turf/beyond_south_exit = get_offset_target_turf(second, 0, -2)
+	var/found_north_room = FALSE
+	var/found_south_room = FALSE
 	for(var/obj/effect/map_effect/portal/stargate/aperture in first.apertures)
-		if(beyond_exit in aperture.vis_contents)
-			found_room_view = TRUE
-			break
-	if(!found_room_view)
-		TEST_FAIL("The map portal effect must show the destination room beyond the exit row")
+		found_north_room ||= (beyond_north_exit in aperture.vis_contents)
+		found_south_room ||= (beyond_south_exit in aperture.rear_preview.vis_contents)
+	if(!found_north_room || !found_south_room)
+		TEST_FAIL("The map portal effect must show the destination room beyond both exit rows")
 
 	first.set_address("Unpaired [REF(src)]")
 	first.set_dir(EAST)
@@ -138,6 +138,8 @@
 		var/obj/effect/map_effect/portal/stargate/aperture = locate() in entry
 		if(!(north_exit in aperture?.vis_contents))
 			TEST_FAIL("Turned lane [offset] must show its exit turf")
+		if(!(south_exit in aperture?.rear_preview?.vis_contents))
+			TEST_FAIL("Turned lane [offset] must show the opposite exit turf from the rear")
 
 		var/mob/living/traveler = new(east_exit)
 		step(traveler, WEST)
@@ -197,7 +199,7 @@
 
 	var/list/segments = first.apertures + second.apertures
 	qdel(first)
-	if(second.partner || length(second.apertures) || length(second.preview_images) || second.icon_state != "idle")
+	if(second.partner || length(second.apertures) || length(second.preview_images) || length(second.rear_preview_images) || second.icon_state != "idle")
 		TEST_FAIL("Deleting one ring must close the surviving aperture")
 	for(var/obj/effect/map_effect/portal/stargate/segment as anything in segments)
 		if(!QDELETED(segment))

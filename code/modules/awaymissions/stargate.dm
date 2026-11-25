@@ -16,6 +16,8 @@
 	var/obj/structure/stargate/partner
 	var/list/apertures
 	var/list/preview_images
+	var/list/rear_preview_images
+	/// The preview images currently shown to each client.
 	var/list/preview_viewers
 	COOLDOWN_DECLARE(transit_sound)
 
@@ -140,10 +142,24 @@
 		var/obj/effect/map_effect/portal/stargate/aperture = new(lane)
 		aperture.gate = src
 		aperture.set_dir(dir)
+		aperture.rear_preview = new /obj/effect/map_effect/portal/stargate_preview(lane)
 		apertures += aperture
 	icon_state = "linked"
 
 /obj/structure/stargate/proc/show_destination()
+	preview_images = list()
+	rear_preview_images = list()
+	preview_viewers = list()
+	var/list/front_observed_turfs = list()
+	var/list/rear_observed_turfs = list()
+	for(var/obj/effect/map_effect/portal/stargate/aperture in apertures)
+		preview_images += make_preview(aperture, aperture.get_exit_turf(dir), dir, front_observed_turfs)
+		var/rear = REVERSE_DIR(dir)
+		rear_preview_images += make_preview(aperture.rear_preview, aperture.get_exit_turf(rear), rear, rear_observed_turfs)
+	START_PROCESSING(SSprocessing, src)
+	process()
+
+/obj/structure/stargate/proc/make_preview(obj/effect/map_effect/portal/rendered_scene, turf/exit, approach_side, list/observed_turfs)
 	// The copied scene is shaded again at the viewer's end. Apply gain to the
 	// preview without changing the renderer or lighting of either room.
 	var/static/list/preview_exposure = list(
@@ -152,30 +168,23 @@
 		0, 0, 2.5,
 		0, 0, 0,
 	)
-	preview_images = list()
-	preview_viewers = list()
-	var/list/observed_turfs = list()
 	// The map portal renderer projects in world coordinates. Show the exit row when the rings turn the route.
-	var/approach_direction = (dir == partner.dir) ? dir : NONE
-	for(var/obj/effect/map_effect/portal/stargate/aperture in apertures)
-		var/turf/exit = get_step(aperture.counterpart, REVERSE_DIR(partner.dir))
-		aperture.render_destination(exit, approach_direction, observed_turfs, limit_to_aperture = TRUE)
-		// Keep the map portal's grouped scene off-screen until a viewer is facing its approach.
-		aperture.icon_state = "blank"
-		aperture.render_target = "*stargate-[REF(aperture)]"
-		var/image/preview = image(aperture.icon, loc = get_turf(aperture), icon_state = aperture.icon_state, layer = ABOVE_OBJ_LAYER)
-		preview.render_source = aperture.render_target
-		preview.plane = GAME_PLANE
-		preview.color = preview_exposure
-		preview.mouse_opacity = MOUSE_OPACITY_TRANSPARENT
-		preview.appearance_flags = PIXEL_SCALE | KEEP_APART
-		preview.pixel_x = aperture.pixel_x
-		preview.pixel_y = aperture.pixel_y
-		aperture.pixel_x = 0
-		aperture.pixel_y = 0
-		preview_images += preview
-	START_PROCESSING(SSprocessing, src)
-	process()
+	var/projection_direction = (dir == partner.dir) ? approach_side : NONE
+	rendered_scene.render_destination(exit, projection_direction, observed_turfs, limit_to_aperture = TRUE)
+	// Keep the grouped scene off-screen until a viewer is on this side.
+	rendered_scene.icon_state = "blank"
+	rendered_scene.render_target = "*stargate-[REF(rendered_scene)]"
+	var/image/preview = image(rendered_scene.icon, loc = get_turf(rendered_scene), icon_state = rendered_scene.icon_state, layer = ABOVE_OBJ_LAYER)
+	preview.render_source = rendered_scene.render_target
+	preview.plane = GAME_PLANE
+	preview.color = preview_exposure
+	preview.mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+	preview.appearance_flags = PIXEL_SCALE | KEEP_APART
+	preview.pixel_x = rendered_scene.pixel_x
+	preview.pixel_y = rendered_scene.pixel_y
+	rendered_scene.pixel_x = 0
+	rendered_scene.pixel_y = 0
+	return preview
 
 /obj/structure/stargate/process()
 	for(var/client/viewer as anything in preview_viewers - GLOB.clients)
@@ -183,20 +192,30 @@
 	for(var/client/viewer as anything in GLOB.clients)
 		update_preview(viewer)
 
-/obj/structure/stargate/proc/is_approach_side(turf/eye_turf)
-	return eye_turf && eye_turf.z == z && (get_dir(src, eye_turf) & dir)
+/obj/structure/stargate/proc/get_preview_images(turf/eye_turf)
+	if(!eye_turf || eye_turf.z != z)
+		return
+	var/eye_direction = get_dir(src, eye_turf)
+	if(eye_direction & dir)
+		return preview_images
+	if(eye_direction & REVERSE_DIR(dir))
+		return rear_preview_images
 
 /obj/structure/stargate/proc/update_preview(client/viewer)
 	if(!preview_images || !viewer)
 		return
-	var/turf/eye_turf = get_turf(viewer.eye)
-	var/show_preview = is_approach_side(eye_turf) && (src in view(world.view, viewer.eye))
-	var/has_preview = (viewer in preview_viewers)
-	if(show_preview && !has_preview)
-		viewer.images += preview_images
-		preview_viewers += viewer
-	else if(!show_preview && has_preview)
-		viewer.images -= preview_images
+	var/list/next_images = get_preview_images(get_turf(viewer.eye))
+	if(next_images && !(src in view(world.view, viewer.eye)))
+		next_images = null
+	var/list/previous_images = preview_viewers[viewer]
+	if(next_images == previous_images)
+		return
+	if(previous_images)
+		viewer.images -= previous_images
+	if(next_images)
+		viewer.images += next_images
+		preview_viewers[viewer] = next_images
+	else
 		preview_viewers -= viewer
 
 /obj/structure/stargate/proc/clear_preview()
@@ -206,7 +225,9 @@
 	for(var/client/viewer as anything in preview_viewers)
 		if(!QDELETED(viewer))
 			viewer.images -= preview_images
+			viewer.images -= rear_preview_images
 	preview_images = null
+	rear_preview_images = null
 	preview_viewers = null
 
 /obj/structure/stargate/Destroy()
@@ -415,20 +436,29 @@
 	name = "gateway aperture"
 	icon = 'icons/mob/base_32.dmi'
 	icon_state = "blank"
-	opacity = TRUE
+	opacity = FALSE
 	blocks_emissive = EMISSIVE_BLOCK_NONE
 	vis_flags = VIS_HIDE // Keep nearby rings from recursively rendering each other.
 	var/obj/structure/stargate/gate
+	var/obj/effect/map_effect/portal/stargate_preview/rear_preview
+
+/obj/effect/map_effect/portal/stargate/Destroy()
+	QDEL_NULL(rear_preview)
+	return ..()
+
+/obj/effect/map_effect/portal/stargate/proc/get_exit_turf(approach_side)
+	var/exit_direction = (approach_side == dir) ? REVERSE_DIR(counterpart.dir) : counterpart.dir
+	return get_step(counterpart, exit_direction)
 
 /obj/effect/map_effect/portal/stargate/on_entered(datum/source, atom/movable/arrived, atom/old_loc, list/atom/old_locs)
 	SIGNAL_HANDLER
 	if(!counterpart || !arrived || arrived.loc != loc)
 		return
-	var/exit_direction = REVERSE_DIR(counterpart.dir)
+	var/approach_side = dir
 	var/turf/entry = get_turf(old_loc)
 	if(entry && entry.z == z && (get_dir(src, entry) & REVERSE_DIR(dir)))
-		exit_direction = counterpart.dir
-	go_through_portal(arrived, get_step(counterpart, exit_direction))
+		approach_side = REVERSE_DIR(dir)
+	go_through_portal(arrived, get_exit_turf(approach_side))
 
 /obj/effect/map_effect/portal/stargate/go_through_portal(atom/movable/traveler, turf/exit)
 	if(!exit || exit.density || (locate(/obj/effect/map_effect/portal) in exit))
@@ -453,3 +483,11 @@
 		if(arrived.client)
 			gate?.update_preview(arrived.client)
 			gate?.partner?.update_preview(arrived.client)
+
+/// A second render target on each lane for the view from the rear.
+/obj/effect/map_effect/portal/stargate_preview
+	icon = 'icons/mob/base_32.dmi'
+	icon_state = "blank"
+	opacity = FALSE
+	blocks_emissive = EMISSIVE_BLOCK_NONE
+	vis_flags = VIS_HIDE
