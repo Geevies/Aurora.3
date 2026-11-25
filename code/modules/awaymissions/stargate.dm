@@ -26,7 +26,7 @@
 	var/list/preview_viewers
 	/// Nearby movable eyes and the clients looking through each one.
 	var/list/preview_eyes
-	COOLDOWN_DECLARE(transit_sound)
+	COOLDOWN_DECLARE(transit_effects)
 
 /obj/structure/stargate/Initialize(mapload, pair_id)
 	. = ..()
@@ -400,10 +400,15 @@
 /obj/structure/stargate/proc/on_passage_opened()
 	playsound(get_turf(src), 'sound/effects/phasein.ogg', 45, FALSE)
 
-/obj/structure/stargate/proc/play_transit_sound()
-	if(COOLDOWN_FINISHED(src, transit_sound))
-		COOLDOWN_START(src, transit_sound, 1 SECOND)
-		playsound(get_turf(src), 'sound/effects/teleport.ogg', 25, TRUE)
+/obj/structure/stargate/proc/play_transit_effects()
+	if(!COOLDOWN_FINISHED(src, transit_effects))
+		return
+	COOLDOWN_START(src, transit_effects, 0.65 SECONDS)
+	var/turf/center = get_turf(src)
+	new /obj/effect/stargate_transit(center, dir)
+	new /obj/effect/shockwave/stargate(center, 3, 2.5, SINE_EASING | EASE_OUT)
+	playsound(center, 'sound/effects/teleport.ogg', 35, TRUE, extrarange = -6, frequency = 38000, ignore_walls = FALSE)
+	playsound(center, 'sound/effects/EMPulse.ogg', 24, TRUE, extrarange = -8, frequency = 30000, ignore_walls = FALSE)
 
 /// The center row and the three approach tiles on each side must stay accessible.
 /proc/stargate_site_is_clear(turf/site, obj/structure/stargate/existing_gate)
@@ -598,7 +603,9 @@
 
 /obj/effect/map_effect/portal/stargate/on_entered(datum/source, atom/movable/arrived, atom/old_loc, list/atom/old_locs)
 	SIGNAL_HANDLER
-	if(!counterpart || !arrived || arrived.loc != loc || istype(arrived, /obj/effect/map_effect/portal/stargate_preview))
+	if(!counterpart || !arrived || arrived.loc != loc)
+		return
+	if(istype(arrived, /obj/effect/map_effect/portal/stargate_preview) || istype(arrived, /obj/effect/stargate_transit) || istype(arrived, /obj/effect/shockwave/stargate))
 		return
 	var/approach_side = dir
 	var/turf/entry = get_turf(old_loc)
@@ -624,8 +631,8 @@
 		projectile.set_angle(dir2angle(exit_direction))
 	. = ..(traveler, exit)
 	if(isliving(traveler) && traveler.loc == exit)
-		gate?.play_transit_sound()
-		gate?.partner?.play_transit_sound()
+		gate?.play_transit_effects()
+		gate?.partner?.play_transit_effects()
 		var/mob/living/arrived = traveler
 		if(!flight)
 			play_exit_glide(arrived, exit_aperture, exit)
@@ -657,3 +664,32 @@
 	opacity = FALSE
 	blocks_emissive = EMISSIVE_BLOCK_NONE
 	vis_flags = VIS_HIDE
+
+/// The opening emits a short energy burst as a traveler crosses.
+/obj/effect/stargate_transit
+	name = "gateway transit burst"
+	icon = 'icons/effects/effects.dmi'
+	icon_state = "emppulse"
+	color = "#73E8FF"
+	plane = ABOVE_LIGHTING_PLANE
+	layer = ABOVE_OBJ_LAYER + 0.04
+	blend_mode = BLEND_ADD
+	appearance_flags = PIXEL_SCALE
+	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+	vis_flags = VIS_HIDE
+	z_flags = ZMM_IGNORE
+
+/obj/effect/stargate_transit/Initialize(mapload, gate_direction)
+	. = ..()
+	var/static/icon/burst = icon('icons/effects/effects.dmi', "emppulse", frame = 5)
+	icon = burst
+	icon_state = ""
+	var/angle = (gate_direction & (EAST | WEST)) ? 90 : 0
+	var/duration = 0.5 SECONDS
+	transform = matrix().Scale(3.8, 1.1).Turn(angle)
+	animate(src, transform = matrix().Scale(5.6, 2.4).Turn(angle), alpha = 0, time = duration, easing = SINE_EASING | EASE_OUT)
+	AddElement(/datum/element/temporary, duration)
+
+/obj/effect/shockwave/stargate
+	vis_flags = VIS_HIDE
+	z_flags = ZMM_IGNORE
