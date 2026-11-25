@@ -111,6 +111,13 @@
 	var/list/from_east = first.get_preview_images(get_step(first, SOUTHEAST))
 	if(!from_west || !from_east || from_west == from_east || from_west == first.preview_images || from_east == first.preview_images || from_west != first.get_preview_images(west_approach))
 		TEST_FAIL("Angled approaches must get distinct, reusable previews")
+	var/obj/effect/stargate_image_anchor/old_anchor = first.preview_anchor
+	if(!(old_anchor?.vis_flags & VIS_HIDE))
+		TEST_FAIL("The preview anchor must stay out of copied turf appearances")
+	for(var/image/preview as anything in first.preview_images + first.rear_preview_images + first.side_preview_images + from_west + from_east)
+		if(preview.loc != old_anchor)
+			TEST_FAIL("Every preview image must be attached to the isolated anchor")
+			break
 
 	var/turf/focus = get_step(second, NORTH)
 	var/turf/far_right = get_step(focus, NORTHEAST)
@@ -192,6 +199,8 @@
 
 	var/list/old_angled_scenes = first.angled_preview_scenes?.Copy()
 	first.set_address("Unpaired [REF(src)]")
+	if(!QDELETED(old_anchor))
+		TEST_FAIL("Unlinking must remove the preview anchor")
 	for(var/obj/effect/map_effect/portal/stargate_preview/old_scene as anything in old_angled_scenes)
 		if(!QDELETED(old_scene))
 			TEST_FAIL("Unlinking must remove the cached angle render targets")

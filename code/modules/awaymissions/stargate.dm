@@ -24,6 +24,7 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	var/list/angled_preview_images
 	var/list/angled_preview_scenes
 	var/image/preview_rim
+	var/obj/effect/stargate_image_anchor/preview_anchor
 	var/list/preview_targets
 	/// The preview images currently shown to each client.
 	var/list/preview_viewers
@@ -160,6 +161,7 @@ GLOBAL_LIST_EMPTY(open_stargates)
 /obj/structure/stargate/proc/show_destination()
 	LAZYINITLIST(GLOB.open_stargates)
 	GLOB.open_stargates |= src
+	preview_anchor = new(get_turf(src))
 	preview_targets = list()
 	preview_images = list()
 	rear_preview_images = list()
@@ -185,7 +187,7 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	preview_images += make_preview_outline(front_projected_turfs)
 	rear_preview_images += make_preview_outline(rear_projected_turfs)
 	side_preview_images += make_preview_outline(side_projected_turfs)
-	preview_rim = image(icon, loc = get_turf(src), icon_state = "linked", dir = dir, layer = ABOVE_OBJ_LAYER + 0.03)
+	preview_rim = image(icon, loc = preview_anchor, icon_state = "linked", dir = dir, layer = ABOVE_OBJ_LAYER + 0.03)
 	preview_rim.pixel_x = pixel_x
 	preview_rim.pixel_y = pixel_y
 	preview_rim.plane = ABOVE_LIGHTING_PLANE
@@ -200,14 +202,6 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	process()
 
 /obj/structure/stargate/proc/make_preview(obj/effect/map_effect/portal/rendered_scene, turf/focus, approach_side, list/observed_turfs, list/projected_turfs, turf/remote_aperture = focus, view_slope = 0)
-	// The copied scene is shaded again at the viewer's end. Apply gain to the
-	// preview without changing the renderer or lighting of either room.
-	var/static/list/preview_exposure = list(
-		2.5, 0, 0,
-		0, 2.5, 0,
-		0, 0, 2.5,
-		0, 0, 0,
-	)
 	// Aligned rings keep the remote aperture and its floor aligned with the local ring.
 	var/projection_direction = (dir == partner.dir) ? approach_side : NONE
 	var/turf/alignment_turf = projection_direction ? remote_aperture : focus
@@ -222,19 +216,18 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	// Keep the grouped scene off-screen until a viewer is on this side.
 	rendered_scene.icon_state = "blank"
 	rendered_scene.render_target = "*stargate-[REF(rendered_scene)]"
-	var/image/preview = image(rendered_scene.icon, loc = get_turf(rendered_scene), icon_state = rendered_scene.icon_state, layer = ABOVE_OBJ_LAYER)
+	var/image/preview = image(rendered_scene.icon, loc = preview_anchor, icon_state = rendered_scene.icon_state, layer = ABOVE_OBJ_LAYER)
 	preview.render_source = rendered_scene.render_target
 	// A wall on this end must not mask the projected room with local blackness.
 	preview.plane = ABOVE_LIGHTING_PLANE
-	preview.color = preview_exposure
 	preview.mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 	preview.appearance_flags = PIXEL_SCALE | KEEP_APART
-	preview.pixel_x = rendered_scene.pixel_x + WORLD_ICON_SIZE * (local_anchor.x - rendered_scene.x)
-	preview.pixel_y = rendered_scene.pixel_y + WORLD_ICON_SIZE * (local_anchor.y - rendered_scene.y)
+	preview.pixel_x = rendered_scene.pixel_x + WORLD_ICON_SIZE * (local_anchor.x - preview_anchor.x)
+	preview.pixel_y = rendered_scene.pixel_y + WORLD_ICON_SIZE * (local_anchor.y - preview_anchor.y)
 	// Keep the wave in phase across lane images and move along the joins.
 	var/horizontal_aperture = dir & (NORTH | SOUTH)
 	var/wavelength = 3 * WORLD_ICON_SIZE
-	var/scene_center = horizontal_aperture ? ((rendered_scene.x - x + rendered_scene.total_width / 2) * WORLD_ICON_SIZE + preview.pixel_x) : ((rendered_scene.y - y + rendered_scene.total_height / 2) * WORLD_ICON_SIZE + preview.pixel_y)
+	var/scene_center = horizontal_aperture ? (rendered_scene.total_width * WORLD_ICON_SIZE / 2 + preview.pixel_x) : (rendered_scene.total_height * WORLD_ICON_SIZE / 2 + preview.pixel_y)
 	var/phase = -scene_center / wavelength
 	preview.filters = filter(type = "wave", x = horizontal_aperture ? wavelength : 0, y = horizontal_aperture ? 0 : wavelength, size = 0.45, offset = phase, flags = WAVE_SIDEWAYS | WAVE_BOUNDED)
 	animate(preview.filters[1], offset = phase, time = 0, loop = -1)
@@ -266,7 +259,7 @@ GLOBAL_LIST_EMPTY(open_stargates)
 		for(var/direction in GLOB.cardinals)
 			if(get_step(projected, direction) in projected_turfs)
 				continue
-			var/image/glow = image(outline_icons["[direction]"], loc = get_turf(src), layer = ABOVE_OBJ_LAYER + 0.02)
+			var/image/glow = image(outline_icons["[direction]"], loc = preview_anchor, layer = ABOVE_OBJ_LAYER + 0.02)
 			glow.pixel_x = (projected.x - x) * WORLD_ICON_SIZE
 			glow.pixel_y = (projected.y - y) * WORLD_ICON_SIZE
 			glow.plane = ABOVE_LIGHTING_PLANE
@@ -348,7 +341,7 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	return images
 
 /obj/structure/stargate/proc/update_preview(client/viewer)
-	if(!preview_images || !viewer)
+	if(!preview_anchor || !preview_images || !viewer)
 		return
 	var/turf/eye_turf = get_turf(viewer.eye)
 	var/list/next_images
@@ -383,6 +376,7 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	angled_preview_images = null
 	QDEL_NULL_LIST(angled_preview_scenes)
 	preview_rim = null
+	QDEL_NULL(preview_anchor)
 	preview_targets = null
 	preview_viewers = null
 	preview_eyes = null
@@ -682,7 +676,7 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	SIGNAL_HANDLER
 	if(!counterpart || !arrived || arrived.loc != loc)
 		return
-	if(istype(arrived, /obj/effect/map_effect/portal/stargate_preview) || istype(arrived, /obj/effect/stargate_transit) || istype(arrived, /obj/effect/shockwave/stargate))
+	if(istype(arrived, /obj/effect/stargate_image_anchor) || istype(arrived, /obj/effect/map_effect/portal/stargate_preview) || istype(arrived, /obj/effect/stargate_transit) || istype(arrived, /obj/effect/shockwave/stargate))
 		return
 	var/approach_side = dir
 	var/turf/entry = get_turf(old_loc)
@@ -755,6 +749,15 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	opacity = FALSE
 	blocks_emissive = EMISSIVE_BLOCK_NONE
 	vis_flags = VIS_HIDE
+
+/// Keeps player-specific projection images out of copies of the surrounding turf.
+/obj/effect/stargate_image_anchor
+	icon = 'icons/mob/base_32.dmi'
+	icon_state = "blank"
+	anchored = TRUE
+	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+	vis_flags = VIS_HIDE
+	z_flags = ZMM_IGNORE
 
 /// The opening emits a short energy burst as a traveler crosses.
 /obj/effect/stargate_transit
