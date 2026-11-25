@@ -66,6 +66,7 @@
 	var/old_lighting_corner_NW = lighting_corner_NW
 	//hybrid lighting
 	var/list/old_hybrid_lights_affecting = hybrid_lights_affecting?.Copy()
+	var/list/old_movable_light_sources = movable_light_sources
 	var/old_directional_opacity = directional_opacity
 
 	changing_turf = TRUE
@@ -106,6 +107,7 @@
 
 	new_turf.hybrid_lights_affecting = old_hybrid_lights_affecting
 	new_turf.dynamic_lumcount = dynamic_lumcount
+	new_turf.movable_light_sources = old_movable_light_sources
 
 	lighting_corner_NE = old_lighting_corner_NE
 	lighting_corner_SE = old_lighting_corner_SE

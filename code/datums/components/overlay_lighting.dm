@@ -162,10 +162,14 @@
 
 
 ///Clears the affected_turfs lazylist, removing from its contents the effects of being near the light.
-/datum/component/overlay_lighting/proc/clean_old_turfs()
+/datum/component/overlay_lighting/proc/clean_old_turfs(notify_preview = TRUE)
+	var/list/old_turfs = affected_turfs
 	for(var/turf/lit_turf as anything in affected_turfs)
 		lit_turf.dynamic_lumcount -= lum_power
+		LAZYREMOVE(lit_turf.movable_light_sources, src)
 	affected_turfs = null
+	if(notify_preview)
+		notify_preview_lighting(old_turfs)
 
 
 ///Populates the affected_turfs lazylist, adding to its contents the effects of being near the light.
@@ -182,16 +186,51 @@
 		for(var/turf/lit_turf in view(lumcount_range, get_turf(current_holder)))
 			lit_turf.dynamic_lumcount += lum_power
 			affected_turfs += lit_turf
+	if(!directional)
+		for(var/turf/lit_turf as anything in affected_turfs)
+			LAZYOR(lit_turf.movable_light_sources, src)
 
 
 ///Clears the old affected turfs and populates the new ones.
 /datum/component/overlay_lighting/proc/make_luminosity_update()
-	clean_old_turfs()
-	if(!isturf(current_holder?.loc))
-		return
+	var/list/old_turfs = affected_turfs
+	clean_old_turfs(FALSE)
+	if(isturf(current_holder?.loc))
+		if(directional)
+			cast_directional_light()
+		get_new_turfs()
+	notify_preview_lighting(affected_turfs)
+	if(length(old_turfs))
+		notify_preview_lighting(old_turfs - affected_turfs)
+
+/datum/component/overlay_lighting/proc/notify_preview_lighting(list/turfs = affected_turfs)
 	if(directional)
-		cast_directional_light()
-	get_new_turfs()
+		return
+	for(var/turf/lit_turf as anything in turfs)
+		SEND_SIGNAL(lit_turf, COMSIG_TURF_LIGHTING_CHANGED)
+
+/// Sample the same radial texture used by the movable light plane, at a turf corner.
+/datum/component/overlay_lighting/proc/preview_light_strength(turf/tile, corner_x, corner_y)
+	var/turf/origin = get_turf(current_holder)
+	if(!origin || origin.z != tile.z)
+		return 0
+	var/size = (range * 2 - 1) * WORLD_ICON_SIZE
+	var/x = size / 2 + (tile.x - origin.x) * WORLD_ICON_SIZE + corner_x
+	var/y = size / 2 + (tile.y - origin.y) * WORLD_ICON_SIZE + corner_y
+	if(x < 1 || y < 1 || x > size || y > size)
+		return 0
+	var/static/list/textures = list()
+	var/static/list/samples = list()
+	var/key = "[size],[x],[y]"
+	if(isnull(samples[key]))
+		var/icon/texture = textures["[size]"]
+		if(!texture)
+			texture = icon(visible_mask.icon, "light")
+			textures["[size]"] = texture
+		var/pixel = texture.GetPixel(x, y)
+		var/list/channels = pixel ? rgb2num(pixel) : null
+		samples[key] = channels ? (length(channels) >= 4 ? channels[4] / 255 : 1) : 0
+	return samples[key] * visible_mask.alpha / 255
 
 
 ///Adds the luminosity and source for the affected movable atoms to keep track of their visibility.
@@ -373,6 +412,7 @@
 		current_holder.underlays += visible_mask
 
 	if(!directional)
+		notify_preview_lighting()
 		return
 
 	if(current_holder && overlay_lighting_flags & LIGHTING_ON)
@@ -392,6 +432,7 @@
 		current_holder.underlays += visible_mask
 
 	if(!directional)
+		notify_preview_lighting()
 		return
 
 	if(current_holder && overlay_lighting_flags & LIGHTING_ON)
@@ -434,6 +475,7 @@
 	if(current_holder && current_holder != parent && current_holder != parent_attached_to)
 		RegisterSignal(current_holder, COMSIG_MOVABLE_MOVED, PROC_REF(on_holder_moved))
 	get_new_turfs()
+	notify_preview_lighting()
 
 
 ///Toggles the light off.

@@ -76,6 +76,8 @@
 
 	///hybrid lights affecting this turf
 	var/tmp/list/atom/movable/lighting_mask/hybrid_lights_affecting
+	/// Non-directional movable light components whose masks can reach this tile.
+	var/tmp/list/datum/component/overlay_lighting/movable_light_sources
 
 	///for clean log spam.
 	var/last_clean

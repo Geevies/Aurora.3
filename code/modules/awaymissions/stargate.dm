@@ -292,13 +292,25 @@ GLOBAL_LIST_EMPTY(open_stargates)
 
 /obj/structure/stargate/proc/on_preview_light_changed(turf/remote)
 	SIGNAL_HANDLER
-	for(var/image/shade as anything in preview_light_shades?[remote])
-		set_preview_light(remote, shade)
+	var/list/tile_shades = preview_light_shades?[remote]
+	if(!length(tile_shades))
+		return
+	var/image/shade = tile_shades[1]
+	set_preview_light(remote, shade)
+	for(var/image/copy as anything in tile_shades)
+		if(copy != shade)
+			copy.icon_state = shade.icon_state
+			copy.color = shade.color
 
 /obj/structure/stargate/proc/set_preview_light(turf/remote, image/shade)
 	var/mutable_appearance/static_light = remote.static_lighting_object?.current_underlay
 	shade.icon_state = static_light ? static_light.icon_state : "lighting_transparent"
 	shade.color = static_light?.color
+	apply_preview_ambient(remote, shade)
+	if(length(remote.movable_light_sources))
+		apply_preview_movable_lights(remote, shade)
+
+/obj/structure/stargate/proc/apply_preview_ambient(turf/remote, image/shade)
 	var/area/destination_area = get_area(remote)
 	if(!destination_area?.area_has_base_lighting || !istext(destination_area.base_lighting_color))
 		return
@@ -313,6 +325,36 @@ GLOBAL_LIST_EMPTY(open_stargates)
 		for(var/channel in 1 to 3)
 			matrix[16 + channel] += ambient[channel] * intensity / 255
 		shade.color = matrix
+
+/// Blend movable lights into the existing four-corner shade, keeping their glow inside the projection.
+/obj/structure/stargate/proc/apply_preview_movable_lights(turf/remote, image/shade)
+	var/list/colors
+	if(islist(shade.color))
+		colors = shade.color
+		colors = colors.Copy()
+		for(var/corner in 0 to 3)
+			for(var/channel in 1 to 3)
+				colors[corner * 4 + channel] = clamp(colors[corner * 4 + channel] + colors[16 + channel], 0, 1)
+		colors[17] = 0
+		colors[18] = 0
+		colors[19] = 0
+	else
+		var/list/base = rgb2num(shade.color || (shade.icon_state == "lighting_dark" ? COLOR_BLACK : COLOR_WHITE))
+		var/red = base[1] / 255
+		var/green = base[2] / 255
+		var/blue = base[3] / 255
+		colors = list(red, green, blue, 0, red, green, blue, 0, red, green, blue, 0, red, green, blue, 0, 0, 0, 0, 1)
+	for(var/datum/component/overlay_lighting/light as anything in remote.movable_light_sources)
+		var/list/tint = rgb2num(light.visible_mask.color || COLOR_WHITE)
+		for(var/corner in 0 to 3)
+			var/corner_x = corner % 2 ? WORLD_ICON_SIZE / 2 : -WORLD_ICON_SIZE / 2 + 1
+			var/corner_y = corner >= 2 ? WORLD_ICON_SIZE / 2 : -WORLD_ICON_SIZE / 2 + 1
+			var/strength = light.preview_light_strength(remote, corner_x, corner_y)
+			for(var/channel in 1 to 3)
+				var/index = corner * 4 + channel
+				colors[index] = colors[index] * (1 - strength) + tint[channel] * strength / 255
+	shade.icon_state = null
+	shade.color = colors
 
 /// Trace the perimeter of the combined projection so adjacent lanes join without seams.
 /obj/structure/stargate/proc/make_preview_outline(list/projected_turfs)
