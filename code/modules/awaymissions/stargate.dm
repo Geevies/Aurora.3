@@ -220,6 +220,14 @@
 	preview.appearance_flags = PIXEL_SCALE | KEEP_APART
 	preview.pixel_x = rendered_scene.pixel_x + WORLD_ICON_SIZE * (local_anchor.x - rendered_scene.x)
 	preview.pixel_y = rendered_scene.pixel_y + WORLD_ICON_SIZE * (local_anchor.y - rendered_scene.y)
+	// Keep the wave in phase across lane images and move along the joins.
+	var/horizontal_aperture = dir & (NORTH | SOUTH)
+	var/wavelength = 3 * WORLD_ICON_SIZE
+	var/scene_center = horizontal_aperture ? ((rendered_scene.x - x + rendered_scene.total_width / 2) * WORLD_ICON_SIZE + preview.pixel_x) : ((rendered_scene.y - y + rendered_scene.total_height / 2) * WORLD_ICON_SIZE + preview.pixel_y)
+	var/phase = -scene_center / wavelength
+	preview.filters = filter(type = "wave", x = horizontal_aperture ? wavelength : 0, y = horizontal_aperture ? 0 : wavelength, size = 0.45, offset = phase, flags = WAVE_SIDEWAYS | WAVE_BOUNDED)
+	animate(preview.filters[1], offset = phase, time = 0, loop = -1)
+	animate(offset = phase - 1, time = 5 SECONDS)
 	rendered_scene.pixel_x = 0
 	rendered_scene.pixel_y = 0
 	return preview
