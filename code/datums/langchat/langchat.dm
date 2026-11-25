@@ -65,7 +65,6 @@
 	RegisterSignal(speaker, COMSIG_MOVABLE_MOVED, PROC_REF(update_position))
 	RegisterSignal(speaker, COMSIG_QDELETING, PROC_REF(on_speaker_deleted))
 	update_position()
-	viewer.images += bubble
 
 /datum/langchat_bubble/stargate/proc/update_position()
 	SIGNAL_HANDLER
@@ -73,11 +72,15 @@
 		return
 	var/turf/projected = gate.get_projected_speaker_turf(speaker, viewer)
 	if(!projected)
+		// A null location alone can leave a client image visible at its old map position.
+		viewer.images -= bubble
 		bubble.loc = null
 		return
 	bubble.maptext_x = base_maptext_x + (projected.x - gate.x) * WORLD_ICON_SIZE + speaker.pixel_x
 	bubble.maptext_y = base_maptext_y + (projected.y - gate.y) * WORLD_ICON_SIZE + speaker.pixel_y
 	bubble.loc = gate.preview_anchor
+	if(!(bubble in viewer.images))
+		viewer.images += bubble
 
 /datum/langchat_bubble/stargate/proc/on_speaker_deleted()
 	SIGNAL_HANDLER
