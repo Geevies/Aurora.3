@@ -21,6 +21,8 @@
 	var/list/side_preview_images
 	/// The preview images currently shown to each client.
 	var/list/preview_viewers
+	/// Nearby movable eyes and the clients looking through each one.
+	var/list/preview_eyes
 	COOLDOWN_DECLARE(transit_sound)
 
 /obj/structure/stargate/Initialize(mapload, pair_id)
@@ -248,8 +250,34 @@
 /obj/structure/stargate/process()
 	for(var/client/viewer as anything in preview_viewers - GLOB.clients)
 		preview_viewers -= viewer
+	var/list/view_size = getviewsize(world.view)
+	// Start listening before an approaching viewer can see the ring.
+	var/watch_range = ceil(max(view_size[1], view_size[2]) / 2) + 4
+	var/list/nearby_eyes = list()
 	for(var/client/viewer as anything in GLOB.clients)
-		update_preview(viewer)
+		var/atom/eye = viewer.eye
+		var/turf/eye_turf = get_turf(eye)
+		var/nearby = eye_turf && eye_turf.z == z && get_dist(src, eye_turf) <= watch_range
+		if(nearby || (viewer in preview_viewers))
+			update_preview(viewer)
+		if(!nearby || !ismovable(eye) || eye == src)
+			continue
+		if(!nearby_eyes[eye])
+			nearby_eyes[eye] = list()
+			if(!(eye in preview_eyes))
+				RegisterSignal(eye, COMSIG_MOVABLE_MOVED, PROC_REF(on_preview_eye_moved))
+		nearby_eyes[eye] += viewer
+	if(preview_eyes)
+		for(var/atom/movable/old_eye as anything in preview_eyes - nearby_eyes)
+			if(!QDELETED(old_eye))
+				UnregisterSignal(old_eye, COMSIG_MOVABLE_MOVED)
+	preview_eyes = nearby_eyes
+
+/obj/structure/stargate/proc/on_preview_eye_moved(atom/movable/eye)
+	SIGNAL_HANDLER
+	for(var/client/viewer as anything in preview_eyes?[eye])
+		if(!QDELETED(viewer) && viewer.eye == eye)
+			update_preview(viewer)
 
 /obj/structure/stargate/proc/get_preview_images(turf/eye_turf)
 	if(!eye_turf || eye_turf.z != z)
@@ -286,10 +314,14 @@
 	for(var/client/viewer as anything in preview_viewers)
 		if(!QDELETED(viewer))
 			viewer.images -= preview_viewers[viewer]
+	for(var/atom/movable/eye as anything in preview_eyes)
+		if(!QDELETED(eye))
+			UnregisterSignal(eye, COMSIG_MOVABLE_MOVED)
 	preview_images = null
 	rear_preview_images = null
 	side_preview_images = null
 	preview_viewers = null
+	preview_eyes = null
 
 /obj/structure/stargate/Destroy()
 	disconnect()
