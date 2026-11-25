@@ -201,6 +201,9 @@
 		if(traveler.loc != get_step(entry, SOUTH))
 			TEST_FAIL("Entering aligned lane [offset] from the north must exit south")
 		qdel(traveler)
+	for(var/turf/ring_center as anything in list(get_turf(first), get_turf(second)))
+		if(count_by_type(ring_center.contents, /obj/effect/stargate_transit) != 6 || count_by_type(ring_center.contents, /obj/effect/shockwave/stargate) != 6)
+			TEST_FAIL("Six consecutive crossings must create six independent bursts and shockwaves at both rings")
 	var/turf/beyond_north_exit = get_offset_target_turf(second, 0, 2)
 	var/turf/beyond_south_exit = get_offset_target_turf(second, 0, -2)
 	var/found_north_room = FALSE

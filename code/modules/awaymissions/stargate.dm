@@ -40,7 +40,6 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	var/list/preview_viewers
 	/// Nearby movable eyes and the clients looking through each one.
 	var/list/preview_eyes
-	COOLDOWN_DECLARE(transit_effects)
 
 /obj/structure/stargate/Initialize(mapload, pair_id)
 	. = ..()
@@ -643,9 +642,6 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	update_terminal()
 
 /obj/structure/stargate/proc/play_transit_effects()
-	if(!COOLDOWN_FINISHED(src, transit_effects))
-		return
-	COOLDOWN_START(src, transit_effects, 0.65 SECONDS)
 	var/turf/center = get_turf(src)
 	new /obj/effect/stargate_transit(center, dir)
 	new /obj/effect/shockwave/stargate(center, 3, 2.5, SINE_EASING | EASE_OUT)
