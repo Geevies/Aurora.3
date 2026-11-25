@@ -706,8 +706,13 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	desc = "A hard-shell terminal used to program and activate a stargate. It has a port for the linkage stored in a multitool."
 	icon = 'icons/obj/primitive_computer.dmi'
 	icon_screen = "engi"
+	// This sprite already includes a keyboard and needs the whole overlay drawn together.
+	icon_keyboard = null
 	is_holographic = FALSE
 	can_pass_under = FALSE
+	light_color = LIGHT_COLOR_BEIGE
+	light_range_on = 2.5
+	light_power_on = 1
 	circuit = /obj/item/circuitboard/stargate_terminal
 	var/obj/structure/stargate/linked_gate
 
@@ -753,9 +758,18 @@ GLOBAL_LIST_EMPTY(open_stargates)
 
 /obj/structure/machinery/computer/stargate/power_change()
 	. = ..()
+	if(stat & BROKEN)
+		set_light(0)
 	if(linked_gate && !can_operate_gate())
 		reset_activation()
 	SStgui.update_uis(src)
+
+/obj/structure/machinery/computer/stargate/update_icon()
+	. = ..()
+	if(stat & (BROKEN | NOPOWER))
+		set_light(0)
+		return
+	AddOverlays(emissive_appearance(icon, icon_screen))
 
 /obj/structure/machinery/computer/stargate/set_broken()
 	. = ..()
