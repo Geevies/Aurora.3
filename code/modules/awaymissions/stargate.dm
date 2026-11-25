@@ -263,8 +263,7 @@ GLOBAL_LIST_EMPTY(open_stargates)
 			glow.pixel_x = (projected.x - x) * WORLD_ICON_SIZE
 			glow.pixel_y = (projected.y - y) * WORLD_ICON_SIZE
 			glow.plane = ABOVE_LIGHTING_PLANE
-			glow.blend_mode = BLEND_ADD
-			glow.alpha = 140
+			glow.alpha = 100
 			glow.mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 			glow.appearance_flags = PIXEL_SCALE | KEEP_APART
 			outline += glow
