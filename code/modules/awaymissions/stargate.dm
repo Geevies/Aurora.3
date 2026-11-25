@@ -692,8 +692,8 @@ GLOBAL_LIST_EMPTY(open_stargates)
 				to_chat(user, SPAN_WARNING("Clear the floor around the ring before activating it."))
 			return FALSE
 	enabled = should_enable
-	if(user && control_terminal)
-		playsound(control_terminal, 'sound/arcade/sloto_lever.ogg', 35, FALSE, extrarange = -5)
+	if(user)
+		playsound(get_turf(src), 'sound/arcade/sloto_lever.ogg', 35, FALSE, extrarange = -5)
 	if(enabled)
 		find_partner()
 	else
