@@ -17,6 +17,7 @@
 	var/list/apertures
 	var/list/preview_images
 	var/list/preview_viewers
+	COOLDOWN_DECLARE(transit_sound)
 
 /obj/structure/stargate/Initialize(mapload, pair_id)
 	. = ..()
@@ -64,6 +65,9 @@
 		"destination" = destination?.name,
 	)
 
+/obj/structure/stargate/proc/can_link()
+	return isturf(loc) && gate_id && (dir in GLOB.cardinals)
+
 /obj/structure/stargate/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
 	if(..())
 		return TRUE
@@ -95,13 +99,13 @@
 	return lanes
 
 /obj/structure/stargate/proc/find_partner()
-	if(!isturf(loc) || !gate_id || !(dir in GLOB.cardinals))
+	if(partner || !can_link())
 		return
 	var/list/lanes = get_aperture_turfs()
 	if(!lanes)
 		return
 	for(var/obj/structure/stargate/other in unpaired_gates)
-		if(other.gate_id != gate_id)
+		if(other == src || other.gate_id != gate_id || !other.can_link())
 			continue
 		var/list/other_lanes = other.get_aperture_turfs()
 		if(!other_lanes)
@@ -125,6 +129,8 @@
 			far.counterpart = near
 		show_destination()
 		other.show_destination()
+		on_passage_opened()
+		other.on_passage_opened()
 		return
 	unpaired_gates |= src
 
@@ -138,6 +144,14 @@
 	icon_state = "linked"
 
 /obj/structure/stargate/proc/show_destination()
+	// The copied scene is shaded again at the viewer's end. Apply gain to the
+	// preview without changing the renderer or lighting of either room.
+	var/static/list/preview_exposure = list(
+		2.5, 0, 0,
+		0, 2.5, 0,
+		0, 0, 2.5,
+		0, 0, 0,
+	)
 	preview_images = list()
 	preview_viewers = list()
 	var/list/observed_turfs = list()
@@ -152,6 +166,7 @@
 		var/image/preview = image(aperture.icon, loc = get_turf(aperture), icon_state = aperture.icon_state, layer = ABOVE_OBJ_LAYER)
 		preview.render_source = aperture.render_target
 		preview.plane = GAME_PLANE
+		preview.color = preview_exposure
 		preview.mouse_opacity = MOUSE_OPACITY_TRANSPARENT
 		preview.appearance_flags = PIXEL_SCALE | KEEP_APART
 		preview.pixel_x = aperture.pixel_x
@@ -200,17 +215,200 @@
 
 /obj/structure/stargate/proc/disconnect()
 	unpaired_gates -= src
+	var/obj/structure/stargate/other = partner
+	partner = null
+	close_apertures()
+	if(other)
+		other.partner = null
+		other.close_apertures()
+		other.find_partner()
+
+/obj/structure/stargate/proc/close_apertures()
+	if(!apertures)
+		return
 	clear_preview()
 	QDEL_NULL_LIST(apertures)
 	icon_state = "idle"
-	if(partner)
-		var/obj/structure/stargate/other = partner
-		partner = null
-		other.partner = null
-		other.clear_preview()
-		QDEL_NULL_LIST(other.apertures)
-		other.icon_state = "idle"
-		other.find_partner()
+	playsound(get_turf(src), 'sound/magic/Teleport_diss.ogg', 35, FALSE)
+	return TRUE
+
+/obj/structure/stargate/proc/on_passage_opened()
+	playsound(get_turf(src), 'sound/effects/phasein.ogg', 45, FALSE)
+
+/obj/structure/stargate/proc/play_transit_sound()
+	if(COOLDOWN_FINISHED(src, transit_sound))
+		COOLDOWN_START(src, transit_sound, 1 SECOND)
+		playsound(get_turf(src), 'sound/effects/teleport.ogg', 25, TRUE)
+
+/// The center row and the three approach tiles on each side must stay accessible.
+/proc/stargate_site_is_clear(turf/site, obj/structure/stargate/existing_gate)
+	if(!isfloor(site))
+		return FALSE
+	for(var/obj/structure/stargate/other in range(2, site))
+		if(other != existing_gate)
+			return FALSE
+	var/turf/first = get_offset_target_turf(site, -1, -1)
+	var/turf/last = get_offset_target_turf(site, 1, 1)
+	if(!first || !last)
+		return FALSE
+	var/list/footprint = block(first, last)
+	var/static/list/link_directions = list(NORTH, EAST)
+	for(var/turf/tile in footprint)
+		if(!isfloor(tile) || tile.density || (locate(/obj/effect/map_effect/portal) in tile))
+			return FALSE
+		for(var/obj/obstacle in tile)
+			if(obstacle.density && !(obstacle.atom_flags & ATOM_FLAG_CHECKS_BORDER))
+				return FALSE
+		for(var/check_dir in link_directions)
+			var/turf/neighbour = get_step(tile, check_dir)
+			if((neighbour in footprint) && turf_link_blocks_placement(tile, neighbour))
+				return FALSE
+	return TRUE
+
+/obj/structure/stargate/deployable
+	desc = "A collapsible transit ring. It must be bolted to the floor and connected to local equipment power before it can open a passage."
+	anchored = FALSE
+	gate_id = null
+	var/enabled = FALSE
+	var/area/power_area
+
+/obj/structure/stargate/deployable/Initialize(mapload, pair_id)
+	. = ..()
+	RegisterSignal(src, COMSIG_MOVABLE_MOVED, PROC_REF(on_gate_moved))
+
+/obj/structure/stargate/deployable/set_dir(new_dir)
+	if(new_dir in GLOB.diagonals)
+		new_dir &= NORTH | SOUTH
+	return ..(new_dir)
+
+/obj/structure/stargate/deployable/Destroy()
+	if(power_area)
+		UnregisterSignal(power_area, COMSIG_AREA_POWER_CHANGE)
+		power_area = null
+	return ..()
+
+/obj/structure/stargate/deployable/mechanics_hints(mob/user, distance, is_adjacent)
+	. = ..()
+	. += "Wrench the ring into place on a clear three-by-three area. Match both addresses and enable each ring from its controls."
+	. += "Unbolt the ring, then use a crowbar to fold it back into a flatpak."
+
+/obj/structure/stargate/deployable/can_link()
+	return anchored && enabled && equipment_powered() && ..()
+
+/obj/structure/stargate/deployable/proc/equipment_powered()
+	return !!power_area?.powered(AREA_USAGE_EQUIP)
+
+/obj/structure/stargate/deployable/proc/set_gate_anchored(new_anchored)
+	if(anchored == new_anchored)
+		return
+	anchored = new_anchored
+	if(anchored)
+		power_area = get_area(src)
+		if(power_area)
+			RegisterSignal(power_area, COMSIG_AREA_POWER_CHANGE, PROC_REF(on_equipment_power_change))
+	else
+		enabled = FALSE
+		if(power_area)
+			UnregisterSignal(power_area, COMSIG_AREA_POWER_CHANGE)
+			power_area = null
+		disconnect()
+	SStgui.update_uis(src)
+
+/obj/structure/stargate/deployable/proc/on_gate_moved()
+	SIGNAL_HANDLER
+	if(anchored)
+		set_gate_anchored(FALSE)
+
+/obj/structure/stargate/deployable/proc/on_equipment_power_change()
+	SIGNAL_HANDLER
+	if(equipment_powered())
+		find_partner()
+	else
+		disconnect()
+	SStgui.update_uis(src)
+
+/obj/structure/stargate/deployable/on_passage_opened()
+	..()
+	power_area?.use_power_oneoff(2500, AREA_USAGE_EQUIP)
+	SStgui.update_uis(src)
+
+/obj/structure/stargate/deployable/close_apertures()
+	. = ..()
+	if(.)
+		SStgui.update_uis(src)
+
+/obj/structure/stargate/deployable/attackby(obj/item/attacking_item, mob/living/user, params)
+	if(user.a_intent == I_HURT)
+		return ..()
+	if(attacking_item.tool_behaviour == TOOL_WRENCH)
+		var/was_anchored = anchored
+		if(!attacking_item.use_tool(src, user, 2 SECONDS, volume = 40) || QDELETED(src) || anchored != was_anchored)
+			return
+		if(!was_anchored && !stargate_site_is_clear(get_turf(src), src))
+			to_chat(user, SPAN_WARNING("The ring needs a clear three-by-three area of floor before you can secure it."))
+			return
+		set_gate_anchored(!was_anchored)
+		to_chat(user, SPAN_NOTICE("You [anchored ? "bolt [src] to the floor" : "unbolt [src] from the floor"]."))
+		add_fingerprint(user)
+		return
+	if(attacking_item.tool_behaviour == TOOL_CROWBAR)
+		if(anchored)
+			to_chat(user, SPAN_WARNING("Unbolt the ring before folding it away."))
+			return
+		if(!attacking_item.use_tool(src, user, 4 SECONDS, volume = 40) || QDELETED(src) || anchored)
+			return
+		var/obj/item/flatpak/stargate/flatpak = new(get_turf(src))
+		flatpak.add_fingerprint(user)
+		user.visible_message(SPAN_NOTICE("[user] folds \the [src] into a flatpak."), SPAN_NOTICE("You fold \the [src] into a flatpak."))
+		qdel(src)
+		return
+	return ..()
+
+/obj/structure/stargate/deployable/ui_data(mob/user)
+	. = ..()
+	.["deployable"] = TRUE
+	.["anchored"] = anchored
+	.["powered"] = equipment_powered()
+	.["enabled"] = enabled
+
+/obj/structure/stargate/deployable/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
+	if(..())
+		return TRUE
+	if(action != "set_enabled")
+		return FALSE
+	var/should_enable = !!params["enabled"]
+	if(should_enable == enabled)
+		return FALSE
+	if(should_enable)
+		if(!anchored || !equipment_powered() || !gate_id)
+			return FALSE
+		if(!stargate_site_is_clear(get_turf(src), src))
+			to_chat(usr, SPAN_WARNING("Clear the floor around the ring before enabling it."))
+			return FALSE
+		enabled = TRUE
+		find_partner()
+	else
+		enabled = FALSE
+		disconnect()
+	return TRUE
+
+/obj/item/circuitboard/stargate
+	name = T_BOARD("stargate controller")
+	build_path = /obj/structure/stargate/deployable
+	board_type = BOARD_MACHINE
+
+/obj/item/flatpak/stargate
+	circuit_type = /obj/item/circuitboard/stargate
+
+/obj/item/flatpak/stargate/Initialize(mapload, new_circuit_type, list/material_cost)
+	return ..(mapload, circuit_type, material_cost)
+
+/obj/item/flatpak/stargate/can_deploy_at(turf/deployment_turf)
+	return stargate_site_is_clear(deployment_turf)
+
+/obj/item/flatpak/stargate/mechanics_hints(mob/user, distance, is_adjacent)
+	. = ..()
+	. += "The ring faces the way you face during assembly. Leave three tiles clear across the ring and on both sides."
 
 /// Each segment carries travelers straight through the corresponding lane.
 /obj/effect/map_effect/portal/stargate
@@ -248,7 +446,9 @@
 		var/obj/projectile/projectile = traveler
 		projectile.set_angle(dir2angle(exit_direction))
 	. = ..(traveler, exit)
-	if(ismob(traveler))
+	if(isliving(traveler) && traveler.loc == exit)
+		gate?.play_transit_sound()
+		gate?.partner?.play_transit_sound()
 		var/mob/arrived = traveler
 		if(arrived.client)
 			gate?.update_preview(arrived.client)

@@ -1,3 +1,14 @@
+/singleton/cargo_item/stargate_flatpaks
+	category = "engineering"
+	name = "stargate flatpaks (x2)"
+	supplier = "hephaestus"
+	description = "Two stargate flatpaks for establishing a three-tile passage. Each ring needs a clear floor, a wrench, and local equipment power."
+	price = 2000
+	items = list(/obj/item/flatpak/stargate)
+	access = /datum/access/engine::id
+	container_type = "crate"
+	spawn_amount = 2
+
 /singleton/cargo_item/glasssheets
 	category = "engineering"
 	name = "glass sheets"

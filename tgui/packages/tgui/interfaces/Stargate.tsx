@@ -13,19 +13,46 @@ import { Window } from '../layouts';
 
 type StargateData = {
   address: string | null;
+  anchored?: BooleanLike;
+  deployable?: BooleanLike;
   destination: string | null;
+  enabled?: BooleanLike;
   linked: BooleanLike;
   max_length: number;
+  powered?: BooleanLike;
   ring_images: { idle: string; linked: string };
 };
 
 export function Stargate() {
-  const { data } = useBackend<StargateData>();
-  const { address, linked, destination, ring_images } = data;
+  const { act, data } = useBackend<StargateData>();
+  const {
+    address,
+    anchored,
+    deployable,
+    destination,
+    enabled,
+    linked,
+    powered,
+    ring_images,
+  } = data;
   const accent = linked ? '#73e4d6' : '#e9bd79';
+  let status = 'Awaiting a match';
+  if (linked) {
+    status = 'Passage open';
+  } else if (deployable) {
+    if (!anchored) {
+      status = 'Anchor the ring';
+    } else if (!powered) {
+      status = 'No equipment power';
+    } else if (!address) {
+      status = 'Set a gate address';
+    } else if (!enabled) {
+      status = 'Ready to enable';
+    }
+  }
 
   return (
-    <Window width={420} height={246}>
+    <Window width={420} height={deployable ? 330 : 246}>
       <Window.Content scrollable>
         <Box
           mb={1}
@@ -45,17 +72,38 @@ export function Stargate() {
             </Stack.Item>
             <Stack.Item grow minWidth={0}>
               <Box bold color={accent} fontSize={1.25}>
-                {linked ? 'Passage open' : 'Awaiting a match'}
+                {status}
               </Box>
               <Box mt={0.25} style={{ overflowWrap: 'anywhere' }}>
                 {linked
                   ? destination || 'Remote gate'
-                  : address || 'Set a gate address'}
+                  : address || 'No address configured'}
               </Box>
             </Stack.Item>
           </Stack>
         </Box>
         <AddressEditor key={address} />
+        {!!deployable && (
+          <Section
+            title="Passage control"
+            buttons={
+              <Button
+                color={enabled ? 'average' : 'teal'}
+                disabled={!enabled && (!anchored || !powered || !address)}
+                icon="power-off"
+                onClick={() => act('set_enabled', { enabled: !enabled })}
+              >
+                {enabled ? 'Disable' : 'Enable'}
+              </Button>
+            }
+          >
+            <Box>
+              {anchored
+                ? 'Both rings need power and must be enabled to open a passage.'
+                : 'Secure the ring to a clear three-by-three floor with a wrench.'}
+            </Box>
+          </Section>
+        )}
       </Window.Content>
     </Window>
   );

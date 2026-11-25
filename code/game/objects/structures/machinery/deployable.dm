@@ -324,7 +324,7 @@ Deployable Kits
 	if(!ispath(circuit_type, /obj/item/circuitboard) || !ispath(machine_type, /obj))
 		to_chat(user, SPAN_WARNING("\The [src] has no valid machine data."))
 		return
-	if(!turf_clear_for_bounds(deployment_turf, machine_type))
+	if(!can_deploy_at(deployment_turf))
 		to_chat(user, SPAN_WARNING("There is not enough room to deploy \the [src] there."))
 		return
 
@@ -350,7 +350,7 @@ Deployable Kits
 		return
 	if(!user || QDELETED(user))
 		return
-	if(!user.Adjacent(deployment_turf) || !isfloor(deployment_turf) || !turf_clear_for_bounds(deployment_turf, machine_type))
+	if(QDELETED(src) || !user.Adjacent(deployment_turf) || !isfloor(deployment_turf) || !can_deploy_at(deployment_turf))
 		to_chat(user, SPAN_WARNING("There is no longer enough room to deploy \the [src] there."))
 		return
 
@@ -400,6 +400,9 @@ Deployable Kits
 	playsound(deployment_turf, 'sound/items/Deconstruct.ogg', 50, TRUE)
 	deployed_machine.add_fingerprint(user)
 	qdel(src)
+
+/obj/item/flatpak/proc/can_deploy_at(turf/deployment_turf)
+	return turf_clear_for_bounds(deployment_turf, machine_type)
 
 /obj/item/deployable_kit/attack_self(mob/user)
 	to_chat(user, SPAN_NOTICE("You start assembling \the [src]..."))

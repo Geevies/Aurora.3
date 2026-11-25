@@ -197,6 +197,66 @@
 		if(!QDELETED(segment))
 			TEST_FAIL("Deleting a ring must remove every segment at both ends")
 	qdel(second)
+
+	var/obj/item/flatpak/stargate/flatpak = new(sites[1])
+	if(flatpak.machine_type != /obj/structure/stargate/deployable || !flatpak.can_deploy_at(sites[1]))
+		TEST_FAIL("A cargo flatpak must contain a deployable stargate and accept a clear site")
+	var/obj/structure/obstacle = new(get_step(sites[1], SOUTHWEST))
+	obstacle.density = TRUE
+	if(flatpak.can_deploy_at(sites[1]))
+		TEST_FAIL("The site check must account for side lanes and their approaches")
+	qdel(obstacle)
+	qdel(flatpak)
+
+	var/obj/structure/stargate/deployable/installed = new(sites[1])
+	var/obj/structure/stargate/deployable/remote = new(sites[2])
+	var/area/local_area = get_area(installed)
+	var/area/remote_area = get_area(remote)
+	var/local_required_power = local_area.requires_power
+	var/remote_required_power = remote_area.requires_power
+	var/was_always_unpowered = local_area.always_unpowered
+	local_area.requires_power = FALSE
+	remote_area.requires_power = FALSE
+	installed.set_address(new_address)
+	remote.set_address(new_address)
+	controls = new(null, installed, "Stargate")
+	controls.status = UI_INTERACTIVE
+	installed.ui_act("set_enabled", list("enabled" = TRUE), controls)
+	if(installed.enabled || installed.partner)
+		TEST_FAIL("An unbolted gate must reject activation")
+	installed.set_gate_anchored(TRUE)
+	remote.set_gate_anchored(TRUE)
+	installed.ui_act("set_enabled", list("enabled" = TRUE), controls)
+	if(!installed.enabled || installed.partner)
+		TEST_FAIL("An enabled gate must wait until its partner is enabled")
+	var/datum/tgui/remote_controls = new(null, remote, "Stargate")
+	remote_controls.status = UI_INTERACTIVE
+	remote.ui_act("set_enabled", list("enabled" = TRUE), remote_controls)
+	if(installed.partner != remote || length(installed.apertures) != 3)
+		TEST_FAIL("Two powered and enabled gates must open a three-tile passage")
+
+	local_area.requires_power = TRUE
+	local_area.always_unpowered = TRUE
+	local_area.power_change()
+	if(installed.partner || remote.partner || installed.apertures || remote.apertures)
+		TEST_FAIL("Losing equipment power must remove both apertures")
+	local_area.requires_power = FALSE
+	local_area.power_change()
+	if(installed.partner != remote)
+		TEST_FAIL("Restoring equipment power must reconnect gates that are still enabled")
+	remote.set_gate_anchored(FALSE)
+	if(installed.partner || remote.enabled || remote.power_area)
+		TEST_FAIL("Unbolting a gate must close the passage and detach it from power")
+	qdel(controls)
+	qdel(remote_controls)
+	qdel(installed)
+	qdel(remote)
+	local_area.requires_power = local_required_power
+	local_area.always_unpowered = was_always_unpowered
+	remote_area.requires_power = remote_required_power
+	local_area.power_change()
+	if(remote_area != local_area)
+		remote_area.power_change()
 	if(GLOB.unit_tests_failures == failures_before)
-		return TEST_PASS("Paired views, walking, throws and disconnection work")
+		return TEST_PASS("Paired views, traversal, flatpak placement, and powered operation work")
 	return UNIT_TEST_FAILED
