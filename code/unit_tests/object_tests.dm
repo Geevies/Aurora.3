@@ -100,8 +100,23 @@
 	if(front_scene?.plane <= BLACKNESS_PLANE || rear_scene?.plane <= BLACKNESS_PLANE || side_scene?.plane <= BLACKNESS_PLANE)
 		TEST_FAIL("Every destination preview must draw above the local blackness mask")
 	var/list/adjacent_tiles = list(get_turf(first), get_step(first, EAST))
-	if(length(first.make_preview_outline(adjacent_tiles)) != 6)
-		TEST_FAIL("The glow must omit the seam between adjacent projected tiles")
+	var/list/adjacent_outline = first.make_preview_outline(adjacent_tiles)
+	if(length(adjacent_outline) != 2)
+		TEST_FAIL("The outline must use one image per perimeter tile")
+	else
+		var/image/west_edge = adjacent_outline[1]
+		var/image/east_edge = adjacent_outline[2]
+		var/icon/west_pattern = icon(west_edge.icon)
+		var/icon/east_pattern = icon(east_edge.icon)
+		var/middle = WORLD_ICON_SIZE / 2
+		if(west_pattern.GetPixel(WORLD_ICON_SIZE, middle) || east_pattern.GetPixel(1, middle))
+			TEST_FAIL("The outline must omit the seam between adjacent projected tiles")
+		if(!west_pattern.GetPixel(1, middle) || !east_pattern.GetPixel(WORLD_ICON_SIZE, middle))
+			TEST_FAIL("The outline must draw both exposed edges")
+		if(!west_pattern.GetPixel(5, middle) || west_pattern.GetPixel(6, middle))
+			TEST_FAIL("The outline must fade inward over five pixels")
+		if(west_pattern.GetPixel(1, 1) != west_pattern.GetPixel(1, middle))
+			TEST_FAIL("The outer stroke must stay continuous at corners")
 	if(first.get_preview_images(get_step(first, SOUTH)) != first.preview_images || first.get_preview_images(get_step(first, NORTH)) != first.rear_preview_images)
 		TEST_FAIL("Viewers must get the preview for their side of the ring")
 	if(first.get_preview_images(get_step(first, EAST)) != first.side_preview_images || first.get_preview_images(get_step(first, WEST)) != first.side_preview_images)

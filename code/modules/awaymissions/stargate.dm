@@ -238,36 +238,45 @@ GLOBAL_LIST_EMPTY(open_stargates)
 
 /// Outline only the exposed sides of the combined projection so lanes join without seams.
 /obj/structure/stargate/proc/make_preview_outline(list/projected_turfs)
-	var/static/list/outline_icons
-	if(!outline_icons)
-		var/icon/south_edge = icon('icons/mob/base_32.dmi', "blank")
-		var/list/glow_colors = list("#D8FFFFF8", "#64F7FFE0", "#22D9FFAC", "#24B5FF70", "#428CFF48", "#617CFF26", "#617CFF12")
-		for(var/distance in 1 to length(glow_colors))
-			south_edge.DrawBox(glow_colors[distance], 1, distance, WORLD_ICON_SIZE, distance)
-		south_edge.DrawBox("#AAFDFFE8", 7, 3, 13, 3)
-		south_edge.DrawBox("#A2D6FFA0", 8, 4, 12, 4)
-		south_edge.DrawBox("#D2C0FFD0", 22, 3, 26, 3)
-		south_edge.DrawBox("#8B9DFFA0", 23, 4, 25, 4)
-		outline_icons = list()
-		for(var/direction in GLOB.cardinals)
-			var/icon/edge = icon(south_edge)
-			edge.Turn(dir2angle(direction) - dir2angle(SOUTH))
-			outline_icons["[direction]"] = edge
-
 	var/list/outline = list()
 	for(var/turf/projected as anything in projected_turfs)
+		var/exposed_edges = NONE
 		for(var/direction in GLOB.cardinals)
-			if(get_step(projected, direction) in projected_turfs)
-				continue
-			var/image/glow = image(outline_icons["[direction]"], loc = preview_anchor, layer = ABOVE_OBJ_LAYER + 0.02)
-			glow.pixel_x = (projected.x - x) * WORLD_ICON_SIZE
-			glow.pixel_y = (projected.y - y) * WORLD_ICON_SIZE
-			glow.plane = ABOVE_LIGHTING_PLANE
-			glow.alpha = 100
-			glow.mouse_opacity = MOUSE_OPACITY_TRANSPARENT
-			glow.appearance_flags = PIXEL_SCALE | KEEP_APART
-			outline += glow
+			if(!(get_step(projected, direction) in projected_turfs))
+				exposed_edges |= direction
+		if(!exposed_edges)
+			continue
+		var/image/edge = image(get_preview_outline_icon(exposed_edges), loc = preview_anchor, layer = ABOVE_OBJ_LAYER + 0.02)
+		edge.pixel_x = (projected.x - x) * WORLD_ICON_SIZE
+		edge.pixel_y = (projected.y - y) * WORLD_ICON_SIZE
+		edge.plane = ABOVE_LIGHTING_PLANE
+		edge.mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+		edge.appearance_flags = PIXEL_SCALE | KEEP_APART
+		outline += edge
 	return outline
+
+/obj/structure/stargate/proc/get_preview_outline_icon(exposed_edges)
+	var/static/list/contour_patterns
+	LAZYINITLIST(contour_patterns)
+	var/pattern_key = "[exposed_edges]"
+	if(contour_patterns[pattern_key])
+		return contour_patterns[pattern_key]
+	var/icon/pattern = icon('icons/mob/base_32.dmi', "blank")
+	// Paint from the inner falloff to the outer stroke so corners share the same profile.
+	var/list/band_colors = list("#6AAEB9", "#5C9AA8DD", "#477C8BA8", "#33596768", "#203D4A30")
+	for(var/band = length(band_colors), band >= 1, band--)
+		var/band_color = band_colors[band]
+		var/opposite = WORLD_ICON_SIZE + 1 - band
+		if(exposed_edges & NORTH)
+			pattern.DrawBox(band_color, 1, opposite, WORLD_ICON_SIZE, opposite)
+		if(exposed_edges & SOUTH)
+			pattern.DrawBox(band_color, 1, band, WORLD_ICON_SIZE, band)
+		if(exposed_edges & EAST)
+			pattern.DrawBox(band_color, opposite, 1, opposite, WORLD_ICON_SIZE)
+		if(exposed_edges & WEST)
+			pattern.DrawBox(band_color, band, 1, band, WORLD_ICON_SIZE)
+	contour_patterns[pattern_key] = pattern
+	return pattern
 
 /obj/structure/stargate/process()
 	for(var/client/viewer as anything in preview_viewers - GLOB.clients)
