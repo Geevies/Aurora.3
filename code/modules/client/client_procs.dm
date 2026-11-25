@@ -959,6 +959,8 @@ GLOBAL_LIST_INIT(localhost_addresses, list(
 /client/proc/stargate_aim_for_click(atom/object, control, params)
 	if(!length(GLOB.open_stargates) || !isliving(mob) || eye != mob || (control != "mapwindow.map" && control != "map"))
 		return
+	if(istype(object, /obj/structure/stargate_control))
+		return
 	if(istype(object, /atom/movable/screen) && !istype(object, /atom/movable/screen/click_catcher))
 		return
 	var/list/modifiers = params2list(params)

@@ -335,28 +335,38 @@
 	var/was_always_unpowered = local_area.always_unpowered
 	local_area.requires_power = FALSE
 	remote_area.requires_power = FALSE
-	installed.set_address(new_address)
-	remote.set_address(new_address)
+	var/obj/structure/stargate_control/terminal/terminal = installed.destination_terminal
+	var/obj/structure/stargate_control/lever/lever = installed.lever
+	if(!terminal || !lever || installed.ui_host(null) != terminal)
+		TEST_FAIL("A deployed ring must have a physical lever and host its settings at the destination terminal")
+	var/original_direction = installed.dir
+	installed.set_dir(turn(original_direction, 90))
+	if(terminal.loc != get_step(installed, turn(installed.dir, -90)) || lever.loc != get_step(installed, turn(installed.dir, 90)))
+		TEST_FAIL("The controls must follow the ends of the ring when it rotates")
+	installed.set_dir(original_direction)
 	controls = new(null, installed, "Stargate")
 	controls.status = UI_INTERACTIVE
-	installed.ui_act("set_enabled", list("enabled" = TRUE), controls)
+	installed.ui_act("set_address", list("address" = new_address), controls)
+	remote.set_address(new_address)
+	var/mob/living/carbon/human/operator = new(get_turf(lever))
+	lever.attack_hand(operator)
 	if(installed.enabled || installed.partner)
 		TEST_FAIL("An unbolted gate must reject activation")
 	installed.set_gate_anchored(TRUE)
 	remote.set_gate_anchored(TRUE)
-	installed.ui_act("set_enabled", list("enabled" = TRUE), controls)
+	lever.attack_hand(operator)
 	if(!installed.enabled || installed.partner)
 		TEST_FAIL("An enabled gate must wait until its partner is enabled")
-	var/datum/tgui/remote_controls = new(null, remote, "Stargate")
-	remote_controls.status = UI_INTERACTIVE
-	remote.ui_act("set_enabled", list("enabled" = TRUE), remote_controls)
+	operator.forceMove(get_turf(remote.lever))
+	remote.lever.attack_hand(operator)
 	if(installed.partner != remote || !installed.charge_effect || !remote.charge_effect || installed.apertures || remote.apertures)
 		TEST_FAIL("Pulling both levers must start charging both rings before opening either aperture")
-	installed.ui_act("set_enabled", list("enabled" = FALSE), controls)
+	operator.forceMove(get_turf(lever))
+	lever.attack_hand(operator)
 	if(installed.partner || remote.partner || installed.charge_effect || remote.charge_effect || installed.charge_timer || remote.charge_timer)
 		TEST_FAIL("Resetting either lever must cancel the timer and the charge at both gates")
 
-	installed.ui_act("set_enabled", list("enabled" = TRUE), controls)
+	lever.attack_hand(operator)
 	if(!installed.charge_timer)
 		TEST_FAIL("Rearming the circuit must schedule a new charge")
 	// The unit test runs inside the master controller. Invoke the timer callback directly.
@@ -378,8 +388,10 @@
 	if(installed.partner || installed.charge_effect || remote.charge_effect || remote.enabled || remote.power_area)
 		TEST_FAIL("Unbolting a gate during charge must cancel it, reset the lever, and detach the ring from power")
 	qdel(controls)
-	qdel(remote_controls)
+	qdel(operator)
 	qdel(installed)
+	if(!QDELETED(terminal) || !QDELETED(lever))
+		TEST_FAIL("Removing the ring must also remove its controls")
 	qdel(remote)
 	local_area.requires_power = local_required_power
 	local_area.always_unpowered = was_always_unpowered

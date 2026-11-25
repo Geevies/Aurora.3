@@ -25,7 +25,7 @@ type StargateData = {
 };
 
 export function Stargate() {
-  const { act, data } = useBackend<StargateData>();
+  const { data } = useBackend<StargateData>();
   const {
     address,
     anchored,
@@ -51,14 +51,14 @@ export function Stargate() {
     } else if (!address) {
       status = 'Set a gate address';
     } else if (!enabled) {
-      status = 'Ready to pull';
+      status = 'Activation lever ready';
     }
   } else {
     status = 'Awaiting a match';
   }
 
   return (
-    <Window width={420} height={deployable ? 330 : 246}>
+    <Window width={420} height={deployable ? 300 : 246}>
       <Window.Content scrollable>
         <Box
           mb={1}
@@ -90,22 +90,10 @@ export function Stargate() {
         </Box>
         <AddressEditor key={address} />
         {!!deployable && (
-          <Section
-            title="Passage control"
-            buttons={
-              <Button
-                color={enabled ? 'average' : 'teal'}
-                disabled={!enabled && (!anchored || !powered || !address)}
-                icon="bolt"
-                onClick={() => act('set_enabled', { enabled: !enabled })}
-              >
-                {enabled ? 'Reset lever' : 'Pull lever'}
-              </Button>
-            }
-          >
+          <Section title="Activation">
             <Box>
               {anchored
-                ? 'Pull both rings’ levers to start the charge. Reset either lever to stop it.'
+                ? 'Pull the physical lever beside each ring to start the charge.'
                 : 'Secure the ring to a clear three-by-three floor with a wrench.'}
             </Box>
           </Section>
