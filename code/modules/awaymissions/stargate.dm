@@ -639,7 +639,26 @@ GLOBAL_LIST_EMPTY(open_stargates)
 		new /obj/effect/stargate_transit(center, dir, TRUE)
 		new /obj/effect/shockwave/stargate(center, 7, 3, SINE_EASING | EASE_OUT)
 		playsound(center, 'sound/effects/EMPulse.ogg', 65, FALSE, frequency = 32000, ignore_walls = FALSE)
+	play_opening_discharge(center)
 	update_terminal()
+
+/obj/structure/stargate/proc/play_opening_discharge(turf/center)
+	playsound(center, 'sound/machines/electrical_spark1.ogg', 55, TRUE, extrarange = -4, ignore_walls = FALSE)
+	for(var/mob/living/observer in viewers(5, center))
+		if(observer.client?.eye == observer)
+			shake_camera(observer, 0.35 SECONDS, get_dist(observer, center) <= 2 ? 0.5 : 0.25)
+	var/delay = 0
+	for(var/obj/effect/map_effect/portal/stargate/lane as anything in apertures)
+		var/turf/origin = get_turf(lane)
+		for(var/face in list(dir, REVERSE_DIR(dir)))
+			var/turf/endpoint = get_step(origin, face)
+			if(!endpoint || endpoint.density || endpoint.contains_dense_objects())
+				continue
+			var/turf/outer = get_step(endpoint, turn(face, pick(-45, 0, 45)))
+			if(outer && !outer.density && !outer.contains_dense_objects())
+				endpoint = outer
+			new /obj/effect/stargate_ignition_arc(origin, endpoint, delay)
+		delay += 0.06 SECONDS
 
 /obj/structure/stargate/proc/play_transit_effects()
 	var/turf/center = get_turf(src)
@@ -1080,7 +1099,7 @@ GLOBAL_LIST_EMPTY(open_stargates)
 	SIGNAL_HANDLER
 	if(!counterpart || !arrived || arrived.loc != loc)
 		return
-	if(istype(arrived, /obj/effect/stargate_image_anchor) || istype(arrived, /obj/effect/map_effect/portal/stargate_preview) || istype(arrived, /obj/effect/stargate_transit) || istype(arrived, /obj/effect/shockwave/stargate))
+	if(istype(arrived, /obj/effect/stargate_image_anchor) || istype(arrived, /obj/effect/map_effect/portal/stargate_preview) || istype(arrived, /obj/effect/stargate_transit) || istype(arrived, /obj/effect/stargate_ignition_arc) || istype(arrived, /obj/effect/shockwave/stargate))
 		return
 	var/turf/entry = get_turf(old_loc)
 	if(!entry || entry.z != z || get_dist(src, entry) != 1)
@@ -1217,3 +1236,32 @@ GLOBAL_LIST_EMPTY(open_stargates)
 /obj/effect/shockwave/stargate
 	vis_flags = VIS_HIDE
 	z_flags = ZMM_IGNORE
+
+/// A visual arc. It animates out from an aperture without moving or colliding.
+/obj/effect/stargate_ignition_arc
+	name = "gateway ignition arc"
+	icon = 'icons/effects/effects.dmi'
+	anchored = TRUE
+	alpha = 0
+	color = "#B5F3FF"
+	plane = ABOVE_LIGHTING_PLANE
+	layer = ABOVE_OBJ_LAYER + 0.05
+	blend_mode = BLEND_ADD
+	appearance_flags = PIXEL_SCALE
+	blocks_emissive = EMISSIVE_BLOCK_NONE
+	vis_flags = VIS_HIDE
+	z_flags = ZMM_IGNORE
+
+/obj/effect/stargate_ignition_arc/Initialize(mapload, turf/endpoint, delay)
+	. = ..()
+	var/travel = 0.25 SECONDS
+	var/fade = 0.15 SECONDS
+	var/delta_x = (endpoint.x - x) * WORLD_ICON_SIZE
+	var/delta_y = (endpoint.y - y) * WORLD_ICON_SIZE
+	icon_state = "lightning[rand(1, 12)]"
+	transform = matrix().Scale(0.7, 0.8).Turn(delta_to_angle(delta_x, delta_y))
+	animate(src, alpha = 0, time = delay)
+	animate(alpha = 230, time = 0)
+	animate(pixel_x = delta_x, pixel_y = delta_y, alpha = 130, time = travel, easing = SINE_EASING | EASE_OUT)
+	animate(alpha = 0, time = fade)
+	AddElement(/datum/element/temporary, delay + travel + fade)

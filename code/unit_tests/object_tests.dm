@@ -91,6 +91,10 @@
 	var/obj/structure/stargate/first = new(sites[1], REF(src))
 	var/obj/structure/stargate/second = new(sites[2], REF(src))
 	var/failures_before = GLOB.unit_tests_failures
+	for(var/turf/ring_center as anything in sites)
+		var/obj/effect/stargate_ignition_arc/arc = locate(/obj/effect/stargate_ignition_arc) in ring_center
+		if(!arc || arc.density || arc.mouse_opacity || !(arc.vis_flags & VIS_HIDE))
+			TEST_FAIL("Opening must create nonblocking visual arcs at both rings")
 	if(length(first.preview_images) <= 4 || length(first.rear_preview_images) <= 4 || length(first.side_preview_images) <= 4)
 		TEST_FAIL("Each view must show the three lanes and their outline")
 	var/image/front_scene = first.preview_images?[1]
