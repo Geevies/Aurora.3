@@ -576,7 +576,8 @@
 /obj/effect/map_effect/portal/stargate/go_through_portal(atom/movable/traveler, turf/exit)
 	if(!exit || exit.density || (locate(/obj/effect/map_effect/portal) in exit))
 		return
-	var/exit_direction = get_dir(counterpart, exit)
+	var/turf/exit_aperture = get_turf(counterpart)
+	var/exit_direction = get_dir(exit_aperture, exit)
 	// A throw still aims at its original coordinates after forceMove. Carry its
 	// remaining distance out through the far ring, including on another z-level.
 	var/datum/thrownthing/flight = traveler.throwing
@@ -592,10 +593,29 @@
 	if(isliving(traveler) && traveler.loc == exit)
 		gate?.play_transit_sound()
 		gate?.partner?.play_transit_sound()
-		var/mob/arrived = traveler
+		var/mob/living/arrived = traveler
+		if(!flight)
+			play_exit_glide(arrived, exit_aperture, exit)
 		if(arrived.client)
 			gate?.update_preview(arrived.client)
 			gate?.partner?.update_preview(arrived.client)
+
+/// Finish the visible step from the receiving ring after movement has resolved.
+/obj/effect/map_effect/portal/stargate/proc/play_exit_glide(mob/living/traveler, turf/aperture_turf, turf/exit)
+	var/delta_x = (aperture_turf.x - exit.x) * WORLD_ICON_SIZE
+	var/delta_y = (aperture_turf.y - exit.y) * WORLD_ICON_SIZE
+	var/duration = 0.15 SECONDS
+	var/rest_x = traveler.pixel_x
+	var/rest_y = traveler.pixel_y
+	animate(traveler, pixel_x = rest_x + delta_x, pixel_y = rest_y + delta_y, time = 0, tag = "stargate exit")
+	animate(pixel_x = rest_x, pixel_y = rest_y, time = duration, easing = SINE_EASING | EASE_OUT)
+
+	var/client/viewer = traveler.client
+	if(viewer?.eye == traveler)
+		var/camera_x = viewer.pixel_x
+		var/camera_y = viewer.pixel_y
+		animate(viewer, pixel_x = camera_x + delta_x, pixel_y = camera_y + delta_y, time = 0, tag = "stargate exit")
+		animate(pixel_x = camera_x, pixel_y = camera_y, time = duration, easing = SINE_EASING | EASE_OUT)
 
 /// An alternate render target on a lane for the rear or side view.
 /obj/effect/map_effect/portal/stargate_preview
